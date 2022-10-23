@@ -14,18 +14,36 @@
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 */
-import Vue from 'vue';
-import DashboardPlugin from './plugins/dashboard-plugin';
-import App from './App.vue';
+import Vue from "vue";
+import DashboardPlugin from "./plugins/dashboard-plugin";
+import App from "./App.vue";
 
 // router setup
-import router from './routes/router';
+import router from "./routes/router";
+
+import store from "./store";
+
+//verification de l'authentification.
+router.beforeEach((to, from, next) => {
+  if (to.matched.some((record) => record.meta.requiresAuth)) {
+    // this route requires auth, check if logged in
+    // if not, redirect to login page.
+    if (!store.getters.isLoggedIn) {
+      next({ name: "login" });
+    } else {
+      next(); // go to wherever I'm going
+    }
+  } else {
+    next(); // does not require auth, make sure to always call next()!
+  }
+});
 // plugin setup
 Vue.use(DashboardPlugin);
 
 /* eslint-disable no-new */
 new Vue({
-  el: '#app',
-  render: h => h(App),
-  router
+  el: "#app",
+  render: (h) => h(App),
+  store,
+  router,
 });
