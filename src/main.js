@@ -26,9 +26,12 @@ import store from "./store";
 //verification de l'authentification.
 router.beforeEach((to, from, next) => {
   if (to.matched.some((record) => record.meta.requiresAuth)) {
+    console.log("from : ", from);
     // this route requires auth, check if logged in
     // if not, redirect to login page.
     if (!store.getters.isLoggedIn) {
+      console.log("from : ", from);
+      //store.dispatch("getUtilisateur");
       next({ name: "login" });
     } else {
       next(); // go to wherever I'm going

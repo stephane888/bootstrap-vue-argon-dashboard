@@ -65,7 +65,7 @@
                     alternative
                     class="mb-3"
                     name="Email"
-                    :rules="{ required: true, email: true }"
+                    :rules="{ required: true, email: false }"
                     prepend-icon="ni ni-email-83"
                     placeholder="Email"
                     v-model="model.email"
@@ -92,8 +92,9 @@
                       type="primary"
                       native-type="submit"
                       class="my-4"
-                      >Sign in</base-button
                     >
+                      Sign in
+                    </base-button>
                   </div>
                 </b-form>
               </validation-observer>
@@ -121,8 +122,8 @@ export default {
   data() {
     return {
       model: {
-        email: "",
-        password: "",
+        email: "stane",
+        password: "azabzistany@gmail.com",
         rememberMe: false,
       },
     };
@@ -130,6 +131,15 @@ export default {
   methods: {
     onSubmit() {
       // this will be called only after form is valid. You can do api call here to login
+      // var values = {
+      //   name: [{ value: this.model.email }],
+      //   password: [{ value: this.model.password }],
+      // };
+      var values = {
+        name: this.model.email,
+        pass: this.model.password,
+      };
+      this.$store.dispatch("login", values);
     },
   },
 };

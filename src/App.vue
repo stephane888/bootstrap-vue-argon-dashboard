@@ -5,8 +5,8 @@
 <script>
 export default {
   mounted() {
-    console.log("int app");
-    console.log("this.$store : ", this.$store);
+    // console.log("int app");
+    // console.log("this.$store : ", this.$store);
   },
 };
 </script>
