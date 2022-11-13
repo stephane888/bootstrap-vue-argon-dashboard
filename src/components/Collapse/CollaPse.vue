@@ -11,38 +11,51 @@
 
 <script>
 export default {
-  name: 'collapse',
-  props: {
-    animationDuration: {
-      type: Number,
-      default: 250,
-      description: 'Collapse animation duration'
-    },
-    multipleActive: {
-      type: Boolean,
-      default: true,
-      description: 'Whether you can have multiple collapse items opened at the same time'
-    },
-    activeIndex: {
-      type: Number,
-      default: -1,
-      description: 'Active collapse item index'
-    }
-  },
+  name: "CollaPse",
   provide() {
     return {
       animationDuration: this.animationDuration,
       multipleActive: this.multipleActive,
       addItem: this.addItem,
       removeItem: this.removeItem,
-      deactivateAll: this.deactivateAll
+      deactivateAll: this.deactivateAll,
     };
   },
+  props: {
+    animationDuration: {
+      type: Number,
+      default: 250,
+      description: "Collapse animation duration",
+    },
+    multipleActive: {
+      type: Boolean,
+      default: true,
+      description:
+        "Whether you can have multiple collapse items opened at the same time",
+    },
+    activeIndex: {
+      type: Number,
+      default: -1,
+      description: "Active collapse item index",
+    },
+  },
+
   data() {
     return {
-      items: []
+      items: [],
     };
   },
+  watch: {
+    activeIndex() {
+      this.activateItem();
+    },
+  },
+  mounted() {
+    this.$nextTick(() => {
+      this.activateItem();
+    });
+  },
+
   methods: {
     addItem(item) {
       const index = this.$slots.default.indexOf(item.$vnode);
@@ -58,7 +71,7 @@ export default {
       }
     },
     deactivateAll() {
-      this.items.forEach(item => {
+      this.items.forEach((item) => {
         item.active = false;
       });
     },
@@ -66,18 +79,8 @@ export default {
       if (this.activeIndex !== -1) {
         this.items[this.activeIndex].active = true;
       }
-    }
+    },
   },
-  mounted() {
-    this.$nextTick(() => {
-      this.activateItem();
-    });
-  },
-  watch: {
-    activeIndex() {
-      this.activateItem();
-    }
-  }
 };
 </script>
 

@@ -5,12 +5,12 @@
 
       <slot name="toggle-button">
         <button
-          class="navbar-toggler collapsed"
           v-if="hasMenu"
+          class="navbar-toggler collapsed"
           type="button"
-          @click="toggleMenu"
           aria-expanded="false"
           aria-label="Toggle navigation"
+          @click="toggleMenu"
         >
           <span class="navbar-toggler-bar navbar-kebab"></span>
           <span class="navbar-toggler-bar navbar-kebab"></span>
@@ -22,12 +22,12 @@
       </b-navbar-toggle>
 
       <b-collapse
-        is-nav
         id="nav-text-collapse"
+        v-click-outside="closeMenu"
+        is-nav
         class="navbar-custom-collapse collapse"
         :class="menuClasses"
         :visible="show"
-        v-click-outside="closeMenu"
       >
         <slot :close-menu="closeMenu"></slot>
       </b-collapse>
@@ -36,7 +36,11 @@
 </template>
 <script>
 export default {
-  name: "base-nav",
+  name: "BaseNav",
+  model: {
+    prop: "show",
+    event: "change",
+  },
   props: {
     show: {
       type: Boolean,
@@ -86,10 +90,7 @@ export default {
       description: "Navbar color type",
     },
   },
-  model: {
-    prop: "show",
-    event: "change",
-  },
+
   computed: {
     classes() {
       let color = `bg-${this.type}`;

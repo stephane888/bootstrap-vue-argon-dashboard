@@ -5,8 +5,8 @@
         data-toggle="collapse"
         data-parent="#accordion"
         :href="`#${itemId}`"
-        @click.prevent="activate"
         :aria-controls="`content-${itemId}`"
+        @click.prevent="activate"
       >
         <slot name="title"> {{ title }} </slot>
         <i class="tim-icons icon-minimal-down"></i>
@@ -26,57 +26,50 @@
   </b-card>
 </template>
 <script>
-import { CollapseTransition } from 'vue2-transitions';
+import { CollapseTransition } from "vue2-transitions";
 
 export default {
-  name: 'collapse-item',
+  name: "CollapseItem",
   components: {
-    CollapseTransition
+    CollapseTransition,
+  },
+  inject: {
+    animationDuration: {
+      default: 250,
+    },
+    multipleActive: {
+      default: false,
+    },
+    addItem: {
+      default: () => {},
+    },
+    removeItem: {
+      default: () => {},
+    },
+    deactivateAll: {
+      default: () => {},
+    },
   },
   props: {
     title: {
       type: String,
-      default: '',
-      description: 'Collapse item title'
+      default: "",
+      description: "Collapse item title",
     },
-    id: String
+    id: {
+      type: String,
+      default: (Math.random() + 1).toString(36).substring(7),
+    },
   },
-  inject: {
-    animationDuration: {
-      default: 250
-    },
-    multipleActive: {
-      default: false
-    },
-    addItem: {
-      default: () => {}
-    },
-    removeItem: {
-      default: () => {}
-    },
-    deactivateAll: {
-      default: () => {}
-    }
+  data() {
+    return {
+      active: false,
+    };
   },
   computed: {
     itemId() {
       return this.id || this.title;
-    }
-  },
-  data() {
-    return {
-      active: false
-    };
-  },
-  methods: {
-    activate() {
-      let wasActive = this.active;
-      if (!this.multipleActive) {
-        this.deactivateAll();
-      }
-      this.active = !wasActive;
-      console.log(this.active)
-    }
+    },
   },
   mounted() {
     this.addItem(this);
@@ -86,7 +79,17 @@ export default {
       this.$el.parentNode.removeChild(this.$el);
     }
     this.removeItem(this);
-  }
+  },
+  methods: {
+    activate() {
+      let wasActive = this.active;
+      if (!this.multipleActive) {
+        this.deactivateAll();
+      }
+      this.active = !wasActive;
+      console.log(this.active);
+    },
+  },
 };
 </script>
 <style></style>

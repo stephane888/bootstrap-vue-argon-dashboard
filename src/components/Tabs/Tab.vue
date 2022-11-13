@@ -1,8 +1,8 @@
 <template>
   <div
-    class="tab-pane"
     v-show="active"
     :id="id || title"
+    class="tab-pane"
     :class="{ active: active }"
     :aria-expanded="active"
   >
@@ -11,9 +11,19 @@
 </template>
 <script>
 export default {
-  name: "tab-pane",
-  props: ["title", "id"],
+  name: "TabPane",
   inject: ["addTab", "removeTab"],
+  props: {
+    title: {
+      type: [String, Number],
+      default: "",
+    },
+    id: {
+      type: [String, Number],
+      default: "",
+    },
+  },
+
   data() {
     return {
       active: false,

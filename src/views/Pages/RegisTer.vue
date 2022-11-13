@@ -43,15 +43,15 @@
               </div>
               <div class="text-center">
                 <a href="#" class="btn btn-neutral btn-icon mr-4">
-                  <span class="btn-inner--icon"
-                    ><img src="img/icons/common/github.svg"
-                  /></span>
+                  <span class="btn-inner--icon">
+                    <img src="img/icons/common/github.svg" />
+                  </span>
                   <span class="btn-inner--text">Github</span>
                 </a>
                 <a href="#" class="btn btn-neutral btn-icon">
-                  <span class="btn-inner--icon"
-                    ><img src="img/icons/common/google.svg"
-                  /></span>
+                  <span class="btn-inner--icon">
+                    <img src="img/icons/common/google.svg" />
+                  </span>
                   <span class="btn-inner--text">Google</span>
                 </a>
               </div>
@@ -66,28 +66,29 @@
               >
                 <b-form role="form" @submit.prevent="handleSubmit(onSubmit)">
                   <base-input
+                    v-model="model.name"
                     alternative
                     class="mb-3"
                     prepend-icon="ni ni-hat-3"
                     placeholder="Name"
                     name="Name"
                     :rules="{ required: true }"
-                    v-model="model.name"
                   >
                   </base-input>
 
                   <base-input
+                    v-model="model.email"
                     alternative
                     class="mb-3"
                     prepend-icon="ni ni-email-83"
                     placeholder="Email"
                     name="Email"
                     :rules="{ required: true, email: true }"
-                    v-model="model.email"
                   >
                   </base-input>
 
                   <base-input
+                    v-model="model.password"
                     alternative
                     class="mb-3"
                     prepend-icon="ni ni-lock-circle-open"
@@ -95,23 +96,20 @@
                     type="password"
                     name="Password"
                     :rules="{ required: true, min: 6 }"
-                    v-model="model.password"
                   >
                   </base-input>
                   <div class="text-muted font-italic">
-                    <small
-                      >password strength:
-                      <span class="text-success font-weight-700"
-                        >strong</span
-                      ></small
-                    >
+                    <small>
+                      password strength:
+                      <span class="text-success font-weight-700"> strong </span>
+                    </small>
                   </div>
                   <b-row class="my-4">
                     <b-col cols="12">
                       <base-input
                         :rules="{ required: { allowFalse: false } }"
                         name="Privacy"
-                        Policy
+                        policy
                       >
                         <b-form-checkbox v-model="model.agree">
                           <span class="text-muted">

@@ -3,16 +3,16 @@
     <b-row>
       <b-col>
         <slot>
-          <h5 class="card-title text-uppercase text-muted mb-0" v-if="title">
+          <h5 v-if="title" class="card-title text-uppercase text-muted mb-0">
             {{ title }}
           </h5>
-          <span class="h2 font-weight-bold mb-0" v-if="subTitle">{{
+          <span v-if="subTitle" class="h2 font-weight-bold mb-0">{{
             subTitle
           }}</span>
         </slot>
       </b-col>
 
-      <b-col cols="auto" v-if="$slots.icon || icon">
+      <b-col v-if="$slots.icon || icon" cols="auto">
         <slot name="icon">
           <div
             class="icon icon-shape text-white rounded-circle shadow"
@@ -30,10 +30,10 @@
   </card>
 </template>
 <script>
-import Card from "./Card.vue";
+import Card from "./CaRd.vue";
 
 export default {
-  name: "stats-card",
+  name: "StatsCard",
   components: {
     Card,
   },
@@ -42,10 +42,22 @@ export default {
       type: String,
       default: "primary",
     },
-    icon: String,
-    title: String,
-    subTitle: String,
-    iconClasses: [String, Array],
+    icon: {
+      type: String,
+      default: "",
+    },
+    title: {
+      type: String,
+      default: "",
+    },
+    subTitle: {
+      type: String,
+      default: "",
+    },
+    iconClasses: {
+      type: [String, Array],
+      default: "",
+    },
   },
 };
 </script>
