@@ -26,7 +26,7 @@
 
     <collapse-transition>
       <div
-        v-if="$slots.default || this.isMenu"
+        v-if="$slots.default || isMenu"
         v-show="!collapsed"
         class="collapse show"
       >
@@ -37,17 +37,17 @@
     </collapse-transition>
 
     <slot
-      name="title"
       v-if="children.length === 0 && !$slots.default && link.path"
+      name="title"
     >
       <component
-        :to="link.path"
-        @click.native="linkClick"
         :is="elementType(link, false)"
+        :to="link.path"
         class="nav-link"
         :class="{ active: link.active }"
         :target="link.target"
         :href="link.path"
+        @click.native="linkClick"
       >
         <template v-if="addLink">
           <span class="nav-link-text">{{ link.name }}</span>
@@ -61,68 +61,68 @@
   </b-nav-item>
 </template>
 <script>
-import { CollapseTransition } from 'vue2-transitions';
+import { CollapseTransition } from "vue2-transitions";
 
 export default {
-  name: 'sidebar-item',
+  name: "SidebarItem",
   components: {
-    CollapseTransition
-  },
-  props: {
-    menu: {
-      type: Boolean,
-      default: false,
-      description:
-        "Whether the item is a menu. Most of the item it's not used and should be used only if you want to override the default behavior."
-    },
-    link: {
-      type: Object,
-      default: () => {
-        return {
-          name: '',
-          path: '',
-          children: []
-        };
-      },
-      description:
-        'Sidebar link. Can contain name, path, icon and other attributes. See examples for more info'
-    }
+    CollapseTransition,
   },
   provide() {
     return {
       addLink: this.addChild,
-      removeLink: this.removeChild
+      removeLink: this.removeChild,
     };
   },
   inject: {
     addLink: { default: null },
     removeLink: { default: null },
     autoClose: {
-      default: true
-    }
+      default: true,
+    },
+  },
+  props: {
+    menu: {
+      type: Boolean,
+      default: false,
+      description:
+        "Whether the item is a menu. Most of the item it's not used and should be used only if you want to override the default behavior.",
+    },
+    link: {
+      type: Object,
+      default: () => {
+        return {
+          name: "",
+          path: "",
+          children: [],
+        };
+      },
+      description:
+        "Sidebar link. Can contain name, path, icon and other attributes. See examples for more info",
+    },
   },
   data() {
     return {
       children: [],
-      collapsed: true
+      collapsed: true,
     };
   },
   computed: {
     baseComponent() {
-      return this.isMenu || this.link.isRoute ? 'li' : 'router-link';
+      return this.isMenu || this.link.isRoute ? "li" : "router-link";
     },
     linkPrefix() {
       if (this.link.name) {
-        let words = this.link.name.split(' ');
-        return words.map(word => word.substring(0, 1)).join('');
-      }
+        let words = this.link.name.split(" ");
+        return words.map((word) => word.substring(0, 1)).join("");
+      } else return "";
     },
     isMenu() {
       return this.children.length > 0 || this.menu === true;
     },
     isActive() {
       if (this.$route && this.$route.path) {
-        let matchingRoute = this.children.find(c =>
+        let matchingRoute = this.children.find((c) =>
           this.$route.path.startsWith(c.link.path)
         );
         if (matchingRoute !== undefined) {
@@ -130,6 +130,27 @@ export default {
         }
       }
       return false;
+    },
+  },
+
+  mounted() {
+    if (this.addLink) {
+      this.addLink(this);
+    }
+    if (this.link.collapsed !== undefined) {
+      this.collapsed = this.link.collapsed;
+    }
+    if (this.isActive && this.isMenu) {
+      this.collapsed = false;
+    }
+  },
+
+  destroyed() {
+    if (this.$el && this.$el.parentNode) {
+      this.$el.parentNode.removeChild(this.$el);
+    }
+    if (this.removeLink) {
+      this.removeLink(this);
     }
   },
   methods: {
@@ -144,14 +165,14 @@ export default {
     },
     elementType(link, isParent = true) {
       if (link.isRoute === false) {
-        return isParent ? 'li' : 'a';
+        return isParent ? "li" : "a";
       } else {
-        return 'router-link';
+        return "router-link";
       }
     },
     linkAbbreviation(name) {
       const matches = name.match(/\b(\w)/g);
-      return matches.join('');
+      return matches.join("");
     },
     linkClick() {
       if (
@@ -167,27 +188,8 @@ export default {
     },
     collapseSubMenu(link) {
       link.collapsed = !link.collapsed;
-    }
+    },
   },
-  mounted() {
-    if (this.addLink) {
-      this.addLink(this);
-    }
-    if (this.link.collapsed !== undefined) {
-      this.collapsed = this.link.collapsed;
-    }
-    if (this.isActive && this.isMenu) {
-      this.collapsed = false;
-    }
-  },
-  destroyed() {
-    if (this.$el && this.$el.parentNode) {
-      this.$el.parentNode.removeChild(this.$el);
-    }
-    if (this.removeLink) {
-      this.removeLink(this);
-    }
-  }
 };
 </script>
 <style>

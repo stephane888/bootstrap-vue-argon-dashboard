@@ -24,6 +24,7 @@ import router from "./routes/router";
 import store from "./store";
 
 //verification de l'authentification.
+store.dispatch("CheckUserIsLogin");
 router.beforeEach((to, from, next) => {
   if (to.matched.some((record) => record.meta.requiresAuth)) {
     console.log("from : ", from);

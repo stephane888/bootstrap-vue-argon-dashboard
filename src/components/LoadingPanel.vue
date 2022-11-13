@@ -1,9 +1,9 @@
 <template>
-  <b-row v-loading="true" id="loading"></b-row>
+  <b-row id="loading" v-loading="true"></b-row>
 </template>
 <script>
-import Vue from 'vue';
-import { Loading } from 'element-ui';
+import Vue from "vue";
+import { Loading } from "element-ui";
 
 Vue.use(Loading.directive);
 export default {};
