@@ -15,7 +15,13 @@ export default {
     SET_PROJECTS(state, payload) {
       state.projects = payload;
     },
-    SET_CURRENT_PROJECT(state, payload) {
+    ADD_PROJECT(state, payload) {
+      console.log("state.projects : ", state.projects);
+      if (payload.entity && payload.entity_type_id)
+        state.projects[payload.entity_type_id].entities[payload.entity.id] =
+          payload.entity;
+    },
+    SET_CURRENT_PROJECT(state, payload = {}) {
       if (payload.id && payload.uuid) state.currentProject = payload;
       else
         state.currentProject = {
@@ -37,9 +43,27 @@ export default {
           console.log("resp : ", resp);
         });
     },
-    saveEntity({ state }) {
-      console.log("state", state.SET_CURRENT_PROJECT);
-      //request.saveEntity(this.form, "app_project_type", "app_project_type");
+    saveEntity({ commit, state }) {
+      return new Promise((resolv, reject) => {
+        request
+          .saveEntity(
+            state.currentProject,
+            "app_project_type",
+            "app_project_type"
+          )
+          .then((resp) => {
+            console.log("resp : ", resp);
+            if (!state.currentProject.uuid)
+              commit("ADD_PROJECT", {
+                entity: resp.data,
+                entity_type_id: "app_project_type",
+              });
+            resolv(resp);
+          })
+          .catch((er) => {
+            reject(er);
+          });
+      });
     },
   },
   getters: {

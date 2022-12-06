@@ -5,7 +5,7 @@
         id="input-group-1"
         label="Nom du projet "
         label-for="input-1"
-        :description="idEntity"
+        :description="!form.uuid ? idEntity : form.id"
       >
         <b-form-input
           id="input-1"
@@ -28,7 +28,7 @@
         ></b-form-textarea>
       </b-form-group>
 
-      <b-button type="submit" variant="outline-primary">
+      <b-button v-if="showSubmit" type="submit" variant="outline-primary">
         Creer le projet
       </b-button>
     </b-form>
@@ -42,6 +42,12 @@
 import request from "../request";
 import { mapState } from "vuex";
 export default {
+  props: {
+    showSubmit: {
+      type: Boolean,
+      default: false,
+    },
+  },
   data() {
     return {
       show: true,
@@ -72,7 +78,7 @@ export default {
      * @public
      */
     submit() {
-      this.$store.dispatch("storeProject/saveEntity");
+      return this.$store.dispatch("storeProject/saveEntity");
     },
     onReset(event) {
       event.preventDefault();
@@ -88,7 +94,8 @@ export default {
       });
     },
     setId(id) {
-      this.form.id = id;
+      // Si l'uuid n'existe, alors c'est une creation de type, on peut generer l'id.
+      if (!this.form.uuid) this.form.id = id;
     },
   },
 };

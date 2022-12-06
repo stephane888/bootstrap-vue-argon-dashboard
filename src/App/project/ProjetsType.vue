@@ -93,15 +93,16 @@ export default {
     this.$store.dispatch("storeProject/loadProjectType");
   },
   methods: {
-    userClick() {
+    userClick(clean = true) {
       this.manageModal = this.manageModal ? false : true;
+      if (clean) this.$store.commit("storeProject/SET_CURRENT_PROJECT");
     },
     closeModal(val) {
       this.manageModal = val;
     },
     editProject(entity) {
       this.$store.commit("storeProject/SET_CURRENT_PROJECT", entity);
-      this.userClick();
+      this.userClick(false);
     },
   },
 };

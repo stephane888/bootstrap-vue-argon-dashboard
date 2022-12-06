@@ -1,6 +1,7 @@
 <!-- Ce fichier permet de gerer tous edition de cntenu quii doit se faire via un model. -->
 <template>
   <b-modal
+    id="b-modal-manage-project"
     v-model="openModel"
     title="BootstrapVue"
     size="lg"
@@ -14,12 +15,12 @@
     <template #default>
       <formProjet ref="formProjet" />
     </template>
-    <template #modal-footer>
+    <template #modal-footer="{ cancel }">
       <b-button size="md" variant="outline-primary" @click="handleOk">
         <b-icon icon="save2" variant="success"></b-icon>
         Enregister
       </b-button>
-      <b-button size="md" variant="outline-warning" @click="handleCancel()">
+      <b-button size="md" variant="outline-warning" @click="cancel()">
         Annuler
       </b-button>
     </template>
@@ -54,10 +55,16 @@ export default {
   },
   methods: {
     handleOk() {
-      this.$refs.formProjet.submit();
-    },
-    handleCancel() {
-      //
+      this.$refs.formProjet
+        .submit()
+        .then((resp) => {
+          console.log("resp : ", resp);
+          this.$bvModal.hide("b-modal-manage-project");
+        })
+        .catch((er) => {
+          // On doit afficher sur le modal.
+          console.log("error : ", er);
+        });
     },
   },
 };

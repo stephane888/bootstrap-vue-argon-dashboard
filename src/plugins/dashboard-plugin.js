@@ -32,6 +32,7 @@ Object.keys(rules).forEach((rule) => {
     message: messages[rule], // assign message
   });
 });
+
 export default {
   install(Vue) {
     Vue.use(GlobalComponents);
