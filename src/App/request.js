@@ -18,4 +18,13 @@ export default {
   loadProjectType() {
     return this.dGet("/gestion-project-v2/load-projet-type");
   },
+
+  /**
+   * Charge un projet
+   */
+  loadProject(entity_type_id, id) {
+    return this.dGet(
+      "/gestion-project-v2/load-entity/" + entity_type_id + "/" + id
+    );
+  },
 };

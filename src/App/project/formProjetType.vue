@@ -32,9 +32,6 @@
         Creer le projet
       </b-button>
     </b-form>
-    <b-card class="mt-3" header="Form Data Result">
-      <pre class="m-0">{{ form }}</pre>
-    </b-card>
   </div>
 </template>
 
@@ -42,6 +39,7 @@
 import request from "../request";
 import { mapState } from "vuex";
 export default {
+  name: "FormProjetType",
   props: {
     showSubmit: {
       type: Boolean,
@@ -78,6 +76,10 @@ export default {
      * @public
      */
     submit() {
+      if (!this.form.id) {
+        alert("Contenu vide");
+        return;
+      }
       return this.$store.dispatch("storeProject/saveEntity");
     },
     onReset(event) {

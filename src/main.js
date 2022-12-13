@@ -27,7 +27,6 @@ import store from "./store";
 store.dispatch("CheckUserIsLogin");
 router.beforeEach((to, from, next) => {
   if (to.matched.some((record) => record.meta.requiresAuth)) {
-    console.log("from : ", from);
     // this route requires auth, check if logged in
     // if not, redirect to login page.
     if (!store.getters.isLoggedIn) {

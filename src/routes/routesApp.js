@@ -25,7 +25,7 @@ const routes = [
       },
       {
         path: "/projets",
-        name: "Projets",
+        name: "Liste de projets",
         meta: {
           requiresAuth: true,
           hideFooter: true,
@@ -33,6 +33,19 @@ const routes = [
         component: () =>
           import(
             /* webpackChunkName: "demo" */ "../App/project/ProjetsType.vue"
+          ),
+      },
+      {
+        path: "/projets/:projectType/:idProject",
+        name: "Projet",
+        meta: {
+          requiresAuth: true,
+          hideFooter: true,
+        },
+        props: true,
+        component: () =>
+          import(
+            /* webpackChunkName: "demo" */ "../App/project/ProjetType.vue"
           ),
       },
     ],

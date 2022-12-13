@@ -1,8 +1,15 @@
+<!-- 
+    Affiche la liste des projets.
+-->
 <template>
   <div>
     <base-header class="pb-2 pt-5 bg-gradient-success">
       <b-row class="pt-5">
-        <b-col md="6"></b-col>
+        <b-col md="6">
+          <nav aria-label="breadcrumb" class="d-none d-md-inline-block m-0">
+            <AppBreadcrumb :bread-crumbs="breadCrumbs"></AppBreadcrumb>
+          </nav>
+        </b-col>
         <b-col md="6" class="d-flex justify-content-end">
           <button-app @userClick="userClick"></button-app>
         </b-col>
@@ -27,7 +34,9 @@
               icon="ni ni-active-40"
               class="mb-4 bg-gradient-white"
             >
-              <div v-html="entity.label"></div>
+              <router-link :to="'/projets/' + item.id + '/' + entity.id">
+                <div v-html="entity.label"></div>
+              </router-link>
               <template slot="icon">
                 <b-button
                   variant="transparent"
@@ -66,17 +75,28 @@
       :manage-modal="manageModal"
       :title-modal="titleModal"
       @closeModal="closeModal"
-    ></modalFrom>
+      @submitModel="submif"
+    >
+      <template #formEdit>
+        <formProjet ref="formProjet" />
+      </template>
+    </modalFrom>
   </div>
 </template>
 <script>
 import ButtonApp from "../components/buttonApp.vue";
 import modalFrom from "./modalForm.vue";
 import { mapState } from "vuex";
+import AppBreadcrumb from "../components/AppBreadcrumb.vue";
+import formProjet from "./formProjetType.vue";
+
 export default {
+  name: "ProjetsType",
   components: {
     modalFrom,
     ButtonApp,
+    AppBreadcrumb,
+    formProjet,
   },
   data() {
     return {
@@ -88,6 +108,10 @@ export default {
     ...mapState({
       projects: (state) => state.storeProject.projects,
     }),
+    breadCrumbs() {
+      const staticUrl = [{ path: "/projets", name: "Liste de projets" }];
+      return staticUrl;
+    },
   },
   mounted() {
     this.$store.dispatch("storeProject/loadProjectType");
@@ -103,6 +127,17 @@ export default {
     editProject(entity) {
       this.$store.commit("storeProject/SET_CURRENT_PROJECT", entity);
       this.userClick(false);
+    },
+    submif() {
+      this.$refs.formProjet
+        .submit()
+        .then(() => {
+          this.$bvModal.hide("b-modal-manage-project");
+        })
+        .catch((er) => {
+          // On doit afficher sur le modal.
+          console.log("error : ", er);
+        });
     },
   },
 };

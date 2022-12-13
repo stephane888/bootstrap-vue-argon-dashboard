@@ -66,7 +66,7 @@
 </template>
 <script>
 // Charts
-import fromProject from "../App/project/formProjet.vue";
+import fromProject from "../App/project/formProjetType.vue";
 export default {
   components: {
     fromProject,

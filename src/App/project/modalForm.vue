@@ -13,7 +13,7 @@
       <h2 v-html="titleModal"></h2>
     </template>
     <template #default>
-      <formProjet ref="formProjet" />
+      <slot name="formEdit"></slot>
     </template>
     <template #modal-footer="{ cancel }">
       <b-button size="md" variant="outline-primary" @click="handleOk">
@@ -27,11 +27,7 @@
   </b-modal>
 </template>
 <script>
-import formProjet from "./formProjet.vue";
 export default {
-  components: {
-    formProjet,
-  },
   props: {
     manageModal: {
       type: Boolean,
@@ -55,16 +51,7 @@ export default {
   },
   methods: {
     handleOk() {
-      this.$refs.formProjet
-        .submit()
-        .then((resp) => {
-          console.log("resp : ", resp);
-          this.$bvModal.hide("b-modal-manage-project");
-        })
-        .catch((er) => {
-          // On doit afficher sur le modal.
-          console.log("error : ", er);
-        });
+      this.$emit("submitModel");
     },
   },
 };

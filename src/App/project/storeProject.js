@@ -3,7 +3,14 @@ import request from "../request";
 export default {
   namespaced: true,
   state: () => ({
+    /**
+     * Contient la liste de tous les projets.
+     */
     projects: [],
+    /**
+     * Contient les infos sur un projet.
+     * ( Un projet du point de vue drupal est une entity de configuration. )
+     */
     currentProject: {
       id: "",
       label: "",
@@ -43,6 +50,7 @@ export default {
           console.log("resp : ", resp);
         });
     },
+    // necessite une MAJ( car elle doit gerer toutes les sauvegardes );
     saveEntity({ commit, state }) {
       return new Promise((resolv, reject) => {
         request
@@ -64,6 +72,9 @@ export default {
             reject(er);
           });
       });
+    },
+    loadProject({}, payload) {
+      return request.loadProject(payload.entity_type_id, payload.id);
     },
   },
   getters: {
