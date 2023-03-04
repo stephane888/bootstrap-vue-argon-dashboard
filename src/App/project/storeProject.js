@@ -1,5 +1,7 @@
 //import store from "../../store";
 import request from "../request";
+import generateField from "components_h_vuejs/src/js/FormUttilities";
+import loadField from "components_h_vuejs/src/components/fieldsDrupal/loadField";
 export default {
   namespaced: true,
   state: () => ({
@@ -17,13 +19,40 @@ export default {
       description: "",
       users: [],
     },
+    /**
+     * Contient l'entite encours d'edition.
+     */
+    entityEdit: [],
+    /**
+     * Contient la structure du formulaire.
+     */
+    fields: [],
+    /**
+     * Suit la construction des formualires.
+     */
+    building_fields: false,
+    /**
+     *  Permet de definir un temps moyen pour la constructin d'un formulaire.
+     */
+    RunBuildingForm: {
+      time: 3000,
+      timeout: null,
+    },
+    /**
+     * Permet de suivre la creation des entites.
+     */
+    run_entity: {
+      numbers: 0,
+      creates: 0,
+      page: "",
+    },
+    running: false,
   }),
   mutations: {
     SET_PROJECTS(state, payload) {
       state.projects = payload;
     },
     ADD_PROJECT(state, payload) {
-      console.log("state.projects : ", state.projects);
       if (payload.entity && payload.entity_type_id)
         state.projects[payload.entity_type_id].entities[payload.entity.id] =
           payload.entity;
@@ -38,6 +67,50 @@ export default {
           users: [],
         };
     },
+    SET_ENTITY_EDIT(state, payload) {
+      state.entityEdit = payload;
+    },
+    // https://stackoverflow.com/questions/64635384/write-data-to-a-nested-dictionary-given-a-key-path-of-unknown-length/64641327#64641327.
+    // https://stackoverflow.com/questions/66236245/multi-level-dynamic-key-setting.
+    // https://lodash.com/docs/4.17.15#update
+    // il faudra faire un tuto
+    SET_VALUE(state, payload) {
+      console.log(" SET_VALUE payload ", payload);
+      function updateSettings(settings, keyPath, value) {
+        const keys = keyPath.split(".");
+        const targetKey = keys.pop();
+        let current = settings;
+        for (let i = 0; i < keys.length; ++i) {
+          current = current[keys[i]];
+          if (!current) {
+            throw new Error(" Specified key not found. " + keys[i]);
+          }
+        }
+        current[targetKey] = value;
+      }
+      updateSettings(state.entityEdit, payload.fieldName, payload.value);
+    },
+    SET_FIELDS(state, payload) {
+      state.fields = payload;
+    },
+    /**
+     * il est assez complique de suivre, la construction d'un formulaire;
+     * donc, on va fixer une valeur de 3s par appel.
+     * @param {*} state
+     */
+    RUN_BUILDING_FIELDS(state) {
+      state.building_fields = true;
+      clearTimeout(state.RunBuildingForm.timeout);
+      state.RunBuildingForm.timeout = setTimeout(() => {
+        state.building_fields = false;
+      }, state.RunBuildingForm.time);
+    },
+    ACTIVE_RUNNING(state) {
+      state.running = true;
+    },
+    DISABLE_RUNNING(state) {
+      state.running = false;
+    },
   },
   actions: {
     loadProjectType({ commit }) {
@@ -50,7 +123,35 @@ export default {
           console.log("resp : ", resp);
         });
     },
-    // necessite une MAJ( car elle doit gerer toutes les sauvegardes );
+    saveEntities({ commit, state }) {
+      return new Promise((resolv, reject) => {
+        commit("ACTIVE_RUNNING");
+        generateField
+          .getNumberEntities(state.entityEdit)
+          .then((numbers) => {
+            state.run_entity.numbers = numbers;
+            generateField
+              .prepareSaveEntities(this, state.entityEdit, state.run_entity)
+              .then((resp) => {
+                commit("DISABLE_RUNNING");
+                resolv(resp);
+              })
+              .catch((er) => {
+                commit("DISABLE_RUNNING");
+                reject(er);
+              });
+          })
+          .catch((er) => {
+            commit("DISABLE_RUNNING");
+            reject(er);
+          });
+      });
+    },
+    /**
+     * Necessite une MAJ( car elle doit gerer toutes les sauvegardes );
+     * @param {*} param0
+     * @returns
+     */
     saveEntity({ commit, state }) {
       return new Promise((resolv, reject) => {
         request
@@ -75,6 +176,28 @@ export default {
     },
     loadProject({}, payload) {
       return request.loadProject(payload.entity_type_id, payload.id);
+    },
+    loadFormEntity({ commit, dispatch }, payload) {
+      request
+        .loadFormEntity(payload.entity_type_id, payload.bundle)
+        .then((resp) => {
+          commit("SET_ENTITY_EDIT", resp.data);
+          dispatch("buildFields");
+        });
+    },
+    // Permet de mettre à jour un champs ...
+    setValue({ commit }, payload) {
+      commit("SET_VALUE", payload);
+    },
+    buildFields({ commit, state }) {
+      var fields = [];
+      loadField.setConfig(request);
+      commit("RUN_BUILDING_FIELDS");
+      if (state.entityEdit.length) {
+        generateField.generateFields(state.entityEdit, fields).then((resp) => {
+          commit("SET_FIELDS", resp);
+        });
+      }
     },
   },
   getters: {

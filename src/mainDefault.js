@@ -39,7 +39,6 @@ router.beforeEach((to, from, next) => {
     next(); // does not require auth, make sure to always call next()!
   }
 });
-
 // plugin setup
 Vue.use(DashboardPlugin);
 

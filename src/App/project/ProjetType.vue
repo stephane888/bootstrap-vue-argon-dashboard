@@ -13,20 +13,23 @@
         <b-col md="6" class="d-flex justify-content-end">
           <button-app
             text-button="Creer une tache / un tuto / ..."
-            @userClick="userClick"
+            @userClick="LoadEmptyForm"
           ></button-app>
         </b-col>
       </b-row>
     </base-header>
     <b-container fluid class="pb-4 pt-4">
-      ...
       <pre> currentProject : {{ currentProject }} </pre>
     </b-container>
     <modalFrom
       :manage-modal="manageModal"
       :title-modal="titleModal"
       @closeModal="closeModal"
-    ></modalFrom>
+    >
+      <template #formEdit>
+        <formEntity ref="formProjet"></formEntity>
+      </template>
+    </modalFrom>
   </div>
 </template>
 <script>
@@ -34,13 +37,14 @@ import ButtonApp from "../components/buttonApp.vue";
 import modalFrom from "./modalForm.vue";
 import { mapState } from "vuex";
 import AppBreadcrumb from "../components/AppBreadcrumb.vue";
-
+import formEntity from "./formEntity.vue";
 export default {
   name: "ProjetType",
   components: {
     modalFrom,
     ButtonApp,
     AppBreadcrumb,
+    formEntity,
   },
   props: {
     projectType: {
@@ -102,9 +106,19 @@ export default {
           });
       }
     },
-    userClick(clean = true) {
+    /**
+     * Recupere le formulaire pour la creation d'une entité.
+     *
+     * @param {*} clean
+     */
+    LoadEmptyForm() {
       this.manageModal = this.manageModal ? false : true;
-      if (clean) this.$store.commit("storeProject/SET_CURRENT_PROJECT");
+      if (this.manageModal) {
+        this.$store.dispatch("storeProject/loadFormEntity", {
+          entity_type_id: this.projectType,
+          bundle: this.idProject,
+        });
+      }
     },
     closeModal(val) {
       this.manageModal = val;

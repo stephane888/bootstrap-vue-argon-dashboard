@@ -10,8 +10,7 @@ import GlobalComponents from "./globalComponents";
 import GlobalDirectives from "./globalDirectives";
 // Sidebar on the right. Used as a local plugin in DashboardLayout.vue
 import SideBar from "@/components/SidebarPlugin";
-
-// element ui language configuration
+// Element ui language configuration
 import lang from "element-ui/lib/locale/lang/en";
 import locale from "element-ui/lib/locale";
 locale.use(lang);
@@ -20,7 +19,8 @@ locale.use(lang);
 import { BootstrapVue, IconsPlugin } from "bootstrap-vue";
 
 // asset imports
-import "@/assets/scss/argon.scss";
+//import "@/assets/scss/argon.scss";
+import "./style.scss";
 import "@/assets/vendor/nucleo/css/nucleo.css";
 import { extend } from "vee-validate";
 import * as rules from "vee-validate/dist/rules";
