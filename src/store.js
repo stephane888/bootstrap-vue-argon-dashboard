@@ -2,6 +2,7 @@ import Vue from "vue";
 import Vuex from "vuex";
 import config from "./rootConfig";
 import storeProject from "./App/project/storeProject";
+import router from "./routes/router";
 Vue.use(Vuex);
 
 export default new Vuex.Store({
@@ -19,6 +20,39 @@ export default new Vuex.Store({
     isLoggedIn(state) {
       if (state.user) return true;
       else return false;
+    },
+    /**
+     * Recupere le type d'entity en function de l'url si cela est possible.
+     * @returns
+     */
+    entity_type_id: () => {
+      console.log(router.history);
+      if (
+        router.history &&
+        router.history.current.params &&
+        router.history.current.params.configEntityTypeId
+      ) {
+        var entity_type_id = null;
+        switch (router.history.current.params.configEntityTypeId) {
+          case "app_project_type":
+            entity_type_id = "app_project";
+            break;
+        }
+        return entity_type_id;
+      } else return null;
+    },
+    /**
+     * Retourne le bundle de l'entite encours.
+     * @returns
+     */
+    bundle: () => {
+      if (
+        router.history &&
+        router.history.current.params &&
+        router.history.current.params.configEntityId
+      ) {
+        return router.history.current.params.configEntityId;
+      } else return null;
     },
   },
   mutations: {
@@ -48,6 +82,32 @@ export default new Vuex.Store({
       if (cre) {
         commit("SET_USER", cre);
       }
+    },
+
+    /**
+     * Utiliser par FormUtilities afin de faire la sauvegarde.
+     *
+     * @param {*} param0
+     * @param {*} payload
+     * @returns
+     */
+    saveEntity({}, payload) {
+      return new Promise((resolv, reject) => {
+        if (payload.entity_type_id == undefined || !payload.entity_type_id) {
+          reject("Paramettre manquant");
+        } else
+          config
+            .dPost(
+              "/apivuejs/save-entity/" + payload.entity_type_id,
+              payload.value
+            )
+            .then((resp) => {
+              resolv(resp);
+            })
+            .catch((er) => {
+              reject(er);
+            });
+      });
     },
   },
   modules: {

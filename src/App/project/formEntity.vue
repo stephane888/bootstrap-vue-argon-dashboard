@@ -28,7 +28,7 @@
 <script>
 import request from "../request";
 import { mapState } from "vuex";
-import loadField from "components_h_vuejs/src/components/fieldsDrupal/loadField";
+// import loadField from "components_h_vuejs/src/components/fieldsDrupal/loadField";
 export default {
   name: "FormProjetType",
   props: {
@@ -40,7 +40,6 @@ export default {
   data() {
     return {
       show: true,
-      lkoild: "",
     };
   },
   computed: {
@@ -55,9 +54,6 @@ export default {
       } else return "";
     },
   },
-  mounted() {
-    this.lkoild = "lkoi";
-  },
   methods: {
     /**
      * @private
@@ -68,13 +64,16 @@ export default {
       this.submit();
     },
     /**
+     * n'est pas utilisé
      * @public
+     * @deprecated
      */
     submit() {
       if (!this.form.id) {
         alert("Contenu vide");
         return;
       }
+      alert("save");
       return this.$store.dispatch("storeProject/saveEntities");
     },
     onReset(event) {

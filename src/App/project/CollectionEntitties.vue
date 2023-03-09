@@ -19,12 +19,14 @@
       </b-row>
     </base-header>
     <b-container fluid class="pb-4 pt-4">
+      //
       <pre> currentProject : {{ currentProject }} </pre>
     </b-container>
     <modalFrom
       :manage-modal="manageModal"
       :title-modal="titleModal"
       @closeModal="closeModal"
+      @submitModel="submitModel"
     >
       <template #formEdit>
         <formEntity ref="formProjet"></formEntity>
@@ -35,11 +37,11 @@
 <script>
 import ButtonApp from "../components/buttonApp.vue";
 import modalFrom from "./modalForm.vue";
-import { mapState } from "vuex";
+import { mapState, mapGetters } from "vuex";
 import AppBreadcrumb from "../components/AppBreadcrumb.vue";
 import formEntity from "./formEntity.vue";
 export default {
-  name: "ProjetType",
+  name: "CollectionEntitties",
   components: {
     modalFrom,
     ButtonApp,
@@ -47,11 +49,11 @@ export default {
     formEntity,
   },
   props: {
-    projectType: {
+    configEntityTypeId: {
       type: [String, Number],
       default: "",
     },
-    idProject: {
+    configEntityId: {
       type: [String, Number],
       default: "",
     },
@@ -67,11 +69,13 @@ export default {
       currentProject: (state) => state.storeProject.currentProject,
       projects: (state) => state.storeProject.projects,
     }),
+    ...mapGetters(["entity_type_id", "bundle"]),
     breadCrumbs() {
       const staticUrl = [{ path: "/projets", name: "Liste de projets" }];
       if (this.currentProject.id && this.currentProject.id) {
         staticUrl.push({
-          path: "/projets/" + this.projectType + "/" + this.idProject,
+          path:
+            "/projets/" + this.configEntityTypeId + "/" + this.configEntityId,
           name: this.currentProject.label,
         });
       }
@@ -80,6 +84,11 @@ export default {
   },
   mounted() {
     this.getProjet();
+    if (this.entity_type_id && this.bundle)
+      this.$store.dispatch("storeProject/loadEntityWithBundle", {
+        entity_type_id: this.entity_type_id,
+        bundle: this.bundle,
+      });
   },
   methods: {
     /**
@@ -87,19 +96,19 @@ export default {
      */
     getProjet() {
       if (
-        this.projects[this.projectType] &&
-        this.projects[this.projectType].entities &&
-        this.projects[this.projectType].entities[this.idProject]
+        this.projects[this.configEntityTypeId] &&
+        this.projects[this.configEntityTypeId].entities &&
+        this.projects[this.configEntityTypeId].entities[this.configEntityId]
       ) {
         this.$store.commit(
           "storeProject/SET_CURRENT_PROJECT",
-          this.projects[this.projectType].entities[this.idProject]
+          this.projects[this.configEntityTypeId].entities[this.configEntityId]
         );
       } else {
         this.$store
           .dispatch("storeProject/loadProject", {
-            entity_type_id: this.projectType,
-            id: this.idProject,
+            entity_type_id: this.configEntityTypeId,
+            id: this.configEntityId,
           })
           .then((resp) => {
             this.$store.commit("storeProject/SET_CURRENT_PROJECT", resp.data);
@@ -115,8 +124,8 @@ export default {
       this.manageModal = this.manageModal ? false : true;
       if (this.manageModal) {
         this.$store.dispatch("storeProject/loadFormEntity", {
-          entity_type_id: this.projectType,
-          bundle: this.idProject,
+          entity_type_id: this.configEntityTypeId,
+          bundle: this.configEntityId,
         });
       }
     },
@@ -126,6 +135,11 @@ export default {
     editProject(entity) {
       this.$store.commit("storeProject/SET_CURRENT_PROJECT", entity);
       this.userClick(false);
+    },
+    submitModel() {
+      this.$store.dispatch("storeProject/saveEntities").then(() => {
+        this.$bvModal.hide("b-modal-manage-project");
+      });
     },
   },
 };

@@ -98,7 +98,9 @@ export default {
         alert("Contenu vide");
         return;
       }
-      return this.$store.dispatch("storeProject/saveEntity");
+      // return this.$store.dispatch("storeProject/saveEntity");
+      const payload = { entity_type_id: "app_project_type", value: this.form };
+      return this.$store.dispatch("storeProject/saveEntity", payload);
     },
     onReset(event) {
       event.preventDefault();

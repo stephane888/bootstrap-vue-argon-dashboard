@@ -2,6 +2,7 @@
 import request from "../request";
 import generateField from "components_h_vuejs/src/js/FormUttilities";
 import loadField from "components_h_vuejs/src/components/fieldsDrupal/loadField";
+import itemsEntity from "drupal-vuejs/src/App/jsonApi/itemsEntity.js";
 export default {
   namespaced: true,
   state: () => ({
@@ -46,6 +47,9 @@ export default {
       creates: 0,
       page: "",
     },
+    /**
+     * Actif s'il ya une sauvegarde encours.
+     */
     running: false,
   }),
   mutations: {
@@ -123,6 +127,11 @@ export default {
           console.log("resp : ", resp);
         });
     },
+    /**
+     * Permet d'effectuer la sauvegarde d'un matrice.
+     * @param {*} param0
+     * @returns
+     */
     saveEntities({ commit, state }) {
       return new Promise((resolv, reject) => {
         commit("ACTIVE_RUNNING");
@@ -130,6 +139,7 @@ export default {
           .getNumberEntities(state.entityEdit)
           .then((numbers) => {
             state.run_entity.numbers = numbers;
+            console.log("state.entityEdit : ", state.entityEdit);
             generateField
               .prepareSaveEntities(this, state.entityEdit, state.run_entity)
               .then((resp) => {
@@ -152,7 +162,7 @@ export default {
      * @param {*} param0
      * @returns
      */
-    saveEntity({ commit, state }) {
+    saveEntityOld({ commit, state }) {
       return new Promise((resolv, reject) => {
         request
           .saveEntity(
@@ -194,10 +204,22 @@ export default {
       loadField.setConfig(request);
       commit("RUN_BUILDING_FIELDS");
       if (state.entityEdit.length) {
-        generateField.generateFields(state.entityEdit, fields).then((resp) => {
-          commit("SET_FIELDS", resp);
-        });
+        generateField
+          .generateFields(state.entityEdit, fields, null)
+          .then((resp) => {
+            commit("SET_FIELDS", resp);
+          });
       }
+    },
+    loadEntityWithBundle({}, payload) {
+      const IE = new itemsEntity(
+        payload.entity_type_id,
+        payload.bundle,
+        request
+      );
+      IE.get().then((resp) => {
+        console.log("loadEntityWithBundle: ", resp);
+      });
     },
   },
   getters: {

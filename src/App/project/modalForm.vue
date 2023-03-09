@@ -50,6 +50,9 @@ export default {
     },
   },
   methods: {
+    /**
+     * Informe le parent que la sauvegarde a été declenché
+     */
     handleOk() {
       this.$emit("submitModel");
     },

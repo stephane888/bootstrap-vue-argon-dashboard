@@ -36,7 +36,7 @@ const routes = [
           ),
       },
       {
-        path: "/projets/:projectType/:idProject",
+        path: "/projets/:configEntityTypeId/:configEntityId",
         name: "Projet",
         meta: {
           requiresAuth: true,
@@ -45,7 +45,7 @@ const routes = [
         props: true,
         component: () =>
           import(
-            /* webpackChunkName: "demo" */ "../App/project/ProjetType.vue"
+            /* webpackChunkName: "demo" */ "../App/project/CollectionEntitties.vue"
           ),
       },
     ],
