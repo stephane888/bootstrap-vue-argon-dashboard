@@ -10,7 +10,7 @@
     @ok="handleOk"
   >
     <template #modal-header>
-      <h2 v-html="titleModal"></h2>
+      <slot name="titleModal"></slot>
     </template>
     <template #default>
       <slot name="formEdit"></slot>
@@ -32,10 +32,6 @@ export default {
     manageModal: {
       type: Boolean,
       default: false,
-    },
-    titleModal: {
-      type: String,
-      required: true,
     },
   },
   computed: {

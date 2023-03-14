@@ -19,15 +19,31 @@
       </b-row>
     </base-header>
     <b-container fluid class="pb-4 pt-4">
-      //
-      <pre> currentProject : {{ currentProject }} </pre>
+      <b-row>
+        <b-col lg="9">
+          <AccordionEntities
+            @editEntity="editEntity"
+            @DeleteEntity="DeleteEntity"
+          ></AccordionEntities>
+        </b-col>
+        <b-col lg="3"></b-col>
+      </b-row>
     </b-container>
     <modalFrom
       :manage-modal="manageModal"
-      :title-modal="titleModal"
       @closeModal="closeModal"
       @submitModel="submitModel"
     >
+      <template #titleModal>
+        <div class="align-items-center d-flex">
+          <div class="pr-3 text-info">
+            <b-icon :icon="iconFormEdit" font-scale="1.5"></b-icon>
+          </div>
+          <small>
+            <i> {{ titleModal }} </i>
+          </small>
+        </div>
+      </template>
       <template #formEdit>
         <formEntity ref="formProjet"></formEntity>
       </template>
@@ -47,6 +63,7 @@ export default {
     ButtonApp,
     AppBreadcrumb,
     formEntity,
+    AccordionEntities: () => import("./AccordionEntities.vue"),
   },
   props: {
     configEntityTypeId: {
@@ -62,12 +79,14 @@ export default {
     return {
       manageModal: false,
       titleModal: "Creer une nouvelle tache ou memo ou article ...",
+      iconFormEdit: "",
     };
   },
   computed: {
     ...mapState({
       currentProject: (state) => state.storeProject.currentProject,
       projects: (state) => state.storeProject.projects,
+      entities: (state) => state.storeProject.entities,
     }),
     ...mapGetters(["entity_type_id", "bundle"]),
     breadCrumbs() {
@@ -84,15 +103,11 @@ export default {
   },
   mounted() {
     this.getProjet();
-    if (this.entity_type_id && this.bundle)
-      this.$store.dispatch("storeProject/loadEntityWithBundle", {
-        entity_type_id: this.entity_type_id,
-        bundle: this.bundle,
-      });
+    this.loadEntities();
   },
   methods: {
     /**
-     * recupere le projet en fonction des paramettres de l'url.
+     * Recupere le projet en fonction des paramettres de l'url.
      */
     getProjet() {
       if (
@@ -122,6 +137,8 @@ export default {
      */
     LoadEmptyForm() {
       this.manageModal = this.manageModal ? false : true;
+      this.titleModal = "Creer une nouvelle tache ou memo ou article ...";
+      this.iconFormEdit = "plus-square";
       if (this.manageModal) {
         this.$store.dispatch("storeProject/loadFormEntity", {
           entity_type_id: this.configEntityTypeId,
@@ -132,14 +149,44 @@ export default {
     closeModal(val) {
       this.manageModal = val;
     },
-    editProject(entity) {
-      this.$store.commit("storeProject/SET_CURRENT_PROJECT", entity);
-      this.userClick(false);
+    loadEntities() {
+      if (this.entity_type_id && this.bundle)
+        this.$store.dispatch("storeProject/loadEntityWithBundle", {
+          entity_type_id: this.entity_type_id,
+          bundle: this.bundle,
+        });
     },
+    // editProject(entity) {
+    //   this.$store.commit("storeProject/SET_CURRENT_PROJECT", entity);
+    //   this.userClick(false);
+    // },
     submitModel() {
       this.$store.dispatch("storeProject/saveEntities").then(() => {
+        this.loadEntities();
         this.$bvModal.hide("b-modal-manage-project");
       });
+    },
+    editEntity(attributes) {
+      this.$store.commit("storeProject/CLEAN_ENTITY_EDIT");
+      this.manageModal = this.manageModal ? false : true;
+      this.titleModal = attributes.name;
+      this.iconFormEdit = "pencil-square";
+      const payload = {
+        id: attributes.drupal_internal__id,
+        entity_type_id: this.entity_type_id,
+      };
+      this.$store.dispatch("storeProject/loadEntityById", payload);
+    },
+    DeleteEntity(item) {
+      var info = item.type.split("--");
+      this.$store
+        .dispatch("storeProject/deleteEntity", {
+          entity_type_id: info[0],
+          id: item.attributes.drupal_internal__id,
+        })
+        .then(() => {
+          this.loadEntities();
+        });
     },
   },
 };

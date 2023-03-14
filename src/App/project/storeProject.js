@@ -8,6 +8,7 @@ export default {
   state: () => ({
     /**
      * Contient la liste de tous les projets.
+     * ( configEntities )
      */
     projects: [],
     /**
@@ -25,7 +26,7 @@ export default {
      */
     entityEdit: [],
     /**
-     * Contient la structure du formulaire.
+     * Contient la structure du formulaire (encours d'edition).
      */
     fields: [],
     /**
@@ -51,6 +52,11 @@ export default {
      * Actif s'il ya une sauvegarde encours.
      */
     running: false,
+    /**
+     * Contient les données d'un projet (taches, ressources,  bugs ...) et en
+     * relations les données tels que les primes, client, executant ...
+     */
+    entities: [],
   }),
   mutations: {
     SET_PROJECTS(state, payload) {
@@ -73,6 +79,13 @@ export default {
     },
     SET_ENTITY_EDIT(state, payload) {
       state.entityEdit = payload;
+    },
+    /**
+     * On vide le contenu de l'entité à editer.
+     * @param {*} state
+     */
+    CLEAN_ENTITY_EDIT(state) {
+      state.entityEdit = [];
     },
     // https://stackoverflow.com/questions/64635384/write-data-to-a-nested-dictionary-given-a-key-path-of-unknown-length/64641327#64641327.
     // https://stackoverflow.com/questions/66236245/multi-level-dynamic-key-setting.
@@ -114,6 +127,9 @@ export default {
     },
     DISABLE_RUNNING(state) {
       state.running = false;
+    },
+    SET_ENTITIES(state, payload) {
+      state.entities = payload;
     },
   },
   actions: {
@@ -211,15 +227,60 @@ export default {
           });
       }
     },
-    loadEntityWithBundle({}, payload) {
+    /**
+     * Permet de charger les entites en function de entity_type_id et du bundle.
+     *
+     * @param {*} param0
+     * @param {*} payload
+     */
+    loadEntityWithBundle({ commit }, payload) {
       const IE = new itemsEntity(
         payload.entity_type_id,
         payload.bundle,
         request
       );
+      IE.remplaceConfig();
+      IE.url += "?include=executants,project_manager";
       IE.get().then((resp) => {
-        console.log("loadEntityWithBundle: ", resp);
+        /**
+         * On ajoute les proprietes supplementaire afin de contruire un accordeon.
+         */
+        const items = [];
+        if (resp.data && resp.data.length) {
+          resp.data.forEach((item) => {
+            items.push({
+              ...item,
+              accordionId: item.id,
+              accordionOpen: false,
+            });
+          });
+        }
+        commit("SET_ENTITIES", items);
       });
+    },
+    /**
+     * Permet de charger une entitée en function de son id ou de la dupliquée.
+     */
+    loadEntityById({ commit, dispatch }, payload) {
+      return new Promise((resolv, reject) => {
+        if (payload.id && payload.entity_type_id)
+          request
+            .dPost("/apivuejs/edit-duplicate-entity", payload, null, false)
+            .then((resp) => {
+              commit("SET_ENTITY_EDIT", resp.data);
+              dispatch("buildFields");
+              resolv(resp.data);
+            })
+            .catch((er) => {
+              reject(er);
+            });
+        else {
+          reject(" Parametre de configuration manquant. ");
+        }
+      });
+    },
+    deleteEntity({}, payload) {
+      return request.dPost("/apivuejs/entity-delete", payload, null, false);
     },
   },
   getters: {
