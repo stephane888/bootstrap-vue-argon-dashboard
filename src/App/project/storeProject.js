@@ -144,7 +144,7 @@ export default {
         });
     },
     /**
-     * Permet d'effectuer la sauvegarde d'un matrice.
+     * Permet d'effectuer la sauvegarde d'un matrice de type entities.
      * @param {*} param0
      * @returns
      */
@@ -174,30 +174,33 @@ export default {
       });
     },
     /**
-     * Necessite une MAJ( car elle doit gerer toutes les sauvegardes );
-     * @param {*} param0
+     * Permet de sauvegarder une entite de configuration.
+     * @param {*} param
      * @returns
      */
-    saveEntityOld({ commit, state }) {
+    saveEntityType({ commit, state }, payload) {
       return new Promise((resolv, reject) => {
-        request
-          .saveEntity(
-            state.currentProject,
-            "app_project_type",
-            "app_project_type"
-          )
-          .then((resp) => {
-            console.log("resp : ", resp);
-            if (!state.currentProject.uuid)
-              commit("ADD_PROJECT", {
-                entity: resp.data,
-                entity_type_id: "app_project_type",
-              });
-            resolv(resp);
-          })
-          .catch((er) => {
-            reject(er);
-          });
+        if (payload.entity_type_id)
+          request
+            .saveEntity(
+              state.currentProject,
+              payload.entity_type_id,
+              payload.entity_type_id
+            )
+            .then((resp) => {
+              if (!state.currentProject.uuid)
+                commit("ADD_PROJECT", {
+                  entity: resp.data,
+                  entity_type_id: payload.entity_type_id,
+                });
+              resolv(resp);
+            })
+            .catch((er) => {
+              reject(er);
+            });
+        else {
+          reject(" Parametre de configuration manquant. ");
+        }
       });
     },
     loadProject({}, payload) {
@@ -234,6 +237,7 @@ export default {
      * @param {*} payload
      */
     loadEntityWithBundle({ commit }, payload) {
+      commit("SET_ENTITIES", []);
       const IE = new itemsEntity(
         payload.entity_type_id,
         payload.bundle,
@@ -254,8 +258,8 @@ export default {
               accordionOpen: false,
             });
           });
+          commit("SET_ENTITIES", items);
         }
-        commit("SET_ENTITIES", items);
       });
     },
     /**
@@ -280,7 +284,20 @@ export default {
       });
     },
     deleteEntity({}, payload) {
-      return request.dPost("/apivuejs/entity-delete", payload, null, false);
+      return new Promise((resolv, reject) => {
+        if (payload.id && payload.entity_type_id)
+          request
+            .dPost("/apivuejs/entity-delete", payload, null, false)
+            .then((resp) => {
+              resolv(resp.data);
+            })
+            .catch((er) => {
+              reject(er);
+            });
+        else {
+          reject(" Parametre de configuration manquant. ");
+        }
+      });
     },
   },
   getters: {

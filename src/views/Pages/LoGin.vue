@@ -9,7 +9,7 @@
         <div class="header-body text-center mb-7">
           <b-row class="justify-content-center">
             <b-col xl="5" lg="6" md="8" class="px-5">
-              <h1 class="text-white">Habeuk</h1>
+              <h3 class="text-white">Habeuk</h3>
               <p class="text-lead text-white">Connectez vous !</p>
             </b-col>
           </b-row>
@@ -59,6 +59,9 @@
               <div class="text-center text-muted mb-4">
                 <small>Or sign in with credentials</small>
               </div>
+              <b-alert :show="has_error" variant="danger" dismissible>
+                {{ error_message }}
+              </b-alert>
               <validation-observer
                 v-slot="{ handleSubmit }"
                 ref="formValidator"
@@ -126,7 +129,7 @@
         <div class="header-body text-center mb-7">
           <b-row class="justify-content-center">
             <b-col xl="5" lg="6" md="8" class="px-5">
-              <h1 class="text-white">Bienvenue sur Habeuk</h1>
+              <h3 class="text-white">Bienvenue sur Habeuk</h3>
               <p class="text-lead text-white">Vous etes connecte</p>
             </b-col>
           </b-row>
@@ -157,10 +160,12 @@ export default {
   data() {
     return {
       model: {
-        email: "stane",
-        password: "azabzistany@gmail.com",
+        email: "",
+        password: "",
         rememberMe: false,
       },
+      has_error: false,
+      error_message: "Erreur d'identification",
     };
   },
   computed: {
@@ -168,11 +173,20 @@ export default {
   },
   methods: {
     onSubmit() {
+      this.has_error = false;
       var values = {
         name: this.model.email,
         pass: this.model.password,
       };
-      this.$store.dispatch("login", values);
+      this.$store
+        .dispatch("login", values)
+        .then(() => {
+          this.$router.push({ path: "/" });
+        })
+        .catch((err) => {
+          console.log("err : ", err);
+          this.has_error = true;
+        });
     },
   },
 };

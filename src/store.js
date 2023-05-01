@@ -23,10 +23,11 @@ export default new Vuex.Store({
     },
     /**
      * Recupere le type d'entity en function de l'url si cela est possible.
+     * getter ne marche pas avec les changements de route.
      * @returns
      */
     entity_type_id: () => {
-      console.log(router.history);
+      console.log(router);
       if (
         router.history &&
         router.history.current.params &&
@@ -43,9 +44,11 @@ export default new Vuex.Store({
     },
     /**
      * Retourne le bundle de l'entite encours.
+     * On ne peut pas obtenir le bundle dela route car le changement de route n'est pas vue par getters.
      * @returns
      */
-    bundle: () => {
+    bundle: (router) => {
+      console.log(" routerParams : ", router.history);
       if (
         router.history &&
         router.history.current.params &&
@@ -70,8 +73,16 @@ export default new Vuex.Store({
      * @param {*} values
      */
     login({ commit }, values) {
-      config.login(values).then((resp) => {
-        commit("SET_USER", resp.data);
+      return new Promise((resolv, reject) => {
+        config
+          .login(values)
+          .then((resp) => {
+            commit("SET_USER", resp.data);
+            resolv(resp.data);
+          })
+          .catch((err) => {
+            reject(err);
+          });
       });
     },
     /**
@@ -82,6 +93,13 @@ export default new Vuex.Store({
       if (cre) {
         commit("SET_USER", cre);
       }
+    },
+    /**
+     * Deconnexion de l'utilisateur
+     */
+    deleteConnexion({ commit }) {
+      config.deleteConnexion();
+      commit("SET_USER", null);
     },
 
     /**

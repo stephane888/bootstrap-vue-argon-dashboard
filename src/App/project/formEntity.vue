@@ -15,9 +15,10 @@
           :field="render.field"
           :model="render.model"
           :entities="render.entities"
-          :class-css="['mb-5']"
+          :class-css="['mb-2']"
           :parent-name="i + '.entity.'"
           :parent-child-name="i + '.entities.'"
+          size="sm"
           namespace-store="storeProject"
         ></component>
       </component>

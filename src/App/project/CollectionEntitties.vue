@@ -88,7 +88,7 @@ export default {
       projects: (state) => state.storeProject.projects,
       entities: (state) => state.storeProject.entities,
     }),
-    ...mapGetters(["entity_type_id", "bundle"]),
+    ...mapGetters(["entity_type_id"]),
     breadCrumbs() {
       const staticUrl = [{ path: "/projets", name: "Liste de projets" }];
       if (this.currentProject.id && this.currentProject.id) {
@@ -150,11 +150,12 @@ export default {
       this.manageModal = val;
     },
     loadEntities() {
-      if (this.entity_type_id && this.bundle)
+      if (this.entity_type_id && this.configEntityId) {
         this.$store.dispatch("storeProject/loadEntityWithBundle", {
           entity_type_id: this.entity_type_id,
-          bundle: this.bundle,
+          bundle: this.configEntityId,
         });
+      }
     },
     // editProject(entity) {
     //   this.$store.commit("storeProject/SET_CURRENT_PROJECT", entity);
@@ -183,6 +184,7 @@ export default {
         .dispatch("storeProject/deleteEntity", {
           entity_type_id: info[0],
           id: item.attributes.drupal_internal__id,
+          delete_subentities: false,
         })
         .then(() => {
           this.loadEntities();

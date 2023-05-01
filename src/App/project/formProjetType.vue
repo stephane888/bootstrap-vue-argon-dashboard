@@ -99,8 +99,9 @@ export default {
         return;
       }
       // return this.$store.dispatch("storeProject/saveEntity");
-      const payload = { entity_type_id: "app_project_type", value: this.form };
-      return this.$store.dispatch("storeProject/saveEntity", payload);
+      // const payload = { entity_type_id: "app_project_type", value: this.form };
+      // return this.$store.dispatch("storeProject/saveEntity", payload);
+      this.$emit("saveProjectType", this.form);
     },
     onReset(event) {
       event.preventDefault();
@@ -123,6 +124,7 @@ export default {
       let vocabulary = "user";
       if (vocabulary && request) {
         const terms = new itemsEntity(vocabulary, vocabulary, request);
+        terms.remplaceConfig();
         terms.get().then(() => {
           this.options = terms.getOptions();
         });

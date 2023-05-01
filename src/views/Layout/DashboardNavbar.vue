@@ -90,9 +90,9 @@
               <span>Support</span>
             </b-dropdown-item>
             <div class="dropdown-divider"></div>
-            <b-dropdown-item href="#!">
+            <b-dropdown-item @click="deconnexion">
               <i class="ni ni-user-run"></i>
-              <span>Logout</span>
+              <span> Logout </span>
             </b-dropdown-item>
           </div>
         </template>
@@ -148,6 +148,10 @@ export default {
     },
     closeDropDown() {
       this.activeNotifications = false;
+    },
+    deconnexion() {
+      this.$store.dispatch("deleteConnexion");
+      this.$router.push({ name: "login" });
     },
   },
 };

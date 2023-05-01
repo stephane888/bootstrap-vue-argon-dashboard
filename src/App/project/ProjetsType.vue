@@ -22,8 +22,8 @@
           <b-col
             v-for="(entity, i) in item.entities"
             :key="i"
-            xl="3"
-            lg="4"
+            xl="4"
+            lg="6"
             md="6"
             sm="6"
             class=""
@@ -43,7 +43,21 @@
                   size="sm"
                   @click="editProject(entity)"
                 >
+                  <b-icon icon="eye"></b-icon>
+                </b-button>
+                <b-button
+                  variant="transparent"
+                  size="sm"
+                  @click="editProject(entity)"
+                >
                   <b-icon icon="pencil-fill"></b-icon>
+                </b-button>
+                <b-button
+                  variant="transparent"
+                  size="sm"
+                  @click="DeleteProject(entity)"
+                >
+                  <b-icon icon="trash" variant="danger"></b-icon>
                 </b-button>
               </template>
               <template slot="footer">
@@ -78,7 +92,7 @@
       @submitModel="submif"
     >
       <template #formEdit>
-        <formProjet ref="formProjet" />
+        <formProjet ref="formProjet" @saveProjectType="saveProjectType" />
       </template>
     </modalFrom>
   </div>
@@ -89,6 +103,7 @@ import modalFrom from "./modalForm.vue";
 import { mapState } from "vuex";
 import AppBreadcrumb from "../components/AppBreadcrumb.vue";
 import formProjet from "./formProjetType.vue";
+import config from "../../rootConfig";
 
 export default {
   name: "ProjetsType",
@@ -98,10 +113,17 @@ export default {
     AppBreadcrumb,
     formProjet,
   },
+  props: {
+    //
+  },
   data() {
     return {
       manageModal: false,
       titleModal: "Creer un nouveau projet",
+      /**
+       * determiner le type de d'entite de configuration à partir du /{path}.
+       */
+      projet_type_id: null,
     };
   },
   computed: {
@@ -114,9 +136,22 @@ export default {
     },
   },
   mounted() {
-    this.$store.dispatch("storeProject/loadProjectType");
+    this.loadEntities();
+    if (this.$router.history.current) {
+      switch (this.$router.history.current.path) {
+        case "/projets":
+          this.projet_type_id = "app_project_type";
+          break;
+        default:
+          this.projet_type_id = null;
+          break;
+      }
+    }
   },
   methods: {
+    loadEntities() {
+      this.$store.dispatch("storeProject/loadProjectType");
+    },
     userClick(clean = true) {
       this.manageModal = this.manageModal ? false : true;
       if (clean) this.$store.commit("storeProject/SET_CURRENT_PROJECT");
@@ -128,9 +163,34 @@ export default {
       this.$store.commit("storeProject/SET_CURRENT_PROJECT", entity);
       this.userClick(false);
     },
-    submif() {
-      this.$refs.formProjet
-        .submit()
+    DeleteProject(entity) {
+      config
+        .modalConfirmDelete(
+          "Confirmer la suppression, NB : cette action est irreverssible.",
+          { title: " Suppresion de : " + entity.label }
+        )
+        .then((status) => {
+          if (status) {
+            this.$store
+              .dispatch("storeProject/deleteEntity", {
+                entity_type_id: this.projet_type_id,
+                id: entity.id,
+                delete_subentities: false,
+              })
+              .then(() => {
+                this.loadEntities();
+              });
+          }
+        });
+    },
+    /**
+     * Permet de sauverger les données de creation ou de modification
+     * declancher par FormProjetType.
+     */
+    saveProjectType() {
+      const payload = { entity_type_id: this.projet_type_id };
+      this.$store
+        .dispatch("storeProject/saveEntityType", payload)
         .then(() => {
           this.$bvModal.hide("b-modal-manage-project");
         })
@@ -138,6 +198,13 @@ export default {
           // On doit afficher sur le modal.
           console.log("error : ", er);
         });
+    },
+    /**
+     * Declencher par le submit de la function modal, ce dernier declenche le
+     * submit de form qui emettra un event @saveProjectType.
+     */
+    submif() {
+      this.$refs.formProjet.submit();
     },
   },
 };

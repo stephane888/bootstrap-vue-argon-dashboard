@@ -30,7 +30,8 @@ router.beforeEach((to, from, next) => {
     // this route requires auth, check if logged in
     // if not, redirect to login page.
     if (!store.getters.isLoggedIn) {
-      //store.dispatch("getUtilisateur");
+      // store.dispatch("getUtilisateur");
+      // console.log("route block");
       next({ name: "login" });
     } else {
       next(); // go to wherever I'm going

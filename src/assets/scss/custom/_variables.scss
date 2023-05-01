@@ -779,9 +779,12 @@ $alert-padding-y: 1rem !default;
 $alert-padding-x: 1.5rem !default;
 $alert-border-radius: $border-radius !default;
 
-$alert-bg-level: -2 !default;
-$alert-border-level: -2 !default;
-$alert-color-level: 0 !default;
+// $alert-bg-level: -2 !default;
+// $alert-border-level: -2 !default;
+// $alert-color-level: 0 !default;
+$alert-bg-level: -7 !default;
+$alert-border-level: -4 !default;
+$alert-color-level: 6 !default;
 
 // List group
 
@@ -986,4 +989,4 @@ $footer-heading-font-size: $font-size-sm !default;
 
 // Import Bootstrap variable defaults
 
-@import "~bootstrap/scss/variables";
+//@import "~bootstrap/scss/variables";

@@ -1,4 +1,3 @@
-//$font-size-base: 1.4rem;
-//@import "bootstrap/scss/bootstrap.scss";
-@import "../assets/scss/argon.scss";
-@import "bootstrap-vue/src/index.scss";
+//
+@use "./argon.scss";
+@use "./custom-style.scss";

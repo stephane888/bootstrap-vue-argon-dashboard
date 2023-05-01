@@ -8,7 +8,7 @@
       <navbar-toggle-button @click.native="showSidebar"> </navbar-toggle-button>
       <router-link class="navbar-brand" to="/">
         <img :src="logo" class="navbar-brand-img" alt="..." />
-        <h1>HABEUK</h1>
+        <h3>HABEUK</h3>
       </router-link>
 
       <slot name="mobile-right">
@@ -61,7 +61,7 @@
             <div class="dropdown-divider"></div>
             <a href="#!" class="dropdown-item">
               <i class="ni ni-user-run"></i>
-              <span>Logout</span>
+              <span>Logout (none)</span>
             </a>
           </base-dropdown>
         </ul>
