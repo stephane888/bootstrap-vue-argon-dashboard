@@ -2,7 +2,6 @@
   <SlideYUpTransition :duration="animationDuration">
     <b-modal
       ref="app-modal"
-      tabindex="-1"
       class="modal fade"
       :size="size"
       :hide-header="!$slots.header"

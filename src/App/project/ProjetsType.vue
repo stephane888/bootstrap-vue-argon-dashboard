@@ -29,10 +29,9 @@
             class=""
           >
             <stats-card
-              type="gradient-red"
-              sub-title="350,897"
               icon="ni ni-active-40"
               class="mb-4 bg-gradient-white"
+              :class="[entity.private ? 'border-danger' : '']"
             >
               <router-link :to="'/projets/' + item.id + '/' + entity.id">
                 <div v-html="entity.label"></div>
@@ -41,11 +40,12 @@
                 <b-button
                   variant="transparent"
                   size="sm"
-                  @click="editProject(entity)"
+                  @click="seeProject(entity)"
                 >
                   <b-icon icon="eye"></b-icon>
                 </b-button>
                 <b-button
+                  v-if="AccessController.accessToEditEntityConfig(entity)"
                   variant="transparent"
                   size="sm"
                   @click="editProject(entity)"
@@ -53,6 +53,7 @@
                   <b-icon icon="pencil-fill"></b-icon>
                 </b-button>
                 <b-button
+                  v-if="AccessController.accessToDeleteEntityConfig(entity)"
                   variant="transparent"
                   size="sm"
                   @click="DeleteProject(entity)"
@@ -61,8 +62,17 @@
                 </b-button>
               </template>
               <template slot="footer">
-                <span class="text-info mr-2 font-weight-600">3.48%</span>
-                <span class="text-nowrap">Since last month</span>
+                <span class="text-info mr-2 font-weight-600 d-none">3.48%</span>
+                <span class="text-nowrap d-none">Since last month</span>
+                <small class="text-nowrap">
+                  <i class="far fa-user"></i> by
+                  <i>{{ getUserName(entity.user_id) }}</i>
+                </small>
+                <div>
+                  <small v-b-tooltip.hover.bottom="' Total des taches '">
+                    {{ entity.statistiques.total }}
+                  </small>
+                </div>
               </template>
             </stats-card>
           </b-col>
@@ -91,9 +101,7 @@
       @closeModal="closeModal"
       @submitModel="submif"
     >
-      <template #formEdit>
-        <formProjet ref="formProjet" @saveProjectType="saveProjectType" />
-      </template>
+      <formProjet ref="formProjet" @saveProjectType="saveProjectType" />
     </modalFrom>
   </div>
 </template>
@@ -104,6 +112,8 @@ import { mapState } from "vuex";
 import AppBreadcrumb from "../components/AppBreadcrumb.vue";
 import formProjet from "./formProjetType.vue";
 import config from "../../rootConfig";
+import itemsEntity from "drupal-vuejs/src/App/jsonApi/itemsEntity.js";
+import AccessController from "../AccessController.js";
 
 export default {
   name: "ProjetsType",
@@ -124,6 +134,8 @@ export default {
        * determiner le type de d'entite de configuration à partir du /{path}.
        */
       projet_type_id: null,
+      users: {},
+      AccessController: AccessController,
     };
   },
   computed: {
@@ -137,6 +149,7 @@ export default {
   },
   mounted() {
     this.loadEntities();
+    this.loadUser();
     if (this.$router.history.current) {
       switch (this.$router.history.current.path) {
         case "/projets":
@@ -162,6 +175,13 @@ export default {
     editProject(entity) {
       this.$store.commit("storeProject/SET_CURRENT_PROJECT", entity);
       this.userClick(false);
+    },
+    /**
+     * Affiche le projet dans un modal.
+     * @param {*} entity
+     */
+    seeProject(entity) {
+      console.log("entity : ", entity);
     },
     DeleteProject(entity) {
       config
@@ -205,6 +225,24 @@ export default {
      */
     submif() {
       this.$refs.formProjet.submit();
+    },
+    loadUser() {
+      let vocabulary = "user";
+      if (vocabulary && config) {
+        const terms = new itemsEntity(vocabulary, vocabulary, config);
+        terms.remplaceConfig();
+        terms.get().then(() => {
+          this.users = terms.getOptions();
+        });
+      }
+    },
+    getUserName(id) {
+      for (const i in this.users) {
+        const item = this.users[i];
+        if (item.value == id) {
+          return item.text;
+        }
+      }
     },
   },
 };

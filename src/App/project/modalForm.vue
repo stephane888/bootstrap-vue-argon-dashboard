@@ -12,9 +12,7 @@
     <template #modal-header>
       <slot name="titleModal"></slot>
     </template>
-    <template #default>
-      <slot name="formEdit"></slot>
-    </template>
+    <slot></slot>
     <template #modal-footer="{ cancel }">
       <b-button size="md" variant="outline-primary" @click="handleOk">
         <b-icon icon="save2" variant="success"></b-icon>

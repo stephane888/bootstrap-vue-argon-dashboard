@@ -44,9 +44,9 @@
           </small>
         </div>
       </template>
-      <template #formEdit>
+      <div class="kkdfdsfdfdffdf" tabindex="0">
         <formEntity ref="formProjet"></formEntity>
-      </template>
+      </div>
     </modalFrom>
   </div>
 </template>
@@ -104,6 +104,19 @@ export default {
   mounted() {
     this.getProjet();
     this.loadEntities();
+    /**
+     * On a un bug avec le modal de bootstrap,
+     * on force cette solution.
+     */
+    this.$root.$on("bv::modal::show", (bvEvent, modalId) => {
+      console.log("Modal is about to be shown", bvEvent, modalId);
+      setTimeout(() => {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+          modal.querySelector(".modal-content").removeAttribute("tabindex");
+        }
+      }, 1500);
+    });
   },
   methods: {
     /**

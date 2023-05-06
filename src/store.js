@@ -3,6 +3,7 @@ import Vuex from "vuex";
 import config from "./rootConfig";
 import storeProject from "./App/project/storeProject";
 import router from "./routes/router";
+import itemsEntity from "drupal-vuejs/src/App/jsonApi/itemsEntity.js";
 Vue.use(Vuex);
 
 export default new Vuex.Store({
@@ -11,6 +12,11 @@ export default new Vuex.Store({
      * information concernant l'utilisateur connecté.
      */
     user: null,
+    /**
+     * Roles attribues à l'utilisateur. Cela permet d'afficher certaines informations facilitant l'utilisation.
+     * Cela ne modifie ou n'impacte pas les actions au niveau du serveur.
+     */
+    roles: [],
     /**
      * Contient la valeur de rediection.( Par defaut / );
      */
@@ -24,10 +30,11 @@ export default new Vuex.Store({
     /**
      * Recupere le type d'entity en function de l'url si cela est possible.
      * getter ne marche pas avec les changements de route.
+     * On ne peut pas obtenir le bundle dela route car le changement de route n'est pas vue par getters.
+     * @deprecated on doit tester cela avc d'autre entité que "app_project_type"?
      * @returns
      */
     entity_type_id: () => {
-      console.log(router);
       if (
         router.history &&
         router.history.current.params &&
@@ -42,25 +49,18 @@ export default new Vuex.Store({
         return entity_type_id;
       } else return null;
     },
-    /**
-     * Retourne le bundle de l'entite encours.
-     * On ne peut pas obtenir le bundle dela route car le changement de route n'est pas vue par getters.
-     * @returns
-     */
-    bundle: (router) => {
-      console.log(" routerParams : ", router.history);
-      if (
-        router.history &&
-        router.history.current.params &&
-        router.history.current.params.configEntityId
-      ) {
-        return router.history.current.params.configEntityId;
-      } else return null;
+    uid(state) {
+      if (state.user && state.user.current_user.uid) {
+        return state.user.current_user.uid;
+      } else return false;
     },
   },
   mutations: {
     SET_USER(state, user) {
       state.user = user;
+    },
+    SET_ROLES(state, roles) {
+      state.roles = roles;
     },
     SET_URL_REDICTION(state, url) {
       state.redirectAfterLogin = url;
@@ -72,12 +72,14 @@ export default new Vuex.Store({
      * @param {*} param0
      * @param {*} values
      */
-    login({ commit }, values) {
+    login({ commit, dispatch }, values) {
       return new Promise((resolv, reject) => {
         config
           .login(values)
           .then((resp) => {
             commit("SET_USER", resp.data);
+            // On charge les informations utile concernant l'utilisateur.
+            dispatch("userConfig");
             resolv(resp.data);
           })
           .catch((err) => {
@@ -86,12 +88,48 @@ export default new Vuex.Store({
       });
     },
     /**
+     * Permet de charger la configuration de l'utilisateur.
+     */
+    userConfig({ commit, state }) {
+      const uid =
+        state.user && state.user.current_user.uid
+          ? state.user.current_user.uid
+          : false;
+      if (uid) {
+        config.dGet("/gestion-project-v2/user-config/" + uid).then((resp) => {
+          commit("SET_ROLES", resp.data.roles);
+        });
+      }
+    },
+    userIsAdministrator({ state }) {
+      if (state.roles.length > 0) {
+        return state.roles.includes("administrator");
+      } else return false;
+    },
+    userIsManager({ state }) {
+      if (state.roles.length > 0) {
+        state.roles.includes("manager");
+      } else return false;
+    },
+    userIsEmployee({ state }) {
+      if (state.roles.length > 0) {
+        return state.roles.includes("employee");
+      } else return false;
+    },
+    userIsPerformer({ state }) {
+      if (state.roles.length > 0) {
+        return state.roles.includes("performer");
+      } else return false;
+    },
+    /**
      * Permet de verifier si l'utilisateur s'est deja authentifier.
      */
-    CheckUserIsLogin({ commit }) {
+    CheckUserIsLogin({ commit, dispatch }) {
       const cre = config.checkCurrentUserIsLogin();
       if (cre) {
         commit("SET_USER", cre);
+        // On charge les informations utile concernant l'utilisateur.
+        dispatch("userConfig");
       }
     },
     /**
