@@ -86,6 +86,7 @@ export default {
      */
     CLEAN_ENTITY_EDIT(state) {
       state.entityEdit = [];
+      state.fields = [];
     },
     // https://stackoverflow.com/questions/64635384/write-data-to-a-nested-dictionary-given-a-key-path-of-unknown-length/64641327#64641327.
     // https://stackoverflow.com/questions/66236245/multi-level-dynamic-key-setting.
@@ -130,6 +131,14 @@ export default {
     },
     SET_ENTITIES(state, payload) {
       state.entities = payload;
+    },
+    SET_CLEAN_CURRENT_PROJECT(state) {
+      state.currentProject = {
+        id: "",
+        label: "",
+        description: "",
+        users: [],
+      };
     },
   },
   actions: {

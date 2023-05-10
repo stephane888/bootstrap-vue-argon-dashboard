@@ -21,6 +21,10 @@ export default new Vuex.Store({
      * Contient la valeur de rediection.( Par defaut / );
      */
     redirectAfterLogin: "/",
+    /**
+     * Liste des utilisateurs.
+     */
+    users: {},
   },
   getters: {
     isLoggedIn(state) {
@@ -58,6 +62,9 @@ export default new Vuex.Store({
   mutations: {
     SET_USER(state, user) {
       state.user = user;
+    },
+    SET_USERS(state, users) {
+      state.users = users;
     },
     SET_ROLES(state, roles) {
       state.roles = roles;
@@ -136,8 +143,26 @@ export default new Vuex.Store({
      * Deconnexion de l'utilisateur
      */
     deleteConnexion({ commit }) {
+      // il faudrait vider les entites chargées.
+      commit("storeProject/CLEAN_ENTITY_EDIT");
+      commit("storeProject/SET_ENTITIES", []);
+      commit("storeProject/SET_PROJECTS", []);
+      commit("storeProject/SET_CLEAN_CURRENT_PROJECT");
       config.deleteConnexion();
       commit("SET_USER", null);
+    },
+    /**
+     * Liste des utilisateurs, utilisé à plusisieurs endroit;
+     */
+    getUsers({ commit, state }) {
+      let vocabulary = "user";
+      if (vocabulary && config && Object.keys(state.users).length === 0) {
+        const terms = new itemsEntity(vocabulary, vocabulary, config);
+        terms.remplaceConfig();
+        terms.get().then(() => {
+          commit("SET_USERS", terms.getOptions());
+        });
+      }
     },
 
     /**

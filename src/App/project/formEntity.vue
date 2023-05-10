@@ -1,28 +1,42 @@
 <template>
   <div>
-    <b-form v-if="show" @submit="onSubmit" @reset="onReset">
-      <component
-        :is="container.template"
-        v-for="(container, i) in fields"
-        :key="i"
-        :entity="container.entity"
-        :class-entity="['pt-1']"
-      >
+    <ValidationObserver ref="formObserver" tag="section">
+      <b-form v-if="fields.length" @submit="onSubmit" @reset="onReset">
         <component
-          :is="render.template"
-          v-for="(render, k) in container.fields"
-          :key="k"
-          :field="render.field"
-          :model="render.model"
-          :entities="render.entities"
-          :class-css="['mb-2']"
-          :parent-name="i + '.entity.'"
-          :parent-child-name="i + '.entities.'"
-          size="sm"
-          namespace-store="storeProject"
-        ></component>
-      </component>
-    </b-form>
+          :is="container.template"
+          v-for="(container, i) in fields"
+          :key="i"
+          :entity="container.entity"
+          :class-entity="['pt-1']"
+        >
+          <component
+            :is="render.template"
+            v-for="(render, k) in container.fields"
+            :key="k"
+            :field="render.field"
+            :model="render.model"
+            :entities="render.entities"
+            :class-css="['mb-2']"
+            :parent-name="i + '.entity.'"
+            :parent-child-name="i + '.entities.'"
+            :override-config="true"
+            size="sm"
+            namespace-store="storeProject"
+          ></component>
+        </component>
+      </b-form>
+      <div
+        v-if="!fields.length && running"
+        class="d-flex py-5 justify-content-center align-items-center"
+      >
+        <b-icon
+          icon="arrow-clockwise"
+          animation="spin"
+          font-scale="4"
+          variant="info"
+        ></b-icon>
+      </div>
+    </ValidationObserver>
   </div>
 </template>
 
@@ -32,20 +46,15 @@ import { mapState } from "vuex";
 // import loadField from "components_h_vuejs/src/components/fieldsDrupal/loadField";
 export default {
   name: "FormProjetType",
-  props: {
-    showSubmit: {
-      type: Boolean,
-      default: false,
-    },
-  },
   data() {
     return {
-      show: true,
+      showForm: false,
     };
   },
   computed: {
     ...mapState({
       fields: (state) => state.storeProject.fields,
+      running: (state) => state.storeProject.running,
     }),
     idEntity() {
       if (this.form.label !== "") {
@@ -65,17 +74,10 @@ export default {
       this.submit();
     },
     /**
-     * n'est pas utilisé
-     * @public
-     * @deprecated
+     * Permet de valider le formulaire.
      */
-    submit() {
-      if (!this.form.id) {
-        alert("Contenu vide");
-        return;
-      }
-      alert("save");
-      return this.$store.dispatch("storeProject/saveEntities");
+    ValidationForm() {
+      return this.$refs.formObserver.validate();
     },
     onReset(event) {
       event.preventDefault();

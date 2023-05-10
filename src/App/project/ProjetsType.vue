@@ -111,7 +111,7 @@ import modalFrom from "./modalForm.vue";
 import { mapState } from "vuex";
 import AppBreadcrumb from "../components/AppBreadcrumb.vue";
 import formProjet from "./formProjetType.vue";
-import config from "../../rootConfig";
+import config from "../request";
 import itemsEntity from "drupal-vuejs/src/App/jsonApi/itemsEntity.js";
 import AccessController from "../AccessController.js";
 
@@ -134,13 +134,13 @@ export default {
        * determiner le type de d'entite de configuration à partir du /{path}.
        */
       projet_type_id: null,
-      users: {},
       AccessController: AccessController,
     };
   },
   computed: {
     ...mapState({
       projects: (state) => state.storeProject.projects,
+      users: (state) => state.users,
     }),
     breadCrumbs() {
       const staticUrl = [{ path: "/projets", name: "Liste de projets" }];
@@ -227,22 +227,10 @@ export default {
       this.$refs.formProjet.submit();
     },
     loadUser() {
-      let vocabulary = "user";
-      if (vocabulary && config) {
-        const terms = new itemsEntity(vocabulary, vocabulary, config);
-        terms.remplaceConfig();
-        terms.get().then(() => {
-          this.users = terms.getOptions();
-        });
-      }
+      this.$store.dispatch("getUsers");
     },
     getUserName(id) {
-      for (const i in this.users) {
-        const item = this.users[i];
-        if (item.value == id) {
-          return item.text;
-        }
-      }
+      return config.getUserName(id);
     },
   },
 };

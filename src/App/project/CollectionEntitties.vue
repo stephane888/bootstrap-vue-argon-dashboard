@@ -12,7 +12,7 @@
         </b-col>
         <b-col md="6" class="d-flex justify-content-end">
           <button-app
-            text-button="Creer une tache / un tuto / ..."
+            text-button=" Creer une tache / un tuto / ... "
             @userClick="LoadEmptyForm"
           ></button-app>
         </b-col>
@@ -44,7 +44,7 @@
           </small>
         </div>
       </template>
-      <div class="kkdfdsfdfdffdf" tabindex="0">
+      <div>
         <formEntity ref="formProjet"></formEntity>
       </div>
     </modalFrom>
@@ -102,6 +102,7 @@ export default {
     },
   },
   mounted() {
+    this.$store.dispatch("getUsers");
     this.getProjet();
     this.loadEntities();
     /**
@@ -153,6 +154,7 @@ export default {
       this.titleModal = "Creer une nouvelle tache ou memo ou article ...";
       this.iconFormEdit = "plus-square";
       if (this.manageModal) {
+        this.$store.commit("storeProject/CLEAN_ENTITY_EDIT");
         this.$store.dispatch("storeProject/loadFormEntity", {
           entity_type_id: this.configEntityTypeId,
           bundle: this.configEntityId,
@@ -175,9 +177,14 @@ export default {
     //   this.userClick(false);
     // },
     submitModel() {
-      this.$store.dispatch("storeProject/saveEntities").then(() => {
-        this.loadEntities();
-        this.$bvModal.hide("b-modal-manage-project");
+      this.$refs.formProjet.ValidationForm().then((status) => {
+        if (status) {
+          this.$store.dispatch("storeProject/saveEntities").then(() => {
+            this.$store.commit("storeProject/CLEAN_ENTITY_EDIT");
+            this.loadEntities();
+            this.$bvModal.hide("b-modal-manage-project");
+          });
+        }
       });
     },
     editEntity(attributes) {
