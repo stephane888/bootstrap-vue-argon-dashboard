@@ -177,13 +177,20 @@ export default {
     //   this.userClick(false);
     // },
     submitModel() {
-      this.$refs.formProjet.ValidationForm().then((status) => {
-        if (status) {
+      this.$refs.formProjet.ValidationForm().then((data) => {
+        if (data.status) {
           this.$store.dispatch("storeProject/saveEntities").then(() => {
             this.$store.commit("storeProject/CLEAN_ENTITY_EDIT");
             this.loadEntities();
             this.$bvModal.hide("b-modal-manage-project");
           });
+        } else {
+          for (const i in data.formObserver.fields) {
+            const field = data.formObserver.fields[i];
+            if (field.invalid) {
+              console.log("field invalid", field.name, "\n field : ", field);
+            }
+          }
         }
       });
     },

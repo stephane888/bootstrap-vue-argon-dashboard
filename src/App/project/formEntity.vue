@@ -77,7 +77,20 @@ export default {
      * Permet de valider le formulaire.
      */
     ValidationForm() {
-      return this.$refs.formObserver.validate();
+      return new Promise((resovl, reject) => {
+        this.$refs.formObserver
+          .validate()
+          .then((status) => {
+            resovl({ status: status, formObserver: this.$refs.formObserver });
+          })
+          .catch((error) => {
+            reject({
+              status: false,
+              formObserver: this.$refs.formObserver,
+              error: error,
+            });
+          });
+      });
     },
     onReset(event) {
       event.preventDefault();
