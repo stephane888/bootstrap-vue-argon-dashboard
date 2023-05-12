@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="list-entities">
     <div v-for="(group, i) in entities_groups" :key="i" class="hr">
       <div v-if="group.items.length">
         <h3>{{ group.label }}</h3>
@@ -22,21 +22,26 @@
                     <b-badge class="mr-2" variant="transparent">
                       {{ item.attributes.drupal_internal__id }}
                     </b-badge>
-                    <h4 class="mb-0">
-                      {{ item.attributes.name }}
+                    <h4
+                      class="mb-2 d-flex w-100 align-items-baseline justify-content-between"
+                    >
+                      <div class="mr-3">{{ item.attributes.name }}</div>
+                      <titreInfos :item="item"></titreInfos>
                     </h4>
                   </div>
                   <div class="d-flex">
                     <small class="text-info--03 d-inline-block">
-                      Update : {{ getDateInfrench(item.attributes.changed) }}
+                      <b-icon icon="clock"></b-icon>
+                      {{ timeAgoText(item.attributes.changed) }}
                     </small>
                     <small class="text-info--03 d-inline-block">
-                      Post : {{ getDateInfrench(item.attributes.created) }} by
+                      <b-icon icon="calendar2-check"></b-icon>
+                      {{ getDateInfrench(item.attributes.created) }} by
                       {{ getUserName(item.relationships) }}
                     </small>
                   </div>
                 </b-col>
-                <b-col md="3">
+                <b-col md="3" class="d-flex justify-content-end">
                   <span
                     v-if="item.accordionOpen"
                     v-b-toggle="item.accordionId"
@@ -81,7 +86,7 @@
                   </span>
                   <span
                     v-b-tooltip.hover.v-danger
-                    class="btn-action mr-4"
+                    class="btn-action"
                     title="Modifier"
                     role="button"
                     href="#"
@@ -122,8 +127,14 @@
 <script>
 import { mapState, mapGetters } from "vuex";
 import config from "../request";
+import TimeAgo from "javascript-time-ago";
+import fr from "javascript-time-ago/locale/fr";
+TimeAgo.addDefaultLocale(fr);
 export default {
   name: "AccordionEntities",
+  components: {
+    titreInfos: () => import("../components/titreInfos.vue"),
+  },
   data() {
     return {
       idBase: "accd-item-" + Math.random().toString(36),
@@ -152,6 +163,11 @@ export default {
     //
   },
   methods: {
+    timeAgoText(string_date) {
+      const date = new Date(string_date);
+      const timeAgo = new TimeAgo();
+      return timeAgo.format(date);
+    },
     getDateInfrench(string_date) {
       const date = new Date(string_date);
       if (date) {
@@ -204,7 +220,7 @@ export default {
       var variant_header = "bg-light";
       switch (group_id) {
         case "running":
-          variant_header = "bg-gradient-orange text-white";
+          variant_header = "bg-gradient-vert-sombre text-white";
           break;
         case "validate":
           variant_header = "bg-gradient-success text-white";
@@ -222,12 +238,9 @@ export default {
 };
 </script>
 <style lang="scss">
-.text-info {
-  &--03 {
-    font-size: 70%;
-    font-style: italic;
-    padding-left: 10px;
-    color: #858d99;
+.list-entities {
+  .badge {
+    font-size: 78%;
   }
 }
 </style>

@@ -3359,12 +3359,10 @@
   "resolved" "file:../drupal-vuejs"
   "version" "1.0.2"
   dependencies:
-    "@babel/polyfill" "^7.11.5"
-    "babel-eslint" "^10.1.0"
     "bootstrap" "^4.6.0"
     "bootstrap-vue" "^2.21.2"
     "core-js" "^3.6.5"
-    "mutationobserver-shim" "^0.3.7"
+    "install" "^0.13.0"
     "popper.js" "^1.16.1"
     "portal-vue" "^2.1.7"
     "query-string" "^4.3.4"
@@ -4559,6 +4557,13 @@
   "integrity" "sha512-JVAfqNPTvNq3sB/VHQJAFxN/sPgKnsKrCwyRt15zwNCdrMMJDdcEOdubuy+DuJYYdm0ox1J4uzEuYKkN+9yhVg=="
   "resolved" "https://registry.npmjs.org/javascript-stringify/-/javascript-stringify-2.1.0.tgz"
   "version" "2.1.0"
+
+"javascript-time-ago@^2.5.9":
+  "integrity" "sha512-pQ8mNco/9g9TqWXWWjP0EWl6i/lAQScOyEeXy5AB+f7MfLSdgyV9BJhiOD1zrIac/lrxPYOWNbyl/IW8CW5n0A=="
+  "resolved" "https://registry.npmjs.org/javascript-time-ago/-/javascript-time-ago-2.5.9.tgz"
+  "version" "2.5.9"
+  dependencies:
+    "relative-time-format" "^1.1.6"
 
 "jest-worker@^27.0.2", "jest-worker@^27.4.5":
   "integrity" "sha512-7vuh85V5cdDofPyxn58nrPjBktZo0u9x1g8WtjQol+jZDaE+fhN+cIvTj11GndBnMnyfrUOG1sZQxCdjKh+DKg=="
@@ -6032,6 +6037,11 @@
   "integrity" "sha512-G08Dxvm4iDN3MLM0EsP62EDV9IuhXPR6blNz6Utcp7zyV3tr4HVNINt6MpaRWbxoOHT3Q7YN2P+jaHX8vUbgog=="
   "resolved" "https://registry.npmjs.org/relateurl/-/relateurl-0.2.7.tgz"
   "version" "0.2.7"
+
+"relative-time-format@^1.1.6":
+  "integrity" "sha512-aCv3juQw4hT1/P/OrVltKWLlp15eW1GRcwP1XdxHrPdZE9MtgqFpegjnTjLhi2m2WI9MT/hQQtE+tjEWG1hgkQ=="
+  "resolved" "https://registry.npmjs.org/relative-time-format/-/relative-time-format-1.1.6.tgz"
+  "version" "1.1.6"
 
 "renderkid@^3.0.0":
   "integrity" "sha512-q/7VIQA8lmM1hF+jn+sFSPWGlMkSAeNYcPLmDQx2zzuiDfaLrOmumR8iaUKlenFgh0XRPIUeSPlH3A+AW3Z5pg=="

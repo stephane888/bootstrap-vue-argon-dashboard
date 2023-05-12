@@ -18,6 +18,10 @@ export default new Vuex.Store({
      */
     roles: [],
     /**
+     * Contient les informations de configuration des utilisateurs
+     */
+    userConfig: {},
+    /**
      * Contient la valeur de rediection.( Par defaut / );
      */
     redirectAfterLogin: "/",
@@ -72,6 +76,9 @@ export default new Vuex.Store({
     SET_URL_REDICTION(state, url) {
       state.redirectAfterLogin = url;
     },
+    SET_USER_CONFIG(state, payload) {
+      state.userConfig = payload;
+    },
   },
   actions: {
     /**
@@ -104,6 +111,7 @@ export default new Vuex.Store({
           : false;
       if (uid) {
         config.dGet("/gestion-project-v2/user-config/" + uid).then((resp) => {
+          commit("SET_USER_CONFIG", resp.data);
           commit("SET_ROLES", resp.data.roles);
         });
       }

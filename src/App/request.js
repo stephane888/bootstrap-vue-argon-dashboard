@@ -39,6 +39,11 @@ export default {
       "/apivuejs/add-entity/" + entity_type_id + "/" + bundle + "/" + view_mode
     );
   },
+  /**
+   * Recupere le nom de l'utilisateur à partir de son id.
+   * @param {*} id
+   * @returns
+   */
   getUserName(id) {
     if (store.state.users)
       for (const i in store.state.users) {

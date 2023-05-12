@@ -4,6 +4,9 @@ function resolveSrc(_path) {
   return path.join(__dirname, _path);
 }
 // vue.config.js
+/**
+ * @see https://cli.vuejs.org/config/#vue-config-js
+ */
 module.exports = {
   lintOnSave: true,
   configureWebpack: {
@@ -16,6 +19,10 @@ module.exports = {
   },
   css: {
     // Enable CSS source maps.
-    sourceMap: process.env.NODE_ENV !== "production",
+    // sourceMap: process.env.NODE_ENV !== "production",
+    sourceMap: true,
   },
+  //
+  // outputDir: "public",
+  productionSourceMap: true,
 };

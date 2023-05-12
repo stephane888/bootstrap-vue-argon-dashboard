@@ -20,7 +20,11 @@
     </base-header>
     <b-container fluid class="pb-4 pt-4">
       <b-row>
+        <b-col lg="9"> filtres </b-col>
+      </b-row>
+      <b-row>
         <b-col lg="9">
+          <h1>Liste des taches</h1>
           <AccordionEntities
             @editEntity="editEntity"
             @DeleteEntity="DeleteEntity"

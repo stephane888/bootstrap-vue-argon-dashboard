@@ -3,3 +3,18 @@
 
 @use "./_variables" as *;
 //
+.text-info {
+  &--03 {
+    font-size: 70%;
+    font-style: italic;
+    padding-left: 10px;
+    color: #858d99;
+  }
+}
+.text-white {
+  .text-info {
+    &--03 {
+      color: #cbcbcb;
+    }
+  }
+}
