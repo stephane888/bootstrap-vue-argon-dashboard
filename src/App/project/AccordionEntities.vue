@@ -133,7 +133,7 @@ TimeAgo.addDefaultLocale(fr);
 export default {
   name: "AccordionEntities",
   components: {
-    titreInfos: () => import("../components/titreInfos.vue"),
+    titreInfos: () => import("../components/TitreInfos.vue"),
   },
   data() {
     return {

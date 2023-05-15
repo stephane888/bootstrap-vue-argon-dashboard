@@ -1,3 +1,4 @@
+import { mode } from "d3";
 import store from "../store";
 export default {
   /**
@@ -30,6 +31,69 @@ export default {
       if (entity.user_id == store.getters.uid) status = true;
     }
     return status;
+  },
+  /**
+   * Permet de determiner si l'utilisateur peut demarrer la tache ou pas.
+   * il doit etre dans la liste des utilisateurs.
+   * @param {*} entity
+   */
+  userCanRunTache(field, model) {
+    const status_execution = model.status_execution;
+    if (
+      status_execution[0] &&
+      (status_execution[0].value == "new" || status_execution[0].value == "")
+    ) {
+      return this.userIsIncludeInperformer(field);
+    } else {
+      return false;
+    }
+  },
+  userCanEndTache(field, model) {
+    const status_execution = model.status_execution;
+    if (status_execution[0] && status_execution[0].value == "running") {
+      return this.userIsIncludeInperformer(field);
+    } else {
+      return false;
+    }
+  },
+  /**
+   * L'utilisateur peut marquer la tache comme valider.
+   */
+  userCanValidate(field, model) {
+    const status_execution = model.status_execution;
+    if (status_execution[0] && status_execution[0].value != "end") {
+      return false;
+    }
+    if (this.userIsAdministrator() || this.userIsManager()) {
+      return true;
+    } else return false;
+  },
+  /**
+   * L'utilisateur peut marquer la tache comme abandonner.
+   */
+  userCanGiveUp(field, model) {
+    const status_execution = model.status_execution;
+    if (
+      status_execution[0] &&
+      status_execution[0].value != "new" &&
+      status_execution[0].value != ""
+    ) {
+      return true;
+    } else return false;
+  },
+  /**
+   * L'utilisateur est inclus dans la liste des exectutants.
+   * @param {*} field
+   * @returns
+   */
+  userIsIncludeInperformer(field) {
+    if (
+      field.definition_settings.allowed_values &&
+      store.getters.uid &&
+      field.definition_settings.allowed_values[store.getters.uid]
+    ) {
+      return true;
+    } else return false;
   },
   userIsAdministrator() {
     if (store.state.roles.length > 0) {

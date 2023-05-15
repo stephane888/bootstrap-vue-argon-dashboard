@@ -1,8 +1,10 @@
 import rootConfig from "../rootConfig";
 import store from "../store";
+import manageDate from "./project/manage-time";
 
 export default {
   ...rootConfig,
+  ...manageDate,
 
   /**
    * Permet de creer ou mettre à jours les entitées de configuration.

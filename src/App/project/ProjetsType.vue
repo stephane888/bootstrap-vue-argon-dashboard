@@ -78,7 +78,7 @@
           </b-col>
         </b-row>
       </div>
-      <b-row>
+      <b-row class="d-none">
         <b-col xl="3" md="4">
           <stats-card
             title="Total traffic"

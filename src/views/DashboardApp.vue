@@ -61,15 +61,10 @@
         </b-col>
       </b-row>
     </base-header>
-    <fromProject></fromProject>
   </div>
 </template>
 <script>
 // Charts
-import fromProject from "../App/project/formProjetType.vue";
-export default {
-  components: {
-    fromProject,
-  },
-};
+// import fromProject from "../App/project/formProjetType.vue";
+export default {};
 </script>

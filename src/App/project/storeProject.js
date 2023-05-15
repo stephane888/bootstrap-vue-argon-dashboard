@@ -246,14 +246,14 @@ export default {
      * @param {*} payload
      */
     loadEntityWithBundle({ commit }, payload) {
-      commit("SET_ENTITIES", []);
+      if (payload.clean) commit("SET_ENTITIES", []);
       const IE = new itemsEntity(
         payload.entity_type_id,
         payload.bundle,
         request
       );
       IE.remplaceConfig();
-      IE.url += "?include=executants,project_manager";
+      IE.url += "?include=executants,project_manager&sort=-created";
       IE.get().then((resp) => {
         /**
          * On ajoute les proprietes supplementaire afin de contruire un accordeon.

@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="form-edit-entity">
     <ValidationObserver ref="formObserver" tag="section">
       <b-form
         v-if="fields_wihiout_statiques.length"
@@ -42,13 +42,34 @@
                 }}
               </div>
             </div>
-            <b-col> </b-col>
           </b-col>
-          <b-col md="8" class="d-flex flex-wrap justify-content-end">
-            <b-button size="sm" @click="start"> Démarrer </b-button>
-            <b-button size="sm"> Terminer </b-button>
-            <b-button size="sm"> Valider </b-button>
-            <b-button size="sm" @click="abondonner"> Abondonner </b-button>
+          <b-col md="8">
+            <div class="d-flex flex-wrap justify-content-end">
+              <b-button :disabled="!userCanRunTache()" size="sm" @click="start">
+                Démarrer
+              </b-button>
+              <b-button
+                :disabled="!userCanEndTache()"
+                size="sm"
+                @click="endTache"
+              >
+                Terminer
+              </b-button>
+              <b-button :disabled="!userCanValidate()" size="sm">
+                Valider
+              </b-button>
+              <b-button
+                :disabled="!userCanGiveUp()"
+                size="sm"
+                @click="abondonner"
+              >
+                Abondonner
+              </b-button>
+            </div>
+            <TacheProgressBar
+              :model="statique_fields.duree_execution.model"
+              class="mt-3"
+            ></TacheProgressBar>
           </b-col>
         </b-row>
         <!--description-->
@@ -139,6 +160,8 @@
 <script>
 import request from "../request";
 import { mapState } from "vuex";
+import AccessController from "../AccessController.js";
+import TacheProgressBar from "../components/TacheProgressBar.vue";
 // import loadField from "components_h_vuejs/src/components/fieldsDrupal/loadField";
 export default {
   name: "FormProjetType",
@@ -153,6 +176,7 @@ export default {
       import(
         "components_h_vuejs/src/components/fieldsDrupal/DrupalInteger.vue"
       ),
+    TacheProgressBar: TacheProgressBar,
   },
   data() {
     return {
@@ -182,7 +206,7 @@ export default {
         "project_manager",
         "duree",
         "duree_execution",
-        "executants",
+        //"executants",
         "type_project",
         "description",
         "status_execution",
@@ -196,6 +220,9 @@ export default {
           if (!statique_fields.includes(field.field.name)) fields.push(field);
           else {
             this.addStatiqueField(field.field.name, field);
+            // On ajoute une description pour le champs duree_execution
+            if (field.field.name == "duree_execution")
+              this.addDescriptionToDureeExecution();
           }
         }
         // console.log("new_fields : ", fields);
@@ -205,6 +232,7 @@ export default {
           fields: fields,
         });
       }
+
       return new_fields;
     },
   },
@@ -261,39 +289,206 @@ export default {
       this.accordionOpen = !this.accordionOpen;
     },
     /**
+     * --
+     */
+    addDescriptionToDureeExecution() {
+      if (
+        this.statique_fields.duree_execution &&
+        this.statique_fields.duree_execution.field
+      ) {
+        this.statique_fields.duree_execution.field.description =
+          "Journée de travail " + this.$store.state.userConfig.duree_jour + "h";
+      }
+    },
+    /**
      *
      * @param {Array} values
      */
     getDureeExecution(values) {
       if (values && values[0]) {
-        console.log("values : ", values);
-        const mn = parseInt(values[0].value);
-        var string = "";
-        if (mn) {
-          const h = mn / 60;
-          if (h > this.$store.state.userConfig.duree_jour) {
-            string +=
-              Math.floor(h / this.$store.state.userConfig.duree_jour) +
-              " jour(s) ";
-          }
-          const mn_restant = h % this.$store.state.userConfig.duree_jour;
-          if (mn_restant) {
-            string += mn_restant.toFixed(2) + " h";
-          }
-        }
-        return string;
+        return request.convertTimeMinuteToRead(values[0].value);
       }
-      r;
     },
+    userCanRunTache() {
+      if (this.statique_fields.project_manager.field)
+        return AccessController.userCanRunTache(
+          this.statique_fields.project_manager.field,
+          this.statique_fields.project_manager.model
+        );
+      else return false;
+    },
+    userCanEndTache() {
+      if (this.statique_fields.project_manager.field)
+        return AccessController.userCanEndTache(
+          this.statique_fields.project_manager.field,
+          this.statique_fields.project_manager.model
+        );
+      else return false;
+    },
+    userCanGiveUp() {
+      if (this.statique_fields.project_manager.field)
+        return AccessController.userCanGiveUp(
+          this.statique_fields.project_manager.field,
+          this.statique_fields.project_manager.model
+        );
+      else return false;
+    },
+    /**
+     * -- userCanValidate
+     */
+    userCanValidate() {
+      if (
+        this.statique_fields.status_execution &&
+        this.statique_fields.status_execution.model.status_execution &&
+        this.statique_fields.project_manager.field
+      )
+        return AccessController.userCanValidate(
+          this.statique_fields.project_manager.field,
+          this.statique_fields.status_execution.model
+        );
+      return false;
+    },
+    /**
+     * Lorsqu'on clique sur une tache, il met à jour le champs durée :
+     * La date de depart est l'instant ou on a cliqué et la date de fin est determiné à partir du temps d'execution.
+     * On met à jour egalement le chef d'execution du projet, il doit etre membre de l'execution de la tache.
+     * On change egalement le status de la tache.
+     */
     start() {
+      // Dure d'execution de la tache.
+      var duree_execution = 0;
+      if (
+        this.statique_fields.duree_execution.model.duree_execution &&
+        this.statique_fields.duree_execution.model.duree_execution[0]
+      ) {
+        duree_execution =
+          this.statique_fields.duree_execution.model.duree_execution[0].value;
+      }
+      // Mise à jour du champs durée.
+      if (
+        this.statique_fields.duree &&
+        this.statique_fields.duree.model.duree
+      ) {
+        const value = {
+          value: this.getDateForDrupal(),
+          end_value: this.getDateForDrupal(duree_execution),
+        };
+        this.$store.dispatch("storeProject/setValue", {
+          fieldName: "0.entity.duree",
+          value: [value],
+        });
+      } else {
+        alert("Champs durée non definie");
+      }
+      // Mise à jour du chef de projet.
+      if (
+        this.statique_fields.project_manager &&
+        this.statique_fields.project_manager.model.project_manager
+      ) {
+        const value = {
+          target_id: this.$store.getters.uid,
+        };
+        this.$store.dispatch("storeProject/setValue", {
+          fieldName: "0.entity.project_manager",
+          value: [value],
+        });
+      } else {
+        alert("Champs project_manager non definie");
+      }
+      // Mise à jour du status de la tache
+      if (
+        this.statique_fields.status_execution &&
+        this.statique_fields.status_execution.model.status_execution
+      ) {
+        const value = {
+          value: "running",
+        };
+        this.$store.dispatch("storeProject/setValue", {
+          fieldName: "0.entity.status_execution",
+          value: [value],
+        });
+      } else {
+        alert("Champs status_execution non definie");
+      }
       //
+    },
+    /**
+     * Seul le chef de projet doit pouvoir marquer une tache comme terminer.
+     */
+    endTache() {
+      // Mise à jour du champs durée.
+      if (this.statique_fields.duree.model.duree) {
+        const value = this.statique_fields.duree.model.duree[0];
+        value.end_value = this.getDateForDrupal();
+        this.$store.dispatch("storeProject/setValue", {
+          fieldName: "0.entity.duree",
+          value: [value],
+        });
+      }
+      // Mise à jour du status de la tache
+      if (this.statique_fields.status_execution.model.status_execution) {
+        const value = {
+          value: "end",
+        };
+        this.$store.dispatch("storeProject/setValue", {
+          fieldName: "0.entity.status_execution",
+          value: [value],
+        });
+      }
     },
     /**
      * --
      */
     abondonner() {
-      //
+      // Mise à jour du champs durée.
+      if (this.statique_fields.duree.model.duree) {
+        const value = this.statique_fields.duree.model.duree[0];
+        value.end_value = this.getDateForDrupal();
+        this.$store.dispatch("storeProject/setValue", {
+          fieldName: "0.entity.duree",
+          value: [value],
+        });
+      }
+      // Mise à jour du status de la tache
+      if (this.statique_fields.status_execution.model.status_execution) {
+        const value = {
+          value: "cancel",
+        };
+        this.$store.dispatch("storeProject/setValue", {
+          fieldName: "0.entity.status_execution",
+          value: [value],
+        });
+      }
+    },
+    /**
+     *
+     * @param {*} DateTimeStamp
+     */
+    getDateForDrupal(add_minutes = 0) {
+      add_minutes = parseInt(add_minutes);
+      const date = new Date();
+      if (add_minutes) {
+        date.setMinutes(date.getMinutes() + add_minutes);
+      }
+      let month = parseInt(date.getMonth()) + 1;
+      const date_string = {
+        date: date.getFullYear() + "-" + month + "-" + date.getDate(),
+        hour:
+          ("0" + date.getHours()).slice(-2) +
+          ":" +
+          ("0" + date.getMinutes()).slice(-2) +
+          ":" +
+          ("0" + date.getSeconds()).slice(-2),
+      };
+      return date_string.date + "T" + date_string.hour;
     },
   },
 };
 </script>
+<style lang="scss">
+.form-edit-entity {
+  .btn.disabled:hover {
+    box-shadow: none;
+  }
+}
+</style>

@@ -50,7 +50,6 @@ export default {
       if (this.item.relationships.executants.data) {
         this.item.relationships.executants.data.forEach((item) => {
           let uid = item.meta.drupal_internal__target_id;
-          console.log("uid : ", uid, "\n chiefId :: ", this.chiefId);
           if (uid != this.chiefId) items.push(config.getUserName(uid));
         });
       }

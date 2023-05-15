@@ -109,6 +109,7 @@ export default {
     this.$store.dispatch("getUsers");
     this.getProjet();
     this.loadEntities();
+    this.PeriodiqueRun();
     /**
      * On a un bug avec le modal de bootstrap,
      * on force cette solution.
@@ -168,11 +169,12 @@ export default {
     closeModal(val) {
       this.manageModal = val;
     },
-    loadEntities() {
+    loadEntities(clean = true) {
       if (this.entity_type_id && this.configEntityId) {
         this.$store.dispatch("storeProject/loadEntityWithBundle", {
           entity_type_id: this.entity_type_id,
           bundle: this.configEntityId,
+          clean: clean,
         });
       }
     },
@@ -220,6 +222,13 @@ export default {
         .then(() => {
           this.loadEntities();
         });
+    },
+
+    PeriodiqueRun() {
+      setInterval(() => {
+        console.log("demarage period");
+        this.loadEntities(false);
+      }, 180000);
     },
   },
 };

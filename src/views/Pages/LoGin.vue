@@ -184,7 +184,9 @@ export default {
           this.$router.push({ path: "/" });
         })
         .catch((err) => {
-          console.log("err : ", err);
+          if (err.error && err.error.data && err.error.data.message) {
+            this.error_message = err.error.data.message;
+          }
           this.has_error = true;
         });
     },

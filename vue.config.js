@@ -16,13 +16,15 @@ module.exports = {
         assets: resolveSrc("src/assets"),
       },
     },
+    //
+    // devtool: "source-map",
   },
-  css: {
-    // Enable CSS source maps.
-    // sourceMap: process.env.NODE_ENV !== "production",
-    sourceMap: true,
-  },
+  // css: {
+  //   // Enable CSS source maps.
+  //   // sourceMap: process.env.NODE_ENV !== "production",
+  //   // sourceMap: true,
+  // },
   //
   // outputDir: "public",
-  productionSourceMap: true,
+  // productionSourceMap: true,
 };
