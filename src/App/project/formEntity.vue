@@ -55,7 +55,11 @@
               >
                 Terminer
               </b-button>
-              <b-button :disabled="!userCanValidate()" size="sm">
+              <b-button
+                :disabled="!userCanValidate()"
+                size="sm"
+                @click="ValidTache"
+              >
                 Valider
               </b-button>
               <b-button
@@ -69,6 +73,7 @@
             <TacheProgressBar
               :model="statique_fields.duree_execution.model"
               class="mt-3"
+              class-progress="mb-0"
             ></TacheProgressBar>
           </b-col>
         </b-row>
@@ -206,7 +211,7 @@ export default {
         "project_manager",
         "duree",
         "duree_execution",
-        //"executants",
+        // "executants", // l'tilisateur doit choisir les autres membres pour constituer son equipe.
         "type_project",
         "description",
         "status_execution",
@@ -436,6 +441,21 @@ export default {
         });
       }
     },
+    ValidTache() {
+      /**
+       * On pourrait avoir besoin d'un champs pour concerver la date de validation ou voir cela dans les revisions.
+       */
+      // Mise à jour du status de la tache
+      if (this.statique_fields.status_execution.model.status_execution) {
+        const value = {
+          value: "validate",
+        };
+        this.$store.dispatch("storeProject/setValue", {
+          fieldName: "0.entity.status_execution",
+          value: [value],
+        });
+      }
+    },
     /**
      * --
      */
@@ -472,7 +492,12 @@ export default {
       }
       let month = parseInt(date.getMonth()) + 1;
       const date_string = {
-        date: date.getFullYear() + "-" + month + "-" + date.getDate(),
+        date:
+          date.getFullYear() +
+          "-" +
+          ("0" + month).slice(-2) +
+          "-" +
+          date.getDate(),
         hour:
           ("0" + date.getHours()).slice(-2) +
           ":" +

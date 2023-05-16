@@ -40,6 +40,15 @@ router.beforeEach((to, from, next) => {
     next(); // does not require auth, make sure to always call next()!
   }
 });
+// Pour plus d'information : https://stackoverflow.com/questions/51639850/how-to-change-page-titles-when-using-vue-router
+const DEFAULT_TITLE = "Application de gestion de projet";
+router.afterEach((to, from) => {
+  // Use next tick to handle router history correctly
+  // see: https://github.com/vuejs/vue-router/issues/914#issuecomment-384477609
+  Vue.nextTick(() => {
+    document.title = to.meta.title || DEFAULT_TITLE;
+  });
+});
 
 // plugin setup
 Vue.use(DashboardPlugin);

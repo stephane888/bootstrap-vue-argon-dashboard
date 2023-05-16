@@ -99,6 +99,13 @@
                     ></b-icon>
                   </span>
                 </b-col>
+                <b-col md="12">
+                  <TacheProgressBar
+                    :model="item.attributes"
+                    class-progress="mb-1 ml-2"
+                    :show-date="false"
+                  ></TacheProgressBar>
+                </b-col>
               </b-row>
             </b-card-header>
             <b-collapse
@@ -127,6 +134,7 @@
 <script>
 import { mapState, mapGetters } from "vuex";
 import config from "../request";
+import TacheProgressBar from "../components/TacheProgressBar.vue";
 import TimeAgo from "javascript-time-ago";
 import fr from "javascript-time-ago/locale/fr";
 TimeAgo.addDefaultLocale(fr);
@@ -134,6 +142,7 @@ export default {
   name: "AccordionEntities",
   components: {
     titreInfos: () => import("../components/TitreInfos.vue"),
+    TacheProgressBar: TacheProgressBar,
   },
   data() {
     return {
@@ -223,7 +232,7 @@ export default {
           variant_header = "bg-gradient-vert-sombre text-white";
           break;
         case "validate":
-          variant_header = "bg-gradient-success text-white";
+          variant_header = "bg-gradient-vert-sombre text-white";
           break;
         case "end":
           variant_header = "bg-gradient-gray-dark text-white";

@@ -25,4 +25,32 @@ export default {
     }
     return string;
   },
+
+  /**
+   * à mettre plustot dans le champs date.
+   * @param {*} DateTimeStamp
+   */
+  getDateForDrupal(date = null, add_minutes = 0) {
+    add_minutes = parseInt(add_minutes);
+    if (!date) var date = new Date();
+    if (add_minutes) {
+      date.setMinutes(date.getMinutes() + add_minutes);
+    }
+    let month = parseInt(date.getMonth()) + 1;
+    const date_string = {
+      date:
+        date.getFullYear() +
+        "-" +
+        ("0" + month).slice(-2) +
+        "-" +
+        date.getDate(),
+      hour:
+        ("0" + date.getHours()).slice(-2) +
+        ":" +
+        ("0" + date.getMinutes()).slice(-2) +
+        ":" +
+        ("0" + date.getSeconds()).slice(-2),
+    };
+    return date_string.date + "T" + date_string.hour;
+  },
 };

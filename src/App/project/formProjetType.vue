@@ -27,6 +27,9 @@
           rows="6"
         ></b-form-textarea>
       </b-form-group>
+      <b-form-group label="Privée">
+        <b-form-checkbox v-model="form.private" required></b-form-checkbox>
+      </b-form-group>
       <b-form-group
         label="Liste de personne autorisé à travailler sur le projet"
       >

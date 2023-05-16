@@ -3,6 +3,15 @@ import request from "../request";
 import generateField from "components_h_vuejs/src/js/FormUttilities";
 import loadField from "components_h_vuejs/src/components/fieldsDrupal/loadField";
 import itemsEntity from "drupal-vuejs/src/App/jsonApi/itemsEntity.js";
+const entity_type_project = () => {
+  return {
+    id: "",
+    label: "",
+    description: "",
+    private: false,
+    users: [],
+  };
+};
 export default {
   namespaced: true,
   state: () => ({
@@ -15,12 +24,7 @@ export default {
      * Contient les infos sur un projet.
      * ( Un projet du point de vue drupal est une entity de configuration. )
      */
-    currentProject: {
-      id: "",
-      label: "",
-      description: "",
-      users: [],
-    },
+    currentProject: entity_type_project(),
     /**
      * Contient l'entite encours d'edition.
      */
@@ -69,13 +73,7 @@ export default {
     },
     SET_CURRENT_PROJECT(state, payload = {}) {
       if (payload.id && payload.uuid) state.currentProject = payload;
-      else
-        state.currentProject = {
-          id: "",
-          label: "",
-          description: "",
-          users: [],
-        };
+      else state.currentProject = entity_type_project();
     },
     SET_ENTITY_EDIT(state, payload) {
       state.entityEdit = payload;
@@ -133,12 +131,7 @@ export default {
       state.entities = payload;
     },
     SET_CLEAN_CURRENT_PROJECT(state) {
-      state.currentProject = {
-        id: "",
-        label: "",
-        description: "",
-        users: [],
-      };
+      state.currentProject = entity_type_project();
     },
   },
   actions: {

@@ -69,7 +69,10 @@
                   <i>{{ getUserName(entity.user_id) }}</i>
                 </small>
                 <div>
-                  <small v-b-tooltip.hover.bottom="' Total des taches '">
+                  <small
+                    v-if="entity.statistiques"
+                    v-b-tooltip.hover.bottom="' Total des taches '"
+                  >
                     {{ entity.statistiques.total }}
                   </small>
                 </div>
