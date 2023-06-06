@@ -15,15 +15,19 @@
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 */
-$primary: #242f6e;
+//@use "@stephane888/wbu-atomique/scss/wbu-ressources-clean.scss" as *;
+
+// $primary: #242f6e;
 // Core
 
 @import "custom/functions";
 @import "custom/variables";
 @import "custom/mixins";
-
+//
+// @import "@stephane888/wbu-atomique/scss/bootstrap-all.scss";
 // Bootstrap (4.1.3) components
 @import "~bootstrap/scss/bootstrap.scss";
+
 // @import "~bootstrap/scss/root";
 // @import "~bootstrap/scss/reboot";
 // @import "~bootstrap/scss/type";

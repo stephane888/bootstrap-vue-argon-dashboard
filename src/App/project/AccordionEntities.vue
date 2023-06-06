@@ -99,11 +99,12 @@
                     ></b-icon>
                   </span>
                 </b-col>
-                <b-col md="12">
+                <b-col md="12" class="pt-2">
                   <TacheProgressBar
                     :model="item.attributes"
-                    class-progress="mb-1 ml-2"
+                    class-progress="mb-1 ml-2 "
                     :show-date="false"
+                    :show-end-date="true"
                   ></TacheProgressBar>
                 </b-col>
               </b-row>

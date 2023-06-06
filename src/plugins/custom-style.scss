@@ -1,7 +1,9 @@
 // $font-size-base: 1.4rem;
-@use "@stephane888/wbu-atomique/scss/wbu-ressources-clean.scss" as *;
 
 @use "./_variables" as *;
+@use "@stephane888/wbu-atomique/scss/wbu-ressources-clean.scss" as *;
+//
+
 //
 .text-info {
   &--03 {
@@ -15,6 +17,17 @@
   .text-info {
     &--03 {
       color: #cbcbcb;
+    }
+  }
+}
+//
+.list-entities {
+  a {
+    color: $link_color_entity;
+
+    &:hover {
+      text-decoration: underline;
+      color: lighten($link_color_entity, 15%);
     }
   }
 }

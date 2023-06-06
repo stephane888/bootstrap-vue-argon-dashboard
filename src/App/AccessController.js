@@ -81,6 +81,11 @@ export default {
       return true;
     } else return false;
   },
+  userCanReset() {
+    if (this.userIsAdministrator() || this.userIsManager()) {
+      return true;
+    } else return false;
+  },
   /**
    * L'utilisateur est inclus dans la liste des exectutants.
    * @param {*} field

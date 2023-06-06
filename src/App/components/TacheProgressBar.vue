@@ -1,22 +1,34 @@
 <template>
-  <div v-if="show_bar">
+  <div v-if="show_bar" class="progress-custom">
     <b-progress
       :max="getMax()"
       show-progress
       :animated="animated"
       :class="classProgress"
-      class="progress-custom"
+      class="progress-custom--bar"
     >
       <b-progress-bar
         :variant="progress_bar_variant"
-        :value="getValue()"
+        :value="value"
         :label="percent_progress + '%'"
       ></b-progress-bar>
     </b-progress>
     <div v-if="showDate" class="d-flex justify-content-between">
-      <small>{{ date_interval.begin }}</small>
-      <small>{{ date_interval.end }}</small>
+      <small>{{ manageTime.getDateToFrench(date_interval.begin) }}</small>
+      <small>{{ manageTime.getDateToFrench(date_interval.end) }}</small>
     </div>
+    <div
+      v-if="showEndDate"
+      class="d-flex justify-content-start accordi-date bg-gradient-vert-sombre"
+    >
+      <div class="d-inline mr-3">
+        {{ manageTime.getDateToFrench(date_interval.begin) }}
+      </div>
+      <div>{{ manageTime.getDateToFrench(date_interval.end) }}</div>
+    </div>
+    <!-- <pre> animated : {{ animated }} </pre>
+    <pre> percent_progress : {{ percent_progress }} </pre>
+    <pre> value : {{ value }} </pre> -->
   </div>
 </template>
 <script>
@@ -30,11 +42,15 @@ export default {
     model: { type: Object, required: true },
     classProgress: { type: String, default: "" },
     showDate: { type: Boolean, default: true },
+    showEndDate: { type: Boolean, default: false },
   },
   data() {
     return {
       value: 0,
       max: 100,
+      date_interval: { begin: null, end: null },
+      percent_progress: "",
+      manageTime: manageTime,
     };
   },
   computed: {
@@ -61,46 +77,7 @@ export default {
       if (this.get_status_execution == "running") return true;
       else return false;
     },
-    date_interval() {
-      if (this.donneeFromJsonapi) {
-        if (this.model.duree) {
-          /**
-           * La date renvoyée ici est contient le decallage.
-           * example en BD on a : 2023-05-16T06:55:59 ==> 2023-05-16T07:55:59+01:00
-           */
-          // petite fonction pour corriger cela, en attendant la MAJ sur drupal.
-          const getReelValue = (str) => {
-            if (str) var d2 = str.split("+");
-            else return str;
-            if (d2[1]) {
-              const date = new Date(d2[0]);
-              const time_zone = d2[1].split(":");
-              const dd = parseInt(time_zone[0]);
-              if (dd > 0) {
-                date.setHours(date.getHours() - dd);
-              }
-              return manageTime.getDateForDrupal(date);
-            } else return str;
-          };
-          return {
-            begin: getReelValue(this.model.duree.value),
-            end: getReelValue(this.model.duree.end_value),
-          };
-        } else return { begin: null, end: null };
-      } else if (this.model.duree[0]) {
-        return {
-          begin: this.model.duree[0].value,
-          end: this.model.duree[0].end_value,
-        };
-      } else return { begin: null, end: null };
-    },
-    percent_progress() {
-      const max = this.getMax();
-      const value = this.getValue();
-      if (max && value) {
-        return ((value / max) * 100).toFixed(1);
-      } else return 0;
-    },
+
     show_bar() {
       const valideStatus = ["running", "end", "validate"];
       if (valideStatus.includes(this.get_status_execution)) return true;
@@ -113,39 +90,105 @@ export default {
       else return "success";
     },
   },
+  mounted() {
+    this.getValue().then(() => {
+      this.getLabelPercent();
+    });
+  },
   methods: {
     getMax() {
       if (this.duree_execution) {
         return this.duree_execution;
       } else return this.max;
     },
-    getValue() {
+    async getValue() {
+      console.log("this.date_interval : ", this.date_interval);
       const diff_minutes = (dt2, dt1) => {
         var diff = (dt2.getTime() - dt1.getTime()) / 1000;
         diff /= 60;
         return Math.abs(Math.round(diff));
       };
+      this.date_interval = await this.GetDateInterval();
       if (this.date_interval.begin && this.date_interval.end) {
         const dt1 = new Date(this.date_interval.begin);
         var dt2 = new Date(this.date_interval.end);
         if (this.get_status_execution == "running") dt2 = new Date();
-        // console.log(
-        //   "dates : ",
-        //   "\n date 1 string : ",
-        //   this.date_interval.begin,
-        //   "\n",
-        //   dt1,
-        //   "\n date 2 : ",
-        //   dt2
-        // );
-        return diff_minutes(dt1, dt2);
+        this.value = diff_minutes(dt1, dt2);
+        return this.value;
       } else return this.value;
+    },
+    async GetDateInterval() {
+      if (this.donneeFromJsonapi) {
+        if (this.model.duree) {
+          /**
+           * La date renvoyée ici est contient le decallage.
+           * example en BD on a : 2023-05-16T06:55:59 ==> 2023-05-16T07:55:59+01:00
+           */
+          // petite fonction pour corriger cela, en attendant la MAJ sur drupal.
+          const getReelValue = async (str) => {
+            return new Promise((resolv) => {
+              if (str) var d2 = str.split("+");
+              else return str;
+              if (d2[1]) {
+                const date = new Date(d2[0]);
+                const time_zone = d2[1].split(":");
+                const dd = parseInt(time_zone[0]);
+                if (dd > 0) {
+                  date.setHours(date.getHours() - dd);
+                }
+                manageTime.getDateForDrupal(date).then((date_string) => {
+                  // console.log(
+                  //   "resul : ",
+                  //   date_string,
+                  //   "\n str : ",
+                  //   str,
+                  //   "\n date : ",
+                  //   date
+                  // );
+                  resolv(date_string);
+                });
+              } else resolv(str);
+            });
+          };
+          const begin = await getReelValue(this.model.duree.value);
+          const end = await getReelValue(this.model.duree.end_value);
+          //console.log("begin : ", begin, "\n end : ", end);
+          return {
+            begin: begin,
+            end: end,
+          };
+        } else return { begin: null, end: null };
+      } else if (this.model.duree[0]) {
+        return {
+          begin: this.model.duree[0].value.replace("T", " "),
+          end: this.model.duree[0].end_value.replace("T", " "),
+        };
+      } else return { begin: null, end: null };
+    },
+    async getLabelPercent() {
+      const max = this.getMax();
+      if (max && this.value) {
+        this.percent_progress = ((this.value / max) * 100).toFixed(1);
+      } else this.percent_progress = 0;
     },
   },
 };
 </script>
 <style lang="scss">
 .progress-custom {
-  font-size: 60%;
+  font-size: 70%;
+  position: relative;
+  &--bar {
+    height: 13px;
+    margin-left: 170px !important;
+  }
+  .accordi-date {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: auto;
+    padding: 0 10px;
+    margin-right: 15px;
+  }
 }
 </style>

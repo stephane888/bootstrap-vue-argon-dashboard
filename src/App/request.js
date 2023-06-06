@@ -65,16 +65,16 @@ export default {
         label: "En cours d'execution",
         items: [],
       },
+      new: {
+        label: "Nouvelle taches",
+        items: [],
+      },
       end: {
         label: "Terminée",
         items: [],
       },
       validate: {
         label: "Validée",
-        items: [],
-      },
-      new: {
-        label: "Nouvelle taches",
         items: [],
       },
       cancel: {

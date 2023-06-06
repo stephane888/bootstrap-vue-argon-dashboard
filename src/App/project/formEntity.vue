@@ -69,6 +69,9 @@
               >
                 Abondonner
               </b-button>
+              <b-button v-if="userCanReset()" size="sm" @click="resetTache">
+                Reset
+              </b-button>
             </div>
             <TacheProgressBar
               :model="statique_fields.duree_execution.model"
@@ -167,6 +170,7 @@ import request from "../request";
 import { mapState } from "vuex";
 import AccessController from "../AccessController.js";
 import TacheProgressBar from "../components/TacheProgressBar.vue";
+
 // import loadField from "components_h_vuejs/src/components/fieldsDrupal/loadField";
 export default {
   name: "FormProjetType",
@@ -302,7 +306,9 @@ export default {
         this.statique_fields.duree_execution.field
       ) {
         this.statique_fields.duree_execution.field.description =
-          "Journée de travail " + this.$store.state.userConfig.duree_jour + "h";
+          " Journée de travail " +
+          this.$store.state.userConfig.duration_work_day +
+          "h";
       }
     },
     /**
@@ -353,13 +359,16 @@ export default {
         );
       return false;
     },
+    userCanReset() {
+      return AccessController.userCanReset();
+    },
     /**
      * Lorsqu'on clique sur une tache, il met à jour le champs durée :
      * La date de depart est l'instant ou on a cliqué et la date de fin est determiné à partir du temps d'execution.
      * On met à jour egalement le chef d'execution du projet, il doit etre membre de l'execution de la tache.
      * On change egalement le status de la tache.
      */
-    start() {
+    async start() {
       // Dure d'execution de la tache.
       var duree_execution = 0;
       if (
@@ -375,9 +384,15 @@ export default {
         this.statique_fields.duree.model.duree
       ) {
         const value = {
-          value: this.getDateForDrupal(),
-          end_value: this.getDateForDrupal(duree_execution),
+          value: await this.getDateForDrupal(),
+          end_value: await this.getDateForDrupal(duree_execution),
         };
+        console.log(
+          "value : ",
+          value,
+          "\n duree_execution : ",
+          duree_execution
+        );
         this.$store.dispatch("storeProject/setValue", {
           fieldName: "0.entity.duree",
           value: [value],
@@ -480,32 +495,25 @@ export default {
         });
       }
     },
+    resetTache() {
+      // Mise à jour du status de la tache
+      if (this.statique_fields.status_execution.model.status_execution) {
+        const value = {
+          value: "new",
+        };
+        this.$store.dispatch("storeProject/setValue", {
+          fieldName: "0.entity.status_execution",
+          value: [value],
+        });
+      }
+    },
+
     /**
      *
      * @param {*} DateTimeStamp
      */
     getDateForDrupal(add_minutes = 0) {
-      add_minutes = parseInt(add_minutes);
-      const date = new Date();
-      if (add_minutes) {
-        date.setMinutes(date.getMinutes() + add_minutes);
-      }
-      let month = parseInt(date.getMonth()) + 1;
-      const date_string = {
-        date:
-          date.getFullYear() +
-          "-" +
-          ("0" + month).slice(-2) +
-          "-" +
-          date.getDate(),
-        hour:
-          ("0" + date.getHours()).slice(-2) +
-          ":" +
-          ("0" + date.getMinutes()).slice(-2) +
-          ":" +
-          ("0" + date.getSeconds()).slice(-2),
-      };
-      return date_string.date + "T" + date_string.hour;
+      return request.getDateForDrupal(null, add_minutes);
     },
   },
 };

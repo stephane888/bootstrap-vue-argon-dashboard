@@ -1,2 +1,4 @@
+//@use "@stephane888/wbu-atomique/scss/wbu-ressources-clean.scss" as *;
+@use "./variables" as *;
 @import "../assets/scss/argon.scss";
 @import "bootstrap-vue/src/index.scss";

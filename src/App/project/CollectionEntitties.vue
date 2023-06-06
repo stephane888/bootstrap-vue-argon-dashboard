@@ -84,6 +84,7 @@ export default {
       manageModal: false,
       titleModal: "Creer une nouvelle tache ou memo ou article ...",
       iconFormEdit: "",
+      timer: "",
     };
   },
   computed: {
@@ -110,12 +111,13 @@ export default {
     this.getProjet();
     this.loadEntities();
     this.PeriodiqueRun();
+
     /**
      * On a un bug avec le modal de bootstrap,
      * on force cette solution.
      */
     this.$root.$on("bv::modal::show", (bvEvent, modalId) => {
-      console.log("Modal is about to be shown", bvEvent, modalId);
+      // console.log(" Modal is about to be shown", bvEvent, modalId );
       setTimeout(() => {
         const modal = document.getElementById(modalId);
         if (modal) {
@@ -149,6 +151,7 @@ export default {
           });
       }
     },
+
     /**
      * Recupere le formulaire pour la creation d'une entité.
      *
@@ -166,9 +169,19 @@ export default {
         });
       }
     },
+
+    /**
+     *
+     * @param {*} val
+     */
     closeModal(val) {
       this.manageModal = val;
     },
+
+    /**
+     *
+     * @param {*} clean
+     */
     loadEntities(clean = true) {
       if (this.entity_type_id && this.configEntityId) {
         this.$store.dispatch("storeProject/loadEntityWithBundle", {
@@ -200,6 +213,11 @@ export default {
         }
       });
     },
+
+    /**
+     *
+     * @param {*} attributes
+     */
     editEntity(attributes) {
       this.$store.commit("storeProject/CLEAN_ENTITY_EDIT");
       this.manageModal = this.manageModal ? false : true;
@@ -211,6 +229,11 @@ export default {
       };
       this.$store.dispatch("storeProject/loadEntityById", payload);
     },
+
+    /**
+     *
+     * @param {*} item
+     */
     DeleteEntity(item) {
       var info = item.type.split("--");
       this.$store
@@ -224,9 +247,13 @@ export default {
         });
     },
 
+    /**
+     * @
+     */
     PeriodiqueRun() {
-      setInterval(() => {
-        console.log("demarage period");
+      console.log(" PeriodiqueRun ");
+      clearTimeout(this.timer);
+      this.timer = setInterval(() => {
         this.loadEntities(false);
       }, 180000);
     },

@@ -60,7 +60,9 @@ export default {
         this.item.attributes.duree_execution &&
         this.item.attributes.duree_execution > 0
       ) {
-        return (this.item.attributes.duree_execution / 60).toFixed(2);
+        return config.convertTimeMinuteToRead(
+          this.item.attributes.duree_execution
+        );
       } else return null;
     },
   },
