@@ -37,7 +37,7 @@ const routes = [
       },
       {
         path: "/projets/:configEntityTypeId/:configEntityId",
-        name: "Projet",
+        name: "Liste de tache d'un projet",
         meta: {
           requiresAuth: true,
           hideFooter: true,
@@ -46,6 +46,19 @@ const routes = [
         component: () =>
           import(
             /* webpackChunkName: "demo" */ "../App/project/CollectionEntitties.vue"
+          ),
+      },
+      {
+        path: "/projets/:configEntityTypeId/:configEntityId/:drupalInternalId",
+        name: "Taches et sous taches",
+        meta: {
+          requiresAuth: true,
+          hideFooter: true,
+        },
+        props: true,
+        component: () =>
+          import(
+            /* webpackChunkName: "demo" */ "../App/project/EntityView.vue"
           ),
       },
     ],

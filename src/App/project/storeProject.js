@@ -61,6 +61,10 @@ export default {
      * relations les données tels que les primes, client, executant ...
      */
     entities: [],
+    /**
+     * Contient l'entite qui est affiché.
+     */
+    entity: {},
   }),
   mutations: {
     SET_PROJECTS(state, payload) {
@@ -129,6 +133,9 @@ export default {
     },
     SET_ENTITIES(state, payload) {
       state.entities = payload;
+    },
+    SET_ENTITY(state, payload) {
+      state.entity = payload;
     },
     SET_CLEAN_CURRENT_PROJECT(state) {
       state.currentProject = entity_type_project();
@@ -209,8 +216,14 @@ export default {
       return request.loadProject(payload.entity_type_id, payload.id);
     },
     loadFormEntity({ commit, dispatch }, payload) {
+      const params = payload.params ? payload.params : [];
       request
-        .loadFormEntity(payload.entity_type_id, payload.bundle)
+        .loadFormEntity(
+          payload.entity_type_id,
+          payload.bundle,
+          "default",
+          params
+        )
         .then((resp) => {
           commit("SET_ENTITY_EDIT", resp.data);
           dispatch("buildFields");
@@ -233,7 +246,7 @@ export default {
       }
     },
     /**
-     * Permet de charger les entites en function de entity_type_id et du bundle.
+     * Permet de charger les entites (via JSONAPI) en function de entity_type_id et du bundle.
      *
      * @param {*} param0
      * @param {*} payload
@@ -246,13 +259,19 @@ export default {
         request
       );
       IE.remplaceConfig();
-      IE.url += "?include=executants,project_manager&sort=-created";
+      if (payload.url) IE.url += payload.url;
+      // add fillter
+      if (payload.filters) {
+        payload.filters.forEach((item) => {
+          IE.filter(item.field_name, item.operator, item.value);
+        });
+      }
       IE.get().then((resp) => {
         /**
          * On ajoute les proprietes supplementaire afin de contruire un accordeon.
          */
         const items = [];
-        if (resp.data && resp.data.length) {
+        if (resp.data) {
           resp.data.forEach((item) => {
             items.push({
               ...item,
@@ -261,6 +280,27 @@ export default {
             });
           });
           commit("SET_ENTITIES", items);
+        }
+      });
+    },
+    /**
+     * Permet de charger une entité en function de son id via JSONAPI.
+     *
+     * @param {*} param0
+     * @param {*} payload
+     */
+    loadEntity({ commit }, payload) {
+      if (payload.clean) commit("SET_ENTITY", {});
+      const IE = new itemsEntity(
+        payload.entity_type_id,
+        payload.bundle,
+        request
+      );
+      IE.remplaceConfig();
+      IE.getValueById(payload.id).then((resp) => {
+        // On recupere le premier contenu.
+        if (resp.data) {
+          if (resp.data[0]) commit("SET_ENTITY", resp.data[0]);
         }
       });
     },

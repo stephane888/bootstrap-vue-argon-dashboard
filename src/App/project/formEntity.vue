@@ -321,6 +321,10 @@ export default {
       }
     },
     userCanRunTache() {
+      console.log(
+        "this.statique_fields.project_manager : ",
+        this.statique_fields.project_manager
+      );
       if (this.statique_fields.project_manager.field)
         return AccessController.userCanRunTache(
           this.statique_fields.project_manager.field,
@@ -435,11 +439,11 @@ export default {
     /**
      * Seul le chef de projet doit pouvoir marquer une tache comme terminer.
      */
-    endTache() {
+    async endTache() {
       // Mise à jour du champs durée.
       if (this.statique_fields.duree.model.duree) {
         const value = this.statique_fields.duree.model.duree[0];
-        value.end_value = this.getDateForDrupal();
+        value.end_value = await this.getDateForDrupal();
         this.$store.dispatch("storeProject/setValue", {
           fieldName: "0.entity.duree",
           value: [value],
@@ -474,11 +478,11 @@ export default {
     /**
      * --
      */
-    abondonner() {
+    async abondonner() {
       // Mise à jour du champs durée.
       if (this.statique_fields.duree.model.duree) {
         const value = this.statique_fields.duree.model.duree[0];
-        value.end_value = this.getDateForDrupal();
+        value.end_value = await this.getDateForDrupal();
         this.$store.dispatch("storeProject/setValue", {
           fieldName: "0.entity.duree",
           value: [value],

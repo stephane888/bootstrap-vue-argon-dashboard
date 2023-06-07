@@ -4,12 +4,7 @@
       <div v-if="group.items.length">
         <h3>{{ group.label }}</h3>
         <div role="tablist" class="accordion mb-4">
-          <b-card
-            v-for="(item, k) in group.items"
-            :key="k"
-            no-body
-            class="mb-1"
-          >
+          <b-card v-for="(item, k) in group.items" :key="k" no-body>
             <b-card-header
               header-tag="header"
               class="pl-0 pr-2 py-1"
@@ -25,7 +20,21 @@
                     <h4
                       class="mb-2 d-flex w-100 align-items-baseline justify-content-between"
                     >
-                      <div class="mr-3">{{ item.attributes.name }}</div>
+                      <router-link
+                        :to="
+                          '/projets/' +
+                          configEntityTypeId +
+                          '/' +
+                          configEntityId +
+                          '/' +
+                          item.attributes.drupal_internal__id
+                        "
+                      >
+                        <div class="mr-3">
+                          {{ item.attributes.name }}
+                        </div>
+                      </router-link>
+
                       <titreInfos :item="item"></titreInfos>
                     </h4>
                   </div>
@@ -42,6 +51,25 @@
                   </div>
                 </b-col>
                 <b-col md="3" class="d-flex justify-content-end">
+                  <span
+                    v-b-tooltip.hover
+                    variant="light"
+                    class="btn-action mr-4"
+                    title="Voir"
+                  >
+                    <router-link
+                      :to="
+                        '/projets/' +
+                        configEntityTypeId +
+                        '/' +
+                        configEntityId +
+                        '/' +
+                        item.attributes.drupal_internal__id
+                      "
+                    >
+                      <b-icon icon="eye" aria-hidden="true"></b-icon>
+                    </router-link>
+                  </span>
                   <span
                     v-if="item.accordionOpen"
                     v-b-toggle="item.accordionId"
@@ -101,6 +129,7 @@
                 </b-col>
                 <b-col md="12" class="pt-2">
                   <TacheProgressBar
+                    class="ml-2"
                     :model="item.attributes"
                     class-progress="mb-1 ml-2 "
                     :show-date="false"
@@ -144,6 +173,16 @@ export default {
   components: {
     titreInfos: () => import("../components/TitreInfos.vue"),
     TacheProgressBar: TacheProgressBar,
+  },
+  props: {
+    configEntityTypeId: {
+      type: [String, Number],
+      required: true,
+    },
+    configEntityId: {
+      type: [String, Number],
+      required: true,
+    },
   },
   data() {
     return {
@@ -251,6 +290,9 @@ export default {
 .list-entities {
   .badge {
     font-size: 78%;
+  }
+  .card-header a {
+    color: inherit;
   }
 }
 </style>

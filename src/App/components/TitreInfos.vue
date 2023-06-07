@@ -1,5 +1,5 @@
 <template>
-  <div class="d-inline">
+  <div class="d-inline titre-infos">
     <div class="d-flex flex-wrap">
       <b-badge
         v-if="chiefId"
@@ -16,10 +16,10 @@
       </b-badge>
       <b-badge
         v-if="time_execution"
-        class="d-inline-block ml-1 bg-gradient-blue text-lowercase text-white ml-1"
+        class="d-inline-block ml-1 bg-gradient-transparent_01 text-lowercase text-white ml-1"
       >
         <b-icon icon="clock-history" variant="light"></b-icon>
-        {{ time_execution }}h
+        {{ time_execution }}
       </b-badge>
     </div>
   </div>
@@ -35,6 +35,7 @@ export default {
   computed: {
     chiefId() {
       if (
+        this.item.relationships.project_manager &&
         this.item.relationships.project_manager.data &&
         this.item.relationships.project_manager.data.meta
       ) {
@@ -47,7 +48,10 @@ export default {
     },
     executants() {
       const items = [];
-      if (this.item.relationships.executants.data) {
+      if (
+        this.item.relationships.executants &&
+        this.item.relationships.executants.data
+      ) {
         this.item.relationships.executants.data.forEach((item) => {
           let uid = item.meta.drupal_internal__target_id;
           if (uid != this.chiefId) items.push(config.getUserName(uid));

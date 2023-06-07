@@ -21,13 +21,26 @@
   }
 }
 //
-.list-entities {
+.list-entities,
+.main-entity {
   a {
     color: $link_color_entity;
 
     &:hover {
       text-decoration: underline;
       color: lighten($link_color_entity, 15%);
+    }
+  }
+}
+
+header {
+  .titre-infos {
+    opacity: 0.5;
+    @include WBUtransition();
+  }
+  &:hover {
+    .titre-infos {
+      opacity: 1;
     }
   }
 }

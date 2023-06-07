@@ -92,6 +92,7 @@ export default {
    */
   async addtime(date, add_minutes) {
     const time_toLeaveNextBreack = await this.timeToLeaveBeforeNextBreak(date);
+    console.log("time_toLeaveNextBreack : ", time_toLeaveNextBreack);
     // si le temps definit est <= au prochain break.
     if (add_minutes <= time_toLeaveNextBreack) {
       date.setMinutes(date.getMinutes() + add_minutes);
@@ -101,9 +102,11 @@ export default {
     const nbre_days = Math.floor(
       add_minutes / (this.getUserConf().duration_work_day * 60)
     );
-    const time_ToLeave = add_minutes % this.getUserConf().duration_work_day;
-    console.log(" nbre_days : ", nbre_days);
+    var time_ToLeave = add_minutes;
+    console.log(" nbre_days : ", nbre_days, "\n time_ToLeave : ", time_ToLeave);
     if (nbre_days > 0) {
+      // temps restant, par rapport au nombre de jour.
+      time_ToLeave = add_minutes % this.getUserConf().duration_work_day;
       var index = 1;
       var day = 1;
       while (index <= this.max_day_add && day <= nbre_days) {
@@ -119,20 +122,45 @@ export default {
       return new Promise((resolv2, reject2) => {
         this.timeToLeaveBeforeNextBreak(date)
           .then((toLeaveNextBreack) => {
-            console.log("loopTimeAdd : ", toLeaveNextBreack);
-            if (toLeaveNextBreack >= ToLeave) {
+            console.log(
+              "loopTimeAdd : ",
+              toLeaveNextBreack,
+              "\n ToLeave : ",
+              ToLeave
+            );
+
+            if (toLeaveNextBreack > 0 && toLeaveNextBreack >= ToLeave) {
               date.setMinutes(date.getMinutes() + ToLeave);
               resolv2(date);
-            } else {
-              date.setMinutes(date.getMinutes() + toLeaveNextBreack);
-              ToLeave = ToLeave - toLeaveNextBreack;
-              const duration_pause = this.getDurationTimeNextPause();
+            }
+            //
+            else {
+              /**
+               * On distingue plusieurs cas :
+               * 1 - toLeaveNextBreack =0 ( i.e on est en pause )
+               */
+              // le temps restant avant le prochain breack n'est pas suffisant.
+              //  on ajoute cela au temps present.
+              if (toLeaveNextBreack > 0) {
+                date.setMinutes(date.getMinutes() + toLeaveNextBreack);
+                ToLeave = ToLeave - toLeaveNextBreack;
+              }
+              // on ajoute s'il existe la prochaine pause.
+              const duration_pause = this.getDurationTimeNextPause(date);
               if (duration_pause) {
                 date.setMinutes(date.getMinutes() + duration_pause);
+                console.log(
+                  "date second phase ",
+                  date,
+                  "\n duration_pause : ",
+                  duration_pause
+                );
+                // une foix la pause ajoutée, on reprend la processus.
+                resolv2(loopTimeAdd(ToLeave, date));
+              } else {
+                console.log("ERROR de logique: calcul du temps");
+                resolv2(date);
               }
-              //
-              console.log("date second phase ", date);
-              resolv2(loopTimeAdd(ToLeave, date));
             }
           })
           .catch((er) => {
@@ -202,7 +230,8 @@ export default {
         const HourToMn = (h) => {
           return Math.floor(h * 60);
         };
-        pauses.forEach((pause, index) => {
+        for (const index in pauses) {
+          const pause = pauses[index];
           /**
            * on peut etre dans une pause, ou pas.
            * La prochaine pause doit etre > à l'heure actuelle.
@@ -214,35 +243,107 @@ export default {
             const next_pause = pauses[index + 1];
             if (next_pause) {
               resolv(HourToMn(pause[1] - next_pause[0]));
+              break;
             }
             // si c'est la derniere pause.
-            else resolv(0);
+            else {
+              resolv(0);
+              break;
+            }
           }
           // si c'est pas la pause.
           else if (pause[0] > h && h >= day_duration[0]) {
             resolv(HourToMn(pause[0] - h));
+            // break;
+            return true;
           }
           // dernier passage
           else if (index == pauses.length - 1) {
-            if (day_duration[1] > h) resolv(HourToMn(day_duration[1] - h));
-            else resolv(0);
+            if (day_duration[1] > h) {
+              resolv(HourToMn(day_duration[1] - h));
+              break;
+            } else {
+              resolv(0);
+              break;
+            }
           }
-        });
-      } else resolv(0);
+        }
+        // pauses.every((pause, index) => {
+        //   console.log("pause : ", pause);
+        /**
+         * on peut etre dans une pause, ou pas.
+         * La prochaine pause doit etre > à l'heure actuelle.
+         * si on n'est pas dans une pause, le calcul est simple.
+         * si on est dans une pause, on retoune le temps avant la prochaine pause si elle est definit.
+         */
+        //   // cas pause
+        //   if (h >= pause[0] && h < pause[1]) {
+        //     const next_pause = pauses[index + 1];
+        //     if (next_pause) {
+        //       resolv(HourToMn(pause[1] - next_pause[0]));
+        //       // break;
+        //       return true;
+        //     }
+        //     // si c'est la derniere pause.
+        //     else {
+        //       resolv(0);
+        //       // break;
+        //       return true;
+        //     }
+        //   }
+        //   // si c'est pas la pause.
+        //   else if (pause[0] > h && h >= day_duration[0]) {
+        //     resolv(HourToMn(pause[0] - h));
+        //     // break;
+        //     return true;
+        //   }
+        //   // dernier passage
+        //   else if (index == pauses.length - 1) {
+        //     if (day_duration[1] > h) {
+        //       resolv(HourToMn(day_duration[1] - h));
+        //       // break;
+        //       return true;
+        //     } else {
+        //       resolv(0);
+        //       // break;
+        //       return true;
+        //     }
+        //   }
+        //   // On retourne false, pour passer à l'etape suivante.
+        //   else return false;
+        // });
+      }
+      //
+      else resolv(0);
     });
   },
   /**
-   * Permet de terminer la durée de la prochaine pause d'une journée.
+   * Permet de terminer la durée de la prochaine pause d'une journée ou le temps restant de la pause en cours.
    */
-  async getDurationTimeNextPause() {
+  getDurationTimeNextPause(date) {
     // heure actuel.
     const h = date.getHours() + date.getMinutes() / 60;
+    const HourToMn = (h) => {
+      return Math.floor(h * 60);
+    };
     const pauses = this.getUserConf().pauses;
-    if (pause)
-      pauses.forEach((pause) => {
-        if (h < pause[0]) return pause[1] - pause[0];
-      });
-    else return 0;
+    if (pauses) {
+      for (const i in pauses) {
+        const pause = pauses[i];
+        console.log("getDurationTimeNextPause : ", pause);
+        // cas pause
+        if (h >= pause[0] && h < pause[1]) {
+          // on ajoute + 1 car, dans le calcul on ne tient pas compte des secondes.
+          return HourToMn(pause[1] - h) + 1;
+        } else if (h < pause[0]) {
+          return HourToMn(pause[1] - pause[0]);
+          break;
+        }
+        if (i == pauses.length - 1) {
+          return 0;
+        }
+      }
+    } else return 0;
   },
   /**
    * Temps de travail restant de la jounée.

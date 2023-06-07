@@ -1,11 +1,20 @@
 <template>
-  <div v-if="show_bar" class="progress-custom">
+  <div v-if="show_bar" class="progress-custom d-flex row no-gutters">
+    <div
+      v-if="showEndDate"
+      class="d-flex justify-content-start accordi-date col p-0"
+    >
+      <div class="d-inline mr-3">
+        {{ manageTime.getDateToFrench(date_interval.begin) }}
+      </div>
+      <div>{{ manageTime.getDateToFrench(date_interval.end) }}</div>
+    </div>
     <b-progress
       :max="getMax()"
       show-progress
       :animated="animated"
       :class="classProgress"
-      class="progress-custom--bar"
+      class="progress-custom--bar col"
     >
       <b-progress-bar
         :variant="progress_bar_variant"
@@ -13,19 +22,11 @@
         :label="percent_progress + '%'"
       ></b-progress-bar>
     </b-progress>
-    <div v-if="showDate" class="d-flex justify-content-between">
+    <div v-if="showDate" class="d-flex justify-content-between col-12">
       <small>{{ manageTime.getDateToFrench(date_interval.begin) }}</small>
       <small>{{ manageTime.getDateToFrench(date_interval.end) }}</small>
     </div>
-    <div
-      v-if="showEndDate"
-      class="d-flex justify-content-start accordi-date bg-gradient-vert-sombre"
-    >
-      <div class="d-inline mr-3">
-        {{ manageTime.getDateToFrench(date_interval.begin) }}
-      </div>
-      <div>{{ manageTime.getDateToFrench(date_interval.end) }}</div>
-    </div>
+
     <!-- <pre> animated : {{ animated }} </pre>
     <pre> percent_progress : {{ percent_progress }} </pre>
     <pre> value : {{ value }} </pre> -->
@@ -180,15 +181,11 @@ export default {
   position: relative;
   &--bar {
     height: 13px;
-    margin-left: 170px !important;
   }
   .accordi-date {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: auto;
     padding: 0 10px;
-    margin-right: 15px;
+    width: 170px;
+    max-width: 170px;
   }
 }
 </style>

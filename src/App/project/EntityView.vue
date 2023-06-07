@@ -1,8 +1,5 @@
-<!-- 
-    Affiche les informations sur un project, 
--->
 <template>
-  <div>
+  <div class="entity">
     <base-header class="pb-2 pt-5 bg-gradient-success">
       <b-row class="pt-5">
         <b-col md="6">
@@ -12,29 +9,59 @@
         </b-col>
         <b-col md="6" class="d-flex justify-content-end">
           <button-app
-            text-button=" Creer une tache / un tuto / ... "
+            text-button=" Creer une sous tache "
+            class="d-none"
             @userClick="LoadEmptyForm"
           ></button-app>
         </b-col>
       </b-row>
     </base-header>
-    <b-container fluid class="pb-4 pt-4">
+    <!-- main or corps-->
+    <b-container v-if="entity.attributes" fluid class="pb-4 pt-4 main-entity">
       <b-row>
-        <b-col lg="9"> filtres </b-col>
-      </b-row>
-      <b-row>
-        <b-col lg="9">
-          <h1>Liste des taches</h1>
-          <AccordionEntities
-            :config-entity-type-id="configEntityTypeId"
-            :config-entity-id="configEntityId"
-            @editEntity="editEntity"
-            @DeleteEntity="DeleteEntity"
-          ></AccordionEntities>
+        <b-col md="12">
+          <div class="text-white p-1 bg-gradient-vert-sombre">
+            <div class="d-flex justify-content-between">
+              <h1 class="pr-3">{{ entity.attributes.name }}</h1>
+              <titreInfos :item="entity"></titreInfos>
+            </div>
+
+            <TacheProgressBar
+              class=""
+              :model="entity.attributes"
+              class-progress="mb-0"
+              :show-date="false"
+              :show-end-date="true"
+            ></TacheProgressBar>
+          </div>
         </b-col>
-        <b-col lg="3"></b-col>
       </b-row>
+      <MainTache :entity="entity"></MainTache>
+      <div
+        v-if="entity.attributes.description"
+        class="py-4"
+        v-html="entity.attributes.description.value"
+      ></div>
+      <div class="accor-more-infos-dion" role="tablist">
+        <b-card no-body class="mb-1">
+          <b-card-header header-tag="header" class="p-1" role="tab">
+            <h4 v-b-toggle.accor-more-infos-dion-1 class="p-2 mb-0">
+              Informations supplementaire
+            </h4>
+          </b-card-header>
+          <b-collapse
+            id="accor-more-infos-dion-1"
+            accor-more-infos-dion="my-accor-more-infos-dion"
+            role="tabpanel"
+          >
+            <b-card-body>
+              <b-card-text> /// </b-card-text>
+            </b-card-body>
+          </b-collapse>
+        </b-card>
+      </div>
     </b-container>
+    <!-- modal -->
     <modalFrom
       :manage-modal="manageModal"
       @closeModal="closeModal"
@@ -56,29 +83,36 @@
     </modalFrom>
   </div>
 </template>
+
 <script>
-import ButtonApp from "../components/buttonApp.vue";
 import modalFrom from "./modalForm.vue";
-import { mapState, mapGetters } from "vuex";
-import AppBreadcrumb from "../components/AppBreadcrumb.vue";
 import formEntity from "./formEntity.vue";
+import AppBreadcrumb from "../components/AppBreadcrumb.vue";
+import ButtonApp from "../components/buttonApp.vue";
+import { mapState, mapGetters } from "vuex";
 export default {
-  name: "CollectionEntitties",
+  name: "EntityView",
   components: {
     modalFrom,
     ButtonApp,
     AppBreadcrumb,
     formEntity,
-    AccordionEntities: () => import("./AccordionEntities.vue"),
+    TacheProgressBar: () => import("../components/TacheProgressBar.vue"),
+    titreInfos: () => import("../components/TitreInfos.vue"),
+    MainTache: () => import("./taches/MainTache.vue"),
   },
   props: {
     configEntityTypeId: {
       type: [String, Number],
-      default: "",
+      required: true,
     },
     configEntityId: {
       type: [String, Number],
-      default: "",
+      required: true,
+    },
+    drupalInternalId: {
+      type: [String, Number],
+      required: true,
     },
   },
   data() {
@@ -89,11 +123,11 @@ export default {
       timer: "",
     };
   },
+
   computed: {
     ...mapState({
       currentProject: (state) => state.storeProject.currentProject,
-      projects: (state) => state.storeProject.projects,
-      entities: (state) => state.storeProject.entities,
+      entity: (state) => state.storeProject.entity,
     }),
     ...mapGetters(["entity_type_id"]),
     breadCrumbs() {
@@ -110,49 +144,9 @@ export default {
   },
   mounted() {
     this.getProjet();
-    this.loadEntities();
-    this.PeriodiqueRun();
-
-    /**
-     * On a un bug avec le modal de bootstrap,
-     * on force cette solution.
-     */
-    this.$root.$on("bv::modal::show", (bvEvent, modalId) => {
-      // console.log(" Modal is about to be shown", bvEvent, modalId );
-      setTimeout(() => {
-        const modal = document.getElementById(modalId);
-        if (modal) {
-          modal.querySelector(".modal-content").removeAttribute("tabindex");
-        }
-      }, 1500);
-    });
+    this.loadEntity();
   },
   methods: {
-    /**
-     * Recupere le projet en fonction des paramettres de l'url.
-     */
-    getProjet() {
-      if (
-        this.projects[this.configEntityTypeId] &&
-        this.projects[this.configEntityTypeId].entities &&
-        this.projects[this.configEntityTypeId].entities[this.configEntityId]
-      ) {
-        this.$store.commit(
-          "storeProject/SET_CURRENT_PROJECT",
-          this.projects[this.configEntityTypeId].entities[this.configEntityId]
-        );
-      } else {
-        this.$store
-          .dispatch("storeProject/loadProject", {
-            entity_type_id: this.configEntityTypeId,
-            id: this.configEntityId,
-          })
-          .then((resp) => {
-            this.$store.commit("storeProject/SET_CURRENT_PROJECT", resp.data);
-          });
-      }
-    },
-
     /**
      * Recupere le formulaire pour la creation d'une entité.
      *
@@ -170,28 +164,12 @@ export default {
         });
       }
     },
-
     /**
      *
      * @param {*} val
      */
     closeModal(val) {
       this.manageModal = val;
-    },
-
-    /**
-     *
-     * @param {*} clean
-     */
-    loadEntities(clean = true) {
-      if (this.entity_type_id && this.configEntityId) {
-        this.$store.dispatch("storeProject/loadEntityWithBundle", {
-          entity_type_id: this.entity_type_id,
-          bundle: this.configEntityId,
-          clean: clean,
-          url: "?include=executants,project_manager&sort=-created",
-        });
-      }
     },
     // editProject(entity) {
     //   this.$store.commit("storeProject/SET_CURRENT_PROJECT", entity);
@@ -202,7 +180,7 @@ export default {
         if (data.status) {
           this.$store.dispatch("storeProject/saveEntities").then(() => {
             this.$store.commit("storeProject/CLEAN_ENTITY_EDIT");
-            this.loadEntities();
+            //this.loadEntities();
             this.$bvModal.hide("b-modal-manage-project");
           });
         } else {
@@ -215,50 +193,35 @@ export default {
         }
       });
     },
-
     /**
-     *
-     * @param {*} attributes
+     * Recupere le projet en fonction des paramettres de l'url.
      */
-    editEntity(attributes) {
-      this.$store.commit("storeProject/CLEAN_ENTITY_EDIT");
-      this.manageModal = this.manageModal ? false : true;
-      this.titleModal = attributes.name;
-      this.iconFormEdit = "pencil-square";
-      const payload = {
-        id: attributes.drupal_internal__id,
-        entity_type_id: this.entity_type_id,
-      };
-      this.$store.dispatch("storeProject/loadEntityById", payload);
-    },
-
-    /**
-     *
-     * @param {*} item
-     */
-    DeleteEntity(item) {
-      var info = item.type.split("--");
+    getProjet() {
       this.$store
-        .dispatch("storeProject/deleteEntity", {
-          entity_type_id: info[0],
-          id: item.attributes.drupal_internal__id,
-          delete_subentities: false,
+        .dispatch("storeProject/loadProject", {
+          entity_type_id: this.configEntityTypeId,
+          id: this.configEntityId,
         })
-        .then(() => {
-          this.loadEntities();
+        .then((resp) => {
+          this.$store.commit("storeProject/SET_CURRENT_PROJECT", resp.data);
         });
     },
-
     /**
-     * @
+     *
+     * @param {*} clean
      */
-    PeriodiqueRun() {
-      console.log(" PeriodiqueRun ");
-      clearTimeout(this.timer);
-      this.timer = setInterval(() => {
-        this.loadEntities(false);
-      }, 180000);
+    loadEntity(clean = true) {
+      if (this.entity_type_id && this.configEntityId) {
+        this.$store.dispatch("storeProject/loadEntity", {
+          entity_type_id: this.entity_type_id,
+          bundle: this.configEntityId,
+          id: this.drupalInternalId,
+          clean: clean,
+        });
+      }
     },
   },
 };
 </script>
+
+<style lang="scss"></style>

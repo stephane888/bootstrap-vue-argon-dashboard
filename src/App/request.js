@@ -36,9 +36,10 @@ export default {
    * Charge le formulaire pour la creation d'entité.
    * @returns
    */
-  loadFormEntity(entity_type_id, bundle, view_mode = "default") {
-    return this.dGet(
-      "/apivuejs/add-entity/" + entity_type_id + "/" + bundle + "/" + view_mode
+  loadFormEntity(entity_type_id, bundle, view_mode = "default", datas = []) {
+    return this.dPost(
+      "/apivuejs/add-entity/" + entity_type_id + "/" + bundle + "/" + view_mode,
+      datas
     );
   },
   /**

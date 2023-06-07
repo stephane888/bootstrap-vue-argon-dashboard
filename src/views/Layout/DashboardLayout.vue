@@ -143,6 +143,8 @@ export default {
     FadeTransition,
   },
   mounted() {
+    this.$store.dispatch("getUsers");
+    console.log("getUsers");
     this.initScrollbar();
   },
   methods: {

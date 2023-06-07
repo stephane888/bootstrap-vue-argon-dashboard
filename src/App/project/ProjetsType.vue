@@ -152,7 +152,6 @@ export default {
   },
   mounted() {
     this.loadEntities();
-    this.loadUser();
     if (this.$router.history.current) {
       switch (this.$router.history.current.path) {
         case "/projets":
@@ -228,9 +227,6 @@ export default {
      */
     submif() {
       this.$refs.formProjet.submit();
-    },
-    loadUser() {
-      this.$store.dispatch("getUsers");
     },
     getUserName(id) {
       return config.getUserName(id);
