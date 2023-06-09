@@ -25,6 +25,9 @@
         </a>
       </li>
     </b-navbar-nav>
+    <b-navbar-nav class="align-items-center ml-md-auto">
+      <CurrentProjets></CurrentProjets>
+    </b-navbar-nav>
     <b-navbar-nav class="align-items-center ml-auto ml-md-0">
       <b-form
         id="navbar-search-main"
@@ -108,6 +111,7 @@ import { mapState } from "vuex";
 export default {
   components: {
     BaseNav,
+    CurrentProjets: () => import("../../App/project/CurrentProjets.vue"),
   },
   props: {
     type: {

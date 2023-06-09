@@ -142,6 +142,13 @@ export default {
       return staticUrl;
     },
   },
+  watch: {
+    drupalInternalId() {
+      console.log("watch drupalInternalId");
+      this.getProjet();
+      this.loadEntity();
+    },
+  },
   mounted() {
     this.getProjet();
     this.loadEntity();

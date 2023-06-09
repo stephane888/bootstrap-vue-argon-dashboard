@@ -22,6 +22,18 @@ export default {
   loadProjectType() {
     return this.dGet("/gestion-project-v2/load-projet-type");
   },
+  /**
+   * Permet de charger les projets via une logique propre au module de gestion de tache.
+   * Il permet egalement de faire les filtres.
+   */
+  loadEntitiesWithFilters(filters = []) {
+    return this.dPost(
+      "/gestion-project-v2/load-mes-taches",
+      filters,
+      null,
+      false
+    );
+  },
 
   /**
    * Charge un projet ou un type de projet.
@@ -39,7 +51,9 @@ export default {
   loadFormEntity(entity_type_id, bundle, view_mode = "default", datas = []) {
     return this.dPost(
       "/apivuejs/add-entity/" + entity_type_id + "/" + bundle + "/" + view_mode,
-      datas
+      datas,
+      null,
+      false
     );
   },
   /**

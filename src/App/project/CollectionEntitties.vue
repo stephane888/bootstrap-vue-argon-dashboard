@@ -23,7 +23,7 @@
         <b-col lg="9"> filtres </b-col>
       </b-row>
       <b-row>
-        <b-col lg="9">
+        <b-col lg="7" md="12" xl="8">
           <h1>Liste des taches</h1>
           <AccordionEntities
             :config-entity-type-id="configEntityTypeId"
@@ -32,7 +32,9 @@
             @DeleteEntity="DeleteEntity"
           ></AccordionEntities>
         </b-col>
-        <b-col lg="3"></b-col>
+        <b-col lg="5" md="12" xl="4">
+          <h2>Liste des taches en attentes</h2>
+        </b-col>
       </b-row>
     </b-container>
     <modalFrom
@@ -257,7 +259,7 @@ export default {
       clearTimeout(this.timer);
       this.timer = setInterval(() => {
         this.loadEntities(false);
-      }, 180000);
+      }, 900000);
     },
   },
 };

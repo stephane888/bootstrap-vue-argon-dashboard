@@ -98,14 +98,12 @@
     </side-bar>
     <div class="main-content">
       <dashboard-navbar :type="$route.meta.navbarType"></dashboard-navbar>
-
       <div @click="$sidebar.displaySidebar(false)">
         <fade-transition :duration="200" origin="center top" mode="out-in">
           <!-- your content here -->
           <router-view></router-view>
         </fade-transition>
       </div>
-
       <content-footer v-if="!$route.meta.hideFooter"></content-footer>
     </div>
   </div>

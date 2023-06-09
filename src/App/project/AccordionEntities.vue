@@ -48,6 +48,11 @@
                       {{ getDateInfrench(item.attributes.created) }} by
                       {{ getUserName(item.relationships) }}
                     </small>
+                    <countsubTaches
+                      :entity="item"
+                      :config-entity-type-id="configEntityTypeId"
+                      :config-entity-id="configEntityId"
+                    ></countsubTaches>
                   </div>
                 </b-col>
                 <b-col md="3" class="d-flex justify-content-end">
@@ -173,6 +178,7 @@ export default {
   components: {
     titreInfos: () => import("../components/TitreInfos.vue"),
     TacheProgressBar: TacheProgressBar,
+    countsubTaches: () => import("../components/CountsubTaches.vue"),
   },
   props: {
     configEntityTypeId: {

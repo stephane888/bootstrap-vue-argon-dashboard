@@ -61,10 +61,13 @@
         </b-col>
       </b-row>
     </base-header>
+    <b-container fluid class="pb-4 pt-4 main-entity"> /// </b-container>
   </div>
 </template>
 <script>
 // Charts
 // import fromProject from "../App/project/formProjetType.vue";
-export default {};
+export default {
+  components: {},
+};
 </script>

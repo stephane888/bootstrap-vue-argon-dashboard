@@ -65,6 +65,10 @@ export default {
      * Contient l'entite qui est affiché.
      */
     entity: {},
+    /**
+     * Contient la lsite des entities issues du filtre.
+     */
+    all_entitties: [],
   }),
   mutations: {
     SET_PROJECTS(state, payload) {
@@ -133,6 +137,9 @@ export default {
     },
     SET_ENTITIES(state, payload) {
       state.entities = payload;
+    },
+    SET_ALL_ENTITIES(state, payload) {
+      state.all_entitties = payload;
     },
     SET_ENTITY(state, payload) {
       state.entity = payload;
@@ -323,6 +330,28 @@ export default {
         else {
           reject(" Parametre de configuration manquant. ");
         }
+      });
+    },
+    loadEntitiesWithFilters({ commit }, payload) {
+      return new Promise((resolv, reject) => {
+        commit("SET_ALL_ENTITIES", []);
+        request
+          .loadEntitiesWithFilters(payload)
+          .then((resp) => {
+            if (resp.data) {
+              // add accordionOpen
+              for (const i in resp.data) {
+                for (const j in resp.data[i].entities) {
+                  resp.data[i].entities[j].accordionOpen = false;
+                }
+              }
+              commit("SET_ALL_ENTITIES", resp.data);
+            }
+            resolv(resp);
+          })
+          .catch((er) => {
+            reject(er);
+          });
       });
     },
     deleteEntity({}, payload) {

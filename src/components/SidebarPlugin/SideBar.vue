@@ -92,8 +92,39 @@
         </ul>
         <!--Divider-->
         <hr class="my-3" />
+        <h5 class="navbar-heading text-muted">Programme de travail</h5>
+        <ul class="navbar-nav mb-md-3">
+          <li v-if="userConfig.day_duration" class="nav-item">
+            <a class="nav-link d-flex flex-column align-items-baseline">
+              <strong>Horaire de travail</strong>
+              <div>
+                {{ userConfig.day_duration[0] }}h --
+                {{ userConfig.day_duration[1] }}h
+              </div>
+            </a>
+          </li>
+          <li v-if="userConfig.duration_work_day" class="nav-item">
+            <a class="nav-link d-flex flex-column align-items-baseline">
+              <strong>Durée de travail/jour</strong>
+              <div>{{ userConfig.duration_work_day }}h</div>
+            </a>
+          </li>
+          <li v-if="userConfig.pauses" class="nav-item">
+            <a class="nav-link d-flex flex-column align-items-baseline">
+              <strong>
+                Pauses <small>{{ userConfig.duration_pauses }}h</small>
+              </strong>
+              <div v-for="(pause, i) in userConfig.pauses" :key="i">
+                {{ pause[0] }}h -- {{ pause[1] }}h
+              </div>
+            </a>
+          </li>
+        </ul>
+
+        <!--Divider-->
+        <hr class="my-3" />
         <!--Heading-->
-        <h6 class="navbar-heading text-muted">Documentation</h6>
+        <h6 class="navbar-heading text-muted">Documentation ...</h6>
         <!--Navigation-->
         <ul class="navbar-nav mb-md-3">
           <li class="nav-item">
@@ -127,7 +158,7 @@
 </template>
 <script>
 import NavbarToggleButton from "@/components/NavbarToggleButton";
-
+import { mapState } from "vuex";
 export default {
   name: "SideBar",
   components: {
@@ -150,6 +181,16 @@ export default {
       description:
         "Whether sidebar should autoclose on mobile when clicking an item",
     },
+  },
+  computed: {
+    ...mapState({
+      userConfig: (state) => state.userConfig,
+    }),
+    // formatterWorkDay() {
+    //   if (this.userConfig) {
+
+    //   } else return {};
+    // }
   },
   beforeDestroy() {
     if (this.$sidebar.showSidebar) {
