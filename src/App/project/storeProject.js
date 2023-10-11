@@ -273,6 +273,8 @@ export default {
           IE.filter(item.field_name, item.operator, item.value);
         });
       }
+      //
+      console.log("filterQuery : ", IE.filterQuery);
       IE.get().then((resp) => {
         /**
          * On ajoute les proprietes supplementaire afin de contruire un accordeon.

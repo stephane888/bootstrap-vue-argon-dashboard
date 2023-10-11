@@ -53,6 +53,7 @@ $green: #2dce89 !default;
 $teal: #11cdef !default;
 $cyan: #2bffc6 !default;
 $vert_sombre: #05694d !default;
+$vert_sombre2: #083d2e !default;
 $transparent_01: #2222222c !default;
 $transparent_02: #2222225d !default;
 
@@ -114,6 +115,7 @@ $theme-colors: map-merge(
     "dark": $dark,
     "darker": $darker,
     "vert-sombre": $vert_sombre,
+    "vert-sombre2": $vert_sombre2,
     "transparent_01": $transparent_01,
     "transparent_02": $transparent_02,
   ),

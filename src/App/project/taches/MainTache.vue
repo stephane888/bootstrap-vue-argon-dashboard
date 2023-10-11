@@ -323,7 +323,7 @@ export default {
           variant_header = "bg-gradient-vert-sombre text-white";
           break;
         case "validate":
-          variant_header = "bg-gradient-vert-sombre text-white";
+          variant_header = "bg-gradient-vert-sombre2 text-white";
           break;
         case "end":
           variant_header = "bg-gradient-gray-dark text-white";

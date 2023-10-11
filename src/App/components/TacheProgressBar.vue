@@ -103,7 +103,7 @@ export default {
       } else return this.max;
     },
     async getValue() {
-      console.log("this.date_interval : ", this.date_interval);
+      console.log(" this.date_interval : ", this.date_interval);
       const diff_minutes = (dt2, dt1) => {
         var diff = (dt2.getTime() - dt1.getTime()) / 1000;
         diff /= 60;

@@ -23,7 +23,7 @@
         <b-col lg="9"> filtres </b-col>
       </b-row>
       <b-row>
-        <b-col lg="7" md="12" xl="8">
+        <b-col lg="10" md="12" xl="10">
           <h1>Liste des taches</h1>
           <AccordionEntities
             :config-entity-type-id="configEntityTypeId"
@@ -31,9 +31,6 @@
             @editEntity="editEntity"
             @DeleteEntity="DeleteEntity"
           ></AccordionEntities>
-        </b-col>
-        <b-col lg="5" md="12" xl="4">
-          <h2>Liste des taches en attentes</h2>
         </b-col>
       </b-row>
     </b-container>
@@ -81,6 +78,10 @@ export default {
     configEntityId: {
       type: [String, Number],
       default: "",
+    },
+    drupalInternalId: {
+      type: [String, Number],
+      default: null,
     },
   },
   data() {
@@ -187,11 +188,20 @@ export default {
      */
     loadEntities(clean = true) {
       if (this.entity_type_id && this.configEntityId) {
+        const date = new Date();
+        date.setDate(date.getDate() - 50);
         this.$store.dispatch("storeProject/loadEntityWithBundle", {
           entity_type_id: this.entity_type_id,
           bundle: this.configEntityId,
           clean: clean,
           url: "?include=executants,project_manager&sort=-created",
+          filters: [
+            {
+              field_name: "created",
+              operator: ">",
+              value: date.getTime() / 1000,
+            },
+          ],
         });
       }
     },
@@ -255,11 +265,26 @@ export default {
      * @
      */
     PeriodiqueRun() {
-      console.log(" PeriodiqueRun ");
+      console.log(
+        " Periodique Run : ",
+        "\n drupalInternalId",
+        this.drupalInternalId,
+        "\n configEntityId : ",
+        this.configEntityId
+      );
       clearTimeout(this.timer);
-      this.timer = setInterval(() => {
-        this.loadEntities(false);
-      }, 900000);
+      /**
+       * - DrupalInternalId ne doit pas etre definie
+       * - configEntityId doit etre definie
+       */
+      if (!this.drupalInternalId && this.configEntityId)
+        this.timer = setInterval(() => {
+          this.loadEntities(false);
+        }, 900000);
+      else {
+        console.log(" Stop Run loadEntities ");
+        this.timer = null;
+      }
     },
   },
 };
