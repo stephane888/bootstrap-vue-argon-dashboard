@@ -20,11 +20,9 @@
     </base-header>
     <b-container fluid class="pb-4 pt-4">
       <b-row>
-        <b-col lg="9"> filtres </b-col>
-      </b-row>
-      <b-row>
-        <b-col lg="10" md="12" xl="10">
+        <b-col lg="12" md="12" xl="12">
           <h1>Liste des taches</h1>
+          <filtre @submit_filter="loadEntities"></filtre>
           <AccordionEntities
             :config-entity-type-id="configEntityTypeId"
             :config-entity-id="configEntityId"
@@ -69,6 +67,7 @@ export default {
     AppBreadcrumb,
     formEntity,
     AccordionEntities: () => import("./AccordionEntities.vue"),
+    filtre: () => import("./FilterProjects.vue"),
   },
   props: {
     configEntityTypeId: {
@@ -97,6 +96,7 @@ export default {
       currentProject: (state) => state.storeProject.currentProject,
       projects: (state) => state.storeProject.projects,
       entities: (state) => state.storeProject.entities,
+      filters: (state) => state.storeProject.filters,
     }),
     ...mapGetters(["entity_type_id"]),
     breadCrumbs() {
@@ -190,18 +190,44 @@ export default {
       if (this.entity_type_id && this.configEntityId) {
         const date = new Date();
         date.setDate(date.getDate() - 50);
+        // build filters
+        const filters = [];
+        if (
+          !this.filters.date_begin &&
+          !this.filters.date_end &&
+          !this.filters.search
+        ) {
+          filters.push({
+            field_name: "created",
+            operator: ">",
+            value: date.getTime() / 1000,
+          });
+        }
+        //add dynamic que filter
+        if (this.filters.date_begin) {
+          const date_begin = new Date(this.filters.date_begin);
+          filters.push({
+            field_name: "created",
+            operator: ">",
+            value: date_begin.getTime() / 1000,
+          });
+        }
+        if (this.filters.date_end) {
+          const date_end = new Date(this.filters.date_end);
+          filters.push({
+            field_name: "created",
+            operator: "<",
+            value: date_end.getTime() / 1000,
+          });
+        }
+
+        console.log("filters : ", filters);
         this.$store.dispatch("storeProject/loadEntityWithBundle", {
           entity_type_id: this.entity_type_id,
           bundle: this.configEntityId,
           clean: clean,
           url: "?include=executants,project_manager&sort=-created",
-          filters: [
-            {
-              field_name: "created",
-              operator: ">",
-              value: date.getTime() / 1000,
-            },
-          ],
+          filters: filters,
         });
       }
     },
@@ -265,13 +291,6 @@ export default {
      * @
      */
     PeriodiqueRun() {
-      console.log(
-        " Periodique Run : ",
-        "\n drupalInternalId",
-        this.drupalInternalId,
-        "\n configEntityId : ",
-        this.configEntityId
-      );
       clearTimeout(this.timer);
       /**
        * - DrupalInternalId ne doit pas etre definie
@@ -282,7 +301,6 @@ export default {
           this.loadEntities(false);
         }, 900000);
       else {
-        console.log(" Stop Run loadEntities ");
         this.timer = null;
       }
     },

@@ -69,6 +69,15 @@ export default {
      * Contient la lsite des entities issues du filtre.
      */
     all_entitties: [],
+    /**
+     * Contient les chamaps permettant d'effectuer un filtrage.
+     */
+    filters: {
+      date_begin: null,
+      date_end: null,
+      search: null,
+      search_in_description: false,
+    },
   }),
   mutations: {
     SET_PROJECTS(state, payload) {
@@ -274,7 +283,7 @@ export default {
         });
       }
       //
-      console.log("filterQuery : ", IE.filterQuery);
+      //console.log("filterQuery : ", IE.filterQuery);
       IE.get().then((resp) => {
         /**
          * On ajoute les proprietes supplementaire afin de contruire un accordeon.

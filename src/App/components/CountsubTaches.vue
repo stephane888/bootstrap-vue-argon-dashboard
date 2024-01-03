@@ -72,7 +72,6 @@ export default {
         this.entity.attributes.drupal_internal__id
       );
       IE.get().then((resp) => {
-        console.log(" LoadEntities sub taches : ", resp.data);
         if (resp.data) {
           this.count_subtaches = resp.data.length;
           resp.data.forEach((item) => {
@@ -83,7 +82,6 @@ export default {
             }
           });
         }
-        console.log("results : ", this.results);
       });
     },
   },
