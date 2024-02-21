@@ -78,7 +78,8 @@ export default {
       search: null,
       search_in_description: false,
       status_execution: ["new", "running", "end"],
-      users: [],
+      user_id: [],
+      executants: [],
     },
   }),
   mutations: {

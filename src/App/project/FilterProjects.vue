@@ -49,11 +49,23 @@
             </b-form-group>
             <b-form-group
               v-slot="{ ariaDescribedby }"
-              label="Executants"
+              label="Creer par"
               class="col-md-12"
             >
               <b-form-checkbox-group
-                v-model="filters.users"
+                v-model="filters.user_id"
+                :options="users"
+                :aria-describedby="ariaDescribedby"
+                name="flavour-1"
+              ></b-form-checkbox-group>
+            </b-form-group>
+            <b-form-group
+              v-slot="{ ariaDescribedby }"
+              label="Executer par"
+              class="col-md-12"
+            >
+              <b-form-checkbox-group
+                v-model="filters.executants"
                 :options="users"
                 :aria-describedby="ariaDescribedby"
                 name="flavour-1"

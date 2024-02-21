@@ -2,7 +2,7 @@
   <div class="list-entities">
     <div v-for="(group, i) in entities_groups" :key="i" class="hr">
       <div v-if="group.items.length">
-        <h3>{{ group.label }}</h3>
+        <h3>{{ group.label }} : {{ group.items.length }}</h3>
         <div role="tablist" class="accordion mb-4">
           <b-card v-for="(item, k) in group.items" :key="k" no-body>
             <b-card-header

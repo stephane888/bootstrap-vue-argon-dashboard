@@ -21,7 +21,7 @@
     <b-container fluid class="pb-4 pt-4">
       <b-row>
         <b-col lg="12" md="12" xl="12">
-          <h1>Liste des taches</h1>
+          <h1>Liste des taches : {{ getNumbers }}</h1>
           <filtre @submit_filter="loadEntities"></filtre>
           <AccordionEntities
             :config-entity-type-id="configEntityTypeId"
@@ -109,6 +109,13 @@ export default {
         });
       }
       return staticUrl;
+    },
+    getNumbers() {
+      var total = 0;
+      if (this.entities && this.entities.length) {
+        total = this.entities.length;
+      }
+      return total;
     },
   },
   mounted() {
@@ -207,11 +214,30 @@ export default {
           });
         }
         // recuperation du status des taches.
-        if (this.filters.status_execution) {
+        if (
+          this.filters.status_execution &&
+          this.filters.status_execution.length
+        ) {
           filters.push({
             field_name: "status_execution",
             operator: "IN",
             value: this.filters.status_execution,
+          });
+        }
+        // Recuperation creer par.
+        if (this.filters.user_id && this.filters.user_id.length) {
+          filters.push({
+            field_name: "user_id.meta.drupal_internal__target_id",
+            operator: "IN",
+            value: this.filters.user_id,
+          });
+        }
+        // Recuperation executer par.
+        if (this.filters.executants && this.filters.executants.length) {
+          filters.push({
+            field_name: "executants.meta.drupal_internal__target_id",
+            operator: "IN",
+            value: this.filters.executants,
           });
         }
         if (filters) {
