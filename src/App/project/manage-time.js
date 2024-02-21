@@ -177,6 +177,8 @@ export default {
    * @param {Date} date
    */
   TimeIsValid(date) {
+    // Pour le moment, on va ignorer cette logique. car compliqué à bien mettre cela en place et pas tres utile.
+    return true;
     if (this.isValidDay(date) && this.isPause(date)) {
       return true;
     } else return false;

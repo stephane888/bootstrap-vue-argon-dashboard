@@ -155,8 +155,13 @@
                       item.attributes.description &&
                       item.attributes.description.processed
                     "
-                    v-html="item.attributes.description.processed"
-                  ></div>
+                  >
+                    <div
+                      v-html="
+                        textDisplayHljs(item.attributes.description.processed)
+                      "
+                    ></div>
+                  </div>
                 </b-card-text>
               </b-card-body>
             </b-collapse>
@@ -172,6 +177,8 @@ import config from "../request";
 import TacheProgressBar from "../components/TacheProgressBar.vue";
 import TimeAgo from "javascript-time-ago";
 import fr from "javascript-time-ago/locale/fr";
+import hljs from "highlight.js";
+
 TimeAgo.addDefaultLocale(fr);
 export default {
   name: "AccordionEntities",
@@ -288,6 +295,18 @@ export default {
         variant_header += " border-right border-danger";
       }
       return variant_header;
+    },
+    /**
+     * On parcout le texte et on remplace les balises.
+     * @param {*} description
+     */
+    textDisplayHljs(description) {
+      var newDiv = document.createElement("div");
+      newDiv.innerHTML = description;
+      newDiv.querySelectorAll("pre code").forEach((block) => {
+        hljs.highlightBlock(block);
+      });
+      return newDiv.outerHTML;
     },
   },
 };

@@ -113,7 +113,6 @@ export default {
   },
   mounted() {
     this.getProjet();
-    this.loadEntities();
     this.PeriodiqueRun();
 
     /**
@@ -188,22 +187,8 @@ export default {
      */
     loadEntities(clean = true) {
       if (this.entity_type_id && this.configEntityId) {
-        const date = new Date();
-        date.setDate(date.getDate() - 50);
-        // build filters
         const filters = [];
-        if (
-          !this.filters.date_begin &&
-          !this.filters.date_end &&
-          !this.filters.search
-        ) {
-          filters.push({
-            field_name: "created",
-            operator: ">",
-            value: date.getTime() / 1000,
-          });
-        }
-        //add dynamic que filter
+        // recuperation date de debut
         if (this.filters.date_begin) {
           const date_begin = new Date(this.filters.date_begin);
           filters.push({
@@ -212,6 +197,7 @@ export default {
             value: date_begin.getTime() / 1000,
           });
         }
+        // recuperation date de fin
         if (this.filters.date_end) {
           const date_end = new Date(this.filters.date_end);
           filters.push({
@@ -220,15 +206,23 @@ export default {
             value: date_end.getTime() / 1000,
           });
         }
-
-        console.log("filters : ", filters);
-        this.$store.dispatch("storeProject/loadEntityWithBundle", {
-          entity_type_id: this.entity_type_id,
-          bundle: this.configEntityId,
-          clean: clean,
-          url: "?include=executants,project_manager&sort=-created",
-          filters: filters,
-        });
+        // recuperation du status des taches.
+        if (this.filters.status_execution) {
+          filters.push({
+            field_name: "status_execution",
+            operator: "IN",
+            value: this.filters.status_execution,
+          });
+        }
+        if (filters) {
+          this.$store.dispatch("storeProject/loadEntityWithBundle", {
+            entity_type_id: this.entity_type_id,
+            bundle: this.configEntityId,
+            clean: clean,
+            url: "?include=executants,project_manager&sort=-created",
+            filters: filters,
+          });
+        }
       }
     },
     // editProject(entity) {
@@ -299,7 +293,8 @@ export default {
       if (!this.drupalInternalId && this.configEntityId)
         this.timer = setInterval(() => {
           this.loadEntities(false);
-        }, 900000);
+        }, 150000);
+      // durée : 150s.
       else {
         this.timer = null;
       }
