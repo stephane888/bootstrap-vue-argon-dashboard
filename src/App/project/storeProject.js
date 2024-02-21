@@ -271,6 +271,7 @@ export default {
      * @param {*} payload
      */
     loadEntityWithBundle({ commit }, payload) {
+      commit("ACTIVE_RUNNING");
       if (payload.clean) commit("SET_ENTITIES", []);
       const IE = new itemsEntity(
         payload.entity_type_id,
@@ -279,30 +280,36 @@ export default {
       );
       IE.remplaceConfig();
       if (payload.url) IE.url += payload.url;
-      // add fillter
+      // Add fillter
       if (payload.filters) {
         payload.filters.forEach((item) => {
           IE.filter(item.field_name, item.operator, item.value);
         });
       }
-      //
-      //console.log("filterQuery : ", IE.filterQuery);
-      IE.get().then((resp) => {
-        /**
-         * On ajoute les proprietes supplementaire afin de contruire un accordeon.
-         */
-        const items = [];
-        if (resp.data) {
-          resp.data.forEach((item) => {
-            items.push({
-              ...item,
-              accordionId: item.id,
-              accordionOpen: false,
+      // console.log("filterQuery : ", IE.filterQuery);
+      IE.get()
+        .then((resp) => {
+          /**
+           * On ajoute les proprietes supplementaire afin de contruire un accordeon.
+           */
+          const items = [];
+          if (resp.data) {
+            resp.data.forEach((item) => {
+              items.push({
+                ...item,
+                accordionId: item.id,
+                accordionOpen: false,
+              });
             });
-          });
-          commit("SET_ENTITIES", items);
-        }
-      });
+            commit("SET_ENTITIES", items);
+            setTimeout(() => {
+              commit("DISABLE_RUNNING");
+            }, 1500);
+          } else commit("DISABLE_RUNNING");
+        })
+        .catch((er) => {
+          commit("DISABLE_RUNNING");
+        });
     },
     /**
      * Permet de charger une entité en function de son id via JSONAPI.

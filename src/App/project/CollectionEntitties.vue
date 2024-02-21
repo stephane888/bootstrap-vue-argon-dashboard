@@ -21,7 +21,66 @@
     <b-container fluid class="pb-4 pt-4">
       <b-row>
         <b-col lg="12" md="12" xl="12">
-          <h1>Liste des taches : {{ getNumbers }}</h1>
+          <h1 class="position-relative d-flex">
+            Liste des taches : {{ getNumbers }}
+            <div v-if="running">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 512 512"
+                class="svg-loader box-spin"
+                width="2rem"
+                height="2rem"
+              >
+                <path
+                  d="M304 48c0 26.51-21.49 48-48 48s-48-21.49-48-48 21.49-48 48-48 48 21.49 48 48zm-48 368c-26.51 0-48 21.49-48 48s21.49 48 48 48 48-21.49 48-48-21.49-48-48-48zm208-208c-26.51 0-48 21.49-48 48s21.49 48 48 48 48-21.49 48-48-21.49-48-48-48zM96 256c0-26.51-21.49-48-48-48S0 229.49 0 256s21.49 48 48 48 48-21.49 48-48zm12.922 99.078c-26.51 0-48 21.49-48 48s21.49 48 48 48 48-21.49 48-48c0-26.509-21.491-48-48-48zm294.156 0c-26.51 0-48 21.49-48 48s21.49 48 48 48 48-21.49 48-48c0-26.509-21.49-48-48-48zM108.922 60.922c-26.51 0-48 21.49-48 48s21.49 48 48 48 48-21.49 48-48-21.491-48-48-48z"
+                ></path>
+              </svg>
+              <!--
+              <svg
+                version="1.1"
+                id="L4"
+                xmlns="http://www.w3.org/2000/svg"
+                xmlns:xlink="http://www.w3.org/1999/xlink"
+                x="0px"
+                y="0px"
+                viewBox="0 0 30 30"
+                enable-background="new 0 0 0 0"
+                xml:space="preserve"
+                width="4.5rem"
+                height="2rem"
+                class="svg-loader d-none"
+              >
+                <circle fill="#ccc" stroke="none" cx="0" cy="13" r="6">
+                  <animate
+                    attributeName="opacity"
+                    dur="1s"
+                    values="0;1;0"
+                    repeatCount="indefinite"
+                    begin="0.1"
+                  />
+                </circle>
+                <circle fill="#ccc" stroke="none" cx="20" cy="13" r="6">
+                  <animate
+                    attributeName="opacity"
+                    dur="1s"
+                    values="0;1;0"
+                    repeatCount="indefinite"
+                    begin="0.2"
+                  />
+                </circle>
+                <circle fill="#ccc" stroke="none" cx="40" cy="13" r="6">
+                  <animate
+                    attributeName="opacity"
+                    dur="1s"
+                    values="0;1;0"
+                    repeatCount="indefinite"
+                    begin="0.3"
+                  />
+                </circle>
+              </svg>
+-->
+            </div>
+          </h1>
           <filtre @submit_filter="loadEntities"></filtre>
           <AccordionEntities
             :config-entity-type-id="configEntityTypeId"
@@ -97,6 +156,7 @@ export default {
       projects: (state) => state.storeProject.projects,
       entities: (state) => state.storeProject.entities,
       filters: (state) => state.storeProject.filters,
+      running: (state) => state.storeProject.running,
     }),
     ...mapGetters(["entity_type_id"]),
     breadCrumbs() {
@@ -328,3 +388,11 @@ export default {
   },
 };
 </script>
+<style lang="scss">
+.svg-loader {
+  margin-left: 1rem;
+}
+.box-spin {
+  animation: fa-spin 2s infinite linear;
+}
+</style>
