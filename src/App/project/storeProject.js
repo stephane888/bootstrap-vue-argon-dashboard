@@ -77,7 +77,7 @@ export default {
       date_end: null,
       search: null,
       search_in_description: false,
-      status_execution: ["new", "running", "end"],
+      status_execution: ["new", "running"],
       user_id: [],
       executants: [],
     },
@@ -294,6 +294,7 @@ export default {
            */
           const items = [];
           if (resp.data) {
+            console.log(" resp: resp.data ", resp.data);
             resp.data.forEach((item) => {
               items.push({
                 ...item,
@@ -302,12 +303,17 @@ export default {
               });
             });
             commit("SET_ENTITIES", items);
-            setTimeout(() => {
-              commit("DISABLE_RUNNING");
-            }, 1500);
-          } else commit("DISABLE_RUNNING");
+          } else {
+            console.log("SET_ENTITIES : ", items);
+            commit("SET_ENTITIES", items);
+          }
+
+          setTimeout(() => {
+            commit("DISABLE_RUNNING");
+          }, 1500);
         })
         .catch((er) => {
+          console.log("er : ", er);
           commit("DISABLE_RUNNING");
         });
     },

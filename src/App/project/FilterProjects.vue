@@ -12,6 +12,13 @@
       <b-collapse id="accordion-1" accordion="my-accordion" role="tabpanel">
         <b-card-body>
           <b-form class="row" @submit="onSubmit" @reset="onReset">
+            <b-form-group class="col-md-12">
+              <b-form-input
+                v-model="filters.search"
+                size="lg"
+                placeholder="Saisir un terme à rechercher"
+              ></b-form-input>
+            </b-form-group>
             <b-form-group
               id="input-group-1"
               label="Date de debut"
@@ -72,7 +79,11 @@
               ></b-form-checkbox-group>
             </b-form-group>
             <b-col>
-              <b-button type="submit" variant="outline-primary">
+              <b-button
+                type="submit"
+                :variant="running ? 'outline-light' : 'outline-primary'"
+                :disabled="running"
+              >
                 filtrer
               </b-button>
             </b-col>
@@ -89,6 +100,17 @@ import itemsEntity from "drupal-vuejs/src/App/jsonApi/itemsEntity.js";
 import { mapState } from "vuex";
 export default {
   name: "FilterProjects",
+  props: {
+    configEntityId: {
+      type: [String, Number],
+      default: "",
+    },
+    drupalInternalId: {
+      type: [String, Number],
+      default: null,
+    },
+  },
+
   data() {
     return {
       status_execution: [
@@ -104,21 +126,23 @@ export default {
   computed: {
     ...mapState({
       filters: (state) => state.storeProject.filters,
+      running: (state) => state.storeProject.running,
     }),
+  },
+  updated: function () {
+    // this.$nextTick(function () {
+    //   console.log("affichage du filtre : ", this.configEntityId);
+    // });
   },
   mounted() {
     this.getUsers();
-    if (
-      !this.filters.date_begin &&
-      !this.filters.date_end &&
-      !this.filters.search
-    ) {
+    if (!this.filters.date_begin && !this.filters.date_end) {
       const date = new Date();
-      date.setDate(date.getDate() - 100);
+      date.setDate(date.getDate() - 15);
       this.filters.date_begin = date;
       // Apres chargement de la configuration par defaut, on demande le chargement des données.
       this.$emit("submit_filter");
-    }
+    } else this.$emit("submit_filter");
   },
   methods: {
     onSubmit(event) {

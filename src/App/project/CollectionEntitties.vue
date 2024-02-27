@@ -81,7 +81,11 @@
 -->
             </div>
           </h1>
-          <filtre @submit_filter="loadEntities"></filtre>
+          <filtre
+            :config-entity-id="configEntityId"
+            :drupal-interna-id="drupalInternalId"
+            @submit_filter="loadEntities"
+          ></filtre>
           <AccordionEntities
             :config-entity-type-id="configEntityTypeId"
             :config-entity-id="configEntityId"
@@ -273,7 +277,7 @@ export default {
             value: date_end.getTime() / 1000,
           });
         }
-        // recuperation du status des taches.
+        // Recuperation du status des taches.
         if (
           this.filters.status_execution &&
           this.filters.status_execution.length
@@ -298,6 +302,14 @@ export default {
             field_name: "executants.meta.drupal_internal__target_id",
             operator: "IN",
             value: this.filters.executants,
+          });
+        }
+        //
+        if (this.filters.search && this.filters.search.length >= 3) {
+          filters.push({
+            field_name: "name",
+            operator: "CONTAINS",
+            value: this.filters.search,
           });
         }
         if (filters) {
@@ -379,8 +391,8 @@ export default {
       if (!this.drupalInternalId && this.configEntityId)
         this.timer = setInterval(() => {
           this.loadEntities(false);
-        }, 150000);
-      // durée : 150s.
+        }, 1800000);
+      // durée : 30 minutes.
       else {
         this.timer = null;
       }
