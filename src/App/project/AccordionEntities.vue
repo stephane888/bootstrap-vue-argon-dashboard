@@ -82,7 +82,7 @@
                     variant="light"
                     class="btn-action mr-4"
                     title="Fermer"
-                    @click="getStatusAccordion(item)"
+                    @click="getStatusAccordionAndLoadEntity(item, $event)"
                   >
                     <b-icon
                       icon="chevron-double-up"
@@ -96,7 +96,7 @@
                     variant="light"
                     class="btn-action mr-4 d-inline-block"
                     title="Ouvrir"
-                    @click="getStatusAccordion(item)"
+                    @click="getStatusAccordionAndLoadEntity(item, $event)"
                   >
                     <b-icon
                       icon="chevron-double-down"
@@ -253,8 +253,37 @@ export default {
     editEntity(attributes) {
       this.$emit("editEntity", attributes);
     },
-    getStatusAccordion(item) {
+    getStatusAccordionAndLoadEntity(item, event) {
+      console.log("getStatusAccordion : ", item, event);
+      window.custom_event = event;
       item.accordionOpen = !item.accordionOpen;
+      if (event.target && event.target.classList) {
+        if (!event.target.classList.contains("entity_loaded")) {
+          event.target.classList.add("entity_loaded");
+          if (item.links.self.href) {
+            this.$store
+              .dispatch("storeProject/LaodEntityByUrl", {
+                url: item.links.self.href,
+              })
+              .then((resp) => {
+                console.log("resp.data--- : ", resp.data);
+                if (resp.data.attributes) {
+                  // for (const i in resp.data.attributes) {
+                  //   if (!item.attributes[i]) {
+                  //     item.attributes[i] = resp.data.attributes[i];
+                  //   }
+                  // }
+                  item.attributes = resp.data.attributes;
+                }
+                // item={item, }
+                console.log("item adddedd: ", item);
+              })
+              .catch(() => {
+                event.target.classList.remove("entity_loaded");
+              });
+          }
+        }
+      }
     },
     DeleteEntity(item) {
       config

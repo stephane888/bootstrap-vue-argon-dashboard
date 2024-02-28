@@ -319,6 +319,23 @@ export default {
             clean: clean,
             url: "?include=executants,project_manager&sort=-created",
             filters: filters,
+            fields: [
+              "drupal_internal__id",
+              "name",
+              "user_id",
+              "private",
+              "type_project",
+              "status_execution",
+              "type_tache",
+              "tache_renumerer",
+              "duree",
+              "duree_execution",
+              "primes",
+              "project_manager",
+              "executants",
+              "created",
+              "changed",
+            ],
           });
         }
       }

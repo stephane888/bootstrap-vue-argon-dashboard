@@ -66,6 +66,7 @@ export default {
       this.results = request.initGroupeStatus();
       const IE = new itemsEntity(this.entityTypeId, this.bundle, request);
       IE.remplaceConfig();
+      IE.setFields(["drupal_internal__id", "name", "status_execution"]);
       IE.filter(
         "app_project.meta.drupal_internal__target_id",
         "=",

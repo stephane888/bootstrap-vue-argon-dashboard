@@ -264,6 +264,21 @@ export default {
           });
       }
     },
+    LaodEntityByUrl({ commit }, payload) {
+      commit("ACTIVE_RUNNING");
+      return new Promise((resolv, reject) => {
+        request
+          .dGet(payload.url)
+          .then((resp) => {
+            commit("DISABLE_RUNNING");
+            resolv(resp.data);
+          })
+          .catch((er) => {
+            commit("DISABLE_RUNNING");
+            reject(er);
+          });
+      });
+    },
     /**
      * Permet de charger les entites (via JSONAPI) en function de entity_type_id et du bundle.
      *
@@ -278,6 +293,7 @@ export default {
         payload.bundle,
         request
       );
+      if (payload.fields.length) IE.setFields(payload.fields);
       IE.remplaceConfig();
       if (payload.url) IE.url += payload.url;
       // Add fillter
