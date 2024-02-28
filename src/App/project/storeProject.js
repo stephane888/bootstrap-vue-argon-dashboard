@@ -293,7 +293,7 @@ export default {
         payload.bundle,
         request
       );
-      if (payload.fields.length) IE.setFields(payload.fields);
+      if (payload.fields && payload.fields.length) IE.setFields(payload.fields);
       IE.remplaceConfig();
       if (payload.url) IE.url += payload.url;
       // Add fillter
