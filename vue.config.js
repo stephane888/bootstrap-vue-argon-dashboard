@@ -13,23 +13,23 @@ module.exports = {
     // Set up all the aliases we use in our app.
     resolve: {
       alias: {
-        assets: resolveSrc("src/assets"),
-      },
+        assets: resolveSrc("src/assets")
+      }
     },
     //
-    devtool: "source-map",
+    devtool: "source-map"
   },
   // chainWebpack: (config) => {
   //   if (config && config.module)
   //     config.module.rule("eslint").use("eslint-loader").options({
-  //       fix: true,
+  //       fix: true
   //     });
   // },
   css: {
     // Enable CSS source maps.
     // sourceMap: process.env.NODE_ENV !== "production",
-    sourceMap: true,
-  },
+    sourceMap: true
+  }
   //
   // outputDir: "public",
   // productionSourceMap: true,
