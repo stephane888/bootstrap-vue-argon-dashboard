@@ -1,10 +1,11 @@
 module.exports = {
   // @source https://eslint.vuejs.org/rules/
   extends: [
+    // On desactive certains regle en attendant de trouver comment fixer cela automatiquement via vue.config.js
     //"plugin:prettier-vue/recommended",
     "plugin:vue/essential",
-    // "plugin:vue/strongly-recommended",
-    "plugin:vue/recommended"
+    "plugin:vue/strongly-recommended"
+    //"plugin:vue/recommended"
   ],
   root: true,
 
@@ -24,22 +25,3 @@ module.exports = {
     "vue/max-attributes-per-line": 0
   }
 };
-
-// module.exports = {
-//   root: true,
-//   env: {
-//     node: true
-//   },
-//   extends: [
-//     "plugin:vue/essential",
-//     // "eslint:recommended",
-//     // "plugin:prettier/recommended"
-//   ],
-//   parserOptions: {
-//     parser: "@babel/eslint-parser"
-//   },
-//   rules: {
-//     "no-console": process.env.NODE_ENV === "production" ? "warn" : "off",
-//     "no-debugger": process.env.NODE_ENV === "production" ? "warn" : "off"
-//   }
-// };

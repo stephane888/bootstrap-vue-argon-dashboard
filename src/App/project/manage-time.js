@@ -16,7 +16,7 @@ export default {
   explication_time: {
     text: null,
     max_time: 0, // le temps max en minute avant la prochaine pause ou la fin du journée.
-    deccalage_pause: 0, // le temps restant de la pause encours.
+    deccalage_pause: 0 // le temps restant de la pause encours.
   },
   /**
    * Permet d'avoir des programmes pouvant aller sur 2 ans.
@@ -28,17 +28,25 @@ export default {
   getUserConf() {
     return store.state.userConfig;
   },
-  // Permet de convertir les minutes en une durée assez lisible par l'utilisateur.
+  /**
+   * Permet de convertir les minutes en une durée assez lisible par l'utilisateur.
+   * On effectue le cacul en tenant compte de la durée d'une journée de travail.
+   * Mais on n'inclut pas la pause.
+   * @param {*} minutes
+   * @returns
+   */
   convertTimeMinuteToRead(minutes) {
     var string = "";
     const mn = parseInt(minutes);
     if (mn) {
       const h = mn / 60;
+      // si le temps donnée est superieur à une WD.
       if (h >= this.getUserConf().duration_work_day) {
         const workinkDay = Math.floor(h / this.getUserConf().duration_work_day);
-        string += workinkDay + " jour";
+        string += workinkDay + " jr";
         if (workinkDay > 1) string += "s";
       }
+      string += " ";
       const mn_restant = h % this.getUserConf().duration_work_day;
       if (mn_restant) {
         string += mn_restant.toFixed(2) + " h";
@@ -66,7 +74,7 @@ export default {
   },
 
   /**
-   * Permet d'effectuer les calculs de date, en tenant compte de la durée de travail definie, des pauses des journées.
+   * Permet d'effectuer les calculs de date, en tenant compte de la durée de travail definie.
    * @param {*} DateTimeStamp
    */
   getDateForDrupal(date = null, add_minutes = 0) {
@@ -77,7 +85,6 @@ export default {
       if (add_minutes) {
         this.addtime(date, add_minutes).then((date) => {
           const date_string = this.formatDate(date);
-          console.log("getDateForDrupal : ", date_string);
           resolv(date_string.date + "T" + date_string.hour);
         });
       } else {
@@ -91,6 +98,56 @@ export default {
    * @param {Date} date
    */
   async addtime(date, add_minutes) {
+    //heure debut et de fin.
+    const day_duration = this.getUserConf().day_duration;
+    const time_ToLeaveDay = await this.timeToLeaveForday(date);
+    console.log("time_ToLeaveDay : ", time_ToLeaveDay);
+    /**
+     * Cas 1 : Le temps definit est inferieur ou egal à la duree de la jounrée restante.
+     */
+    if (add_minutes <= time_ToLeaveDay) {
+      date.setMinutes(date.getMinutes() + add_minutes);
+      return date;
+    }
+    /**
+     * Cas 2 : Le temps definit est superieur au temps restant de la jounrée.
+     * example 1:
+     * il est 8h00. La tache fait 730minutes(1jr, 5h10)
+     * La tache se termine à 13h10
+     */
+    if (add_minutes > time_ToLeaveDay) {
+      // nombre de jour à ajouter (On retire time_ToLeaveDay pour compter en tenant compte du temps restant sur la journée encours.)
+      const minutesOnDay = this.getUserConf().duration_work_day * 60;
+      let nombreJours = Math.ceil(
+        (add_minutes - time_ToLeaveDay) / minutesOnDay
+      );
+      let MinutesRestante = 0;
+      //if (!nombreJours) nombreJours = 1;
+      this.addDays(nombreJours, date);
+      // Puisse qu'on passe forcement au jour suivant, on reset l'heure, mn,s.
+      date.setHours(day_duration[0], 0, 0);
+      // On ajoute les minutes restantes.
+      if (add_minutes > minutesOnDay) {
+        MinutesRestante = (add_minutes - time_ToLeaveDay) % minutesOnDay;
+        // si MinutesRestante=0, alors le temps couvre toute la journée.
+        if (MinutesRestante == 0) MinutesRestante = minutesOnDay;
+      } else {
+        MinutesRestante = add_minutes - time_ToLeaveDay;
+      }
+      // si MinutesRestante est > à une journée de travail
+      // console.log(
+      //   "MinutesRestante : ",
+      //   MinutesRestante,
+      //   "\n",
+      //   "nombreJours : ",
+      //   nombreJours
+      // );
+      date.setMinutes(MinutesRestante);
+      return date;
+    }
+
+    /////////////////
+    ////////////////
     const time_toLeaveNextBreack = await this.timeToLeaveBeforeNextBreak(date);
     console.log("time_toLeaveNextBreack : ", time_toLeaveNextBreack);
     // si le temps definit est <= au prochain break.
@@ -170,19 +227,24 @@ export default {
     };
     return loopTimeAdd(time_ToLeave, date);
   },
-
   /**
-   * Permet de determiner si l'heure donnée est valide ou pas.
-   *  ( ne doit pas etre en pause, et ne doit pas etre inferieur ou superieur à plage d'heure valid ).
-   * @param {Date} date
+   * Permet d'ajouter les jours tous en tenant compte des WK ( et plustard des jours feriers).
+   * @param {*} nbreDays
    */
-  TimeIsValid(date) {
-    // Pour le moment, on va ignorer cette logique. car compliqué à bien mettre cela en place et pas tres utile.
-    return true;
-    if (this.isValidDay(date) && this.isPause(date)) {
-      return true;
-    } else return false;
+  addDays(nbreDays = 1, date = null) {
+    if (!date) date = new Date();
+    var index = 1;
+    var day = 1;
+    while (index <= this.max_day_add && day <= nbreDays) {
+      ++index;
+      date.setDate(date.getDate() + 1);
+      if (this.getUserConf().work_days[date.getDay()]) {
+        ++day;
+      }
+    }
+    return date;
   },
+
   /**
    * Permet de determiner si le jour definie est un jour ouvrable et si nous sommes dans les plages.
    * @param {*} date
@@ -226,7 +288,9 @@ export default {
       const h = date.getHours() + date.getMinutes() / 60;
 
       // si le temps n'est pas definit.
-      const pauses = this.getUserConf().pauses;
+      // const pauses = this.getUserConf().pauses;
+      // pour l'instant, on ignore les pauses.
+      const pauses = [];
       if (pauses.length > 0) {
         //
         const HourToMn = (h) => {
@@ -270,53 +334,7 @@ export default {
             }
           }
         }
-        // pauses.every((pause, index) => {
-        //   console.log("pause : ", pause);
-        /**
-         * on peut etre dans une pause, ou pas.
-         * La prochaine pause doit etre > à l'heure actuelle.
-         * si on n'est pas dans une pause, le calcul est simple.
-         * si on est dans une pause, on retoune le temps avant la prochaine pause si elle est definit.
-         */
-        //   // cas pause
-        //   if (h >= pause[0] && h < pause[1]) {
-        //     const next_pause = pauses[index + 1];
-        //     if (next_pause) {
-        //       resolv(HourToMn(pause[1] - next_pause[0]));
-        //       // break;
-        //       return true;
-        //     }
-        //     // si c'est la derniere pause.
-        //     else {
-        //       resolv(0);
-        //       // break;
-        //       return true;
-        //     }
-        //   }
-        //   // si c'est pas la pause.
-        //   else if (pause[0] > h && h >= day_duration[0]) {
-        //     resolv(HourToMn(pause[0] - h));
-        //     // break;
-        //     return true;
-        //   }
-        //   // dernier passage
-        //   else if (index == pauses.length - 1) {
-        //     if (day_duration[1] > h) {
-        //       resolv(HourToMn(day_duration[1] - h));
-        //       // break;
-        //       return true;
-        //     } else {
-        //       resolv(0);
-        //       // break;
-        //       return true;
-        //     }
-        //   }
-        //   // On retourne false, pour passer à l'etape suivante.
-        //   else return false;
-        // });
-      }
-      //
-      else resolv(0);
+      } else resolv(0);
     });
   },
   /**
@@ -328,7 +346,9 @@ export default {
     const HourToMn = (h) => {
       return Math.floor(h * 60);
     };
-    const pauses = this.getUserConf().pauses;
+    //const pauses = this.getUserConf().pauses;
+    // pour l'instant, on ignore les pauses.
+    const pauses = [];
     if (pauses) {
       for (const i in pauses) {
         const pause = pauses[i];
@@ -349,47 +369,42 @@ export default {
   },
   /**
    * Temps de travail restant de la jounée.
+   * Retourne le temps de travail restant de la journée en minute.
    * @param {Date} date
    */
   async timeToLeaveForday(date = null) {
     var timeDay = 0;
     if (!date) date = new Date();
+    //heure debut et de fin.
     const day_duration = this.getUserConf().day_duration;
     // heure actuel.
     const h = date.getHours() + date.getMinutes() / 60;
     // si on est deja en dehors de la plage de jour.
     if (h >= day_duration[1]) return 0;
     // si la jounée de travail n'a pas encore commencé.
-    if (h <= day_duration[0]) return this.getUserConf().duration_work_day;
-    //
-    const pauses = this.getUserConf().pauses;
-    if (pauses)
-      pauses.forEach((pause, index) => {
-        // cas pause
-        if (h >= pause[0] && h < pause[1]) {
-          // rien
-        } else if (pause[0] > h) {
-          /**
-           * Dans le but d'eviter d'ajouter trop de temps, on va verifier si une precedante pause existe.
-           */
-          const pre_pause = pauses[index - 1];
-          if (pre_pause) {
-            // si l'heure de debut de la precedante est > à l'heure actuel, on utilise les plages.
-            if (pre_pause[0] > h) {
-              timeDay += pause[0] - pre_pause[1];
-            } else timeDay += pause[0] - h;
-          } else timeDay += pause[0] - h;
-        }
-        if (index == pauses.length - 1) {
-          timeDay += day_duration[1] - pause[1];
-        }
-      });
-    else {
-      if (day_duration[0] >= h) timeDay = day_duration[1] - h;
-      else {
-        timeDay = this.getUserConf().duration_work_day;
-      }
-    }
+    if (h <= day_duration[0]) return this.getUserConf().duration_work_day * 60;
+    const FinJournee = new Date();
+    FinJournee.setHours(day_duration[1]);
+    FinJournee.setMinutes(0);
+
+    const heureConsommer = date.getHours() - day_duration[0];
+    const heureRestant = day_duration[1] - heureConsommer - day_duration[0];
+    const minutesConsommer = date.getMinutes();
+    console.log(
+      "heureConsommer : ",
+      heureConsommer,
+      "\n",
+      "heureRestant : ",
+      heureRestant,
+      "\n",
+      "minutesConsommer : ",
+      minutesConsommer
+    );
+    if (heureRestant > 0) {
+      if (minutesConsommer > 0) {
+        timeDay = (heureRestant - 1) * 60 + (60 - date.getMinutes());
+      } else timeDay = heureRestant * 60 - date.getMinutes();
+    } else timeDay = 60 - date.getMinutes();
     return timeDay;
   },
   formatDate(date_ob, format = "drupal") {
@@ -400,7 +415,7 @@ export default {
       date: ("0" + date_ob.getDate()).slice(-2),
       hour: ("0" + date_ob.getHours()).slice(-2),
       minutes: ("0" + date_ob.getMinutes()).slice(-2),
-      seconds: ("0" + date_ob.getSeconds()).slice(-2),
+      seconds: ("0" + date_ob.getSeconds()).slice(-2)
     };
     if (format == "drupal")
       return {
@@ -415,8 +430,8 @@ export default {
           ":" +
           constDateObj.minutes +
           ":" +
-          constDateObj.seconds,
+          constDateObj.seconds
       };
     else return constDateObj;
-  },
+  }
 };

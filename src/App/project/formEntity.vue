@@ -166,356 +166,362 @@
 </template>
 
 <script>
-import request from "../request";
-import { mapState } from "vuex";
-import AccessController from "../AccessController.js";
-import TacheProgressBar from "../components/TacheProgressBar.vue";
+  import request from "../request";
+  import { mapState } from "vuex";
+  import AccessController from "../AccessController.js";
+  import TacheProgressBar from "../components/TacheProgressBar.vue";
 
-// import loadField from "components_h_vuejs/src/components/fieldsDrupal/loadField";
-export default {
-  name: "FormProjetType",
-  components: {
-    DrupalString: () =>
-      import("components_h_vuejs/src/components/fieldsDrupal/DrupalString.vue"),
-    TextareaCkeditor: () =>
-      import(
-        "components_h_vuejs/src/components/fieldsDrupal/TextareaCkeditor.vue"
-      ),
-    DrupalInteger: () =>
-      import(
-        "components_h_vuejs/src/components/fieldsDrupal/DrupalInteger.vue"
-      ),
-    TacheProgressBar: TacheProgressBar,
-  },
-  data() {
-    return {
-      showForm: false,
-      statique_fields: {},
-      accordionOpen: false,
-    };
-  },
-  computed: {
-    ...mapState({
-      fields: (state) => state.storeProject.fields,
-      running: (state) => state.storeProject.running,
-    }),
-    idEntity() {
-      if (this.form.label !== "") {
-        var id = request.generateIdEntityType(this.form.label);
-        this.setId(id);
-        return id;
-      } else return "";
+  // import loadField from "components_h_vuejs/src/components/fieldsDrupal/loadField";
+  export default {
+    name: "FormProjetType",
+    components: {
+      DrupalString: () =>
+        import(
+          "components_h_vuejs/src/components/fieldsDrupal/DrupalString.vue"
+        ),
+      TextareaCkeditor: () =>
+        import(
+          "components_h_vuejs/src/components/fieldsDrupal/TextareaCkeditor.vue"
+        ),
+      DrupalInteger: () =>
+        import(
+          "components_h_vuejs/src/components/fieldsDrupal/DrupalInteger.vue"
+        ),
+      TacheProgressBar: TacheProgressBar
     },
-    /**
-     * On enleve les champs statiques de la contruction dynamique.
-     */
-    fields_wihiout_statiques() {
-      const statique_fields = [
-        "name",
-        "project_manager",
-        "duree",
-        "duree_execution",
-        // "executants", // l'tilisateur doit choisir les autres membres pour constituer son equipe.
-        "type_project",
-        "description",
-        "status_execution",
-      ];
-      const new_fields = [];
-      for (const c in this.fields) {
-        const item = this.fields[c];
-        const fields = [];
-        for (const i in item.fields) {
-          const field = item.fields[i];
-          if (!statique_fields.includes(field.field.name)) fields.push(field);
-          else {
-            this.addStatiqueField(field.field.name, field);
-            // On ajoute une description pour le champs duree_execution
-            if (field.field.name == "duree_execution")
-              this.addDescriptionToDureeExecution();
-          }
-        }
-        
-        new_fields.push({
-          entity: item.entity,
-          template: item.template,
-          fields: fields,
-        });
-      }
-
-      return new_fields;
+    data() {
+      return {
+        showForm: false,
+        statique_fields: {},
+        accordionOpen: false
+      };
     },
-  },
-  methods: {
-    /**
-     * @private
-     * @param {*} event
-     */
-    onSubmit(event) {
-      event.preventDefault();
-      this.submit();
-    },
-    /**
-     * Permet de valider le formulaire.
-     */
-    ValidationForm() {
-      return new Promise((resovl, reject) => {
-        this.$refs.formObserver
-          .validate()
-          .then((status) => {
-            resovl({ status: status, formObserver: this.$refs.formObserver });
-          })
-          .catch((error) => {
-            reject({
-              status: false,
-              formObserver: this.$refs.formObserver,
-              error: error,
-            });
-          });
-      });
-    },
-    onReset(event) {
-      event.preventDefault();
-      // Reset our form values
-      this.form.id = "";
-      this.form.label = "";
-      this.form.description = "";
-      this.form.users = [];
-      // Trick to reset/clear native browser form validation state
-      this.show = false;
-      this.$nextTick(() => {
-        this.show = true;
-      });
-    },
-    setId(id) {
-      // Si l'uuid n'existe, alors c'est une creation de type, on peut generer l'id.
-      if (!this.form.uuid) this.form.id = id;
-    },
-    addStatiqueField(name, field) {
-      this.$set(this.statique_fields, name, field);
-    },
-    getStatusAccordion() {
-      this.accordionOpen = !this.accordionOpen;
-    },
-    /**
-     * --
-     */
-    addDescriptionToDureeExecution() {
-      if (
-        this.statique_fields.duree_execution &&
-        this.statique_fields.duree_execution.field
-      ) {
-        this.statique_fields.duree_execution.field.description =
-          " Journée de travail " +
-          this.$store.state.userConfig.duration_work_day +
-          "h";
-      }
-    },
-    /**
-     *
-     * @param {Array} values
-     */
-    getDureeExecution(values) {
-      if (values && values[0]) {
-        return request.convertTimeMinuteToRead(values[0].value);
-      }
-    },
-    userCanRunTache() {      
-      if (this.statique_fields.project_manager.field)
-        return AccessController.userCanRunTache(
-          this.statique_fields.project_manager.field,
-          this.statique_fields.project_manager.model
-        );
-      else return false;
-    },
-    userCanEndTache() {
-      if (this.statique_fields.project_manager.field)
-        return AccessController.userCanEndTache(
-          this.statique_fields.project_manager.field,
-          this.statique_fields.project_manager.model
-        );
-      else return false;
-    },
-    userCanGiveUp() {
-      if (this.statique_fields.project_manager.field)
-        return AccessController.userCanGiveUp(
-          this.statique_fields.project_manager.field,
-          this.statique_fields.project_manager.model
-        );
-      else return false;
-    },
-    /**
-     * -- userCanValidate
-     */
-    userCanValidate() {
-      if (
-        this.statique_fields.status_execution &&
-        this.statique_fields.status_execution.model.status_execution &&
-        this.statique_fields.project_manager.field
-      )
-        return AccessController.userCanValidate(
-          this.statique_fields.project_manager.field,
-          this.statique_fields.status_execution.model
-        );
-      return false;
-    },
-    userCanReset() {
-      return AccessController.userCanReset();
-    },
-    /**
-     * Lorsqu'on clique sur une tache, il met à jour le champs durée :
-     * La date de depart est l'instant ou on a cliqué et la date de fin est determiné à partir du temps d'execution.
-     * On met à jour egalement le chef d'execution du projet, il doit etre membre de l'execution de la tache.
-     * On change egalement le status de la tache.
-     */
-    async start() {
-      // Dure d'execution de la tache.
-      var duree_execution = 0;
-      if (
-        this.statique_fields.duree_execution.model.duree_execution &&
-        this.statique_fields.duree_execution.model.duree_execution[0]
-      ) {
-        duree_execution =
-          this.statique_fields.duree_execution.model.duree_execution[0].value;
-      }
-      // Mise à jour du champs durée.
-      if (
-        this.statique_fields.duree &&
-        this.statique_fields.duree.model.duree
-      ) {
-        const value = {
-          value: await this.getDateForDrupal(),
-          end_value: await this.getDateForDrupal(duree_execution),
-        };
-        
-        this.$store.dispatch("storeProject/setValue", {
-          fieldName: "0.entity.duree",
-          value: [value],
-        });
-      } else {
-        alert("Champs durée non definie");
-      }
-      // Mise à jour du chef de projet.
-      if (
-        this.statique_fields.project_manager &&
-        this.statique_fields.project_manager.model.project_manager
-      ) {
-        const value = {
-          target_id: this.$store.getters.uid,
-        };
-        this.$store.dispatch("storeProject/setValue", {
-          fieldName: "0.entity.project_manager",
-          value: [value],
-        });
-      } else {
-        alert("Champs project_manager non definie");
-      }
-      // Mise à jour du status de la tache
-      if (
-        this.statique_fields.status_execution &&
-        this.statique_fields.status_execution.model.status_execution
-      ) {
-        const value = {
-          value: "running",
-        };
-        this.$store.dispatch("storeProject/setValue", {
-          fieldName: "0.entity.status_execution",
-          value: [value],
-        });
-      } else {
-        alert("Champs status_execution non definie");
-      }
-      //
-    },
-    /**
-     * Seul le chef de projet doit pouvoir marquer une tache comme terminer.
-     */
-    async endTache() {
-      // Mise à jour du champs durée.
-      if (this.statique_fields.duree.model.duree) {
-        const value = this.statique_fields.duree.model.duree[0];
-        value.end_value = await this.getDateForDrupal();
-        this.$store.dispatch("storeProject/setValue", {
-          fieldName: "0.entity.duree",
-          value: [value],
-        });
-      }
-      // Mise à jour du status de la tache
-      if (this.statique_fields.status_execution.model.status_execution) {
-        const value = {
-          value: "end",
-        };
-        this.$store.dispatch("storeProject/setValue", {
-          fieldName: "0.entity.status_execution",
-          value: [value],
-        });
-      }
-    },
-    ValidTache() {
+    computed: {
+      ...mapState({
+        fields: (state) => state.storeProject.fields,
+        running: (state) => state.storeProject.running
+      }),
+      idEntity() {
+        if (this.form.label !== "") {
+          var id = request.generateIdEntityType(this.form.label);
+          this.setId(id);
+          return id;
+        } else return "";
+      },
       /**
-       * On pourrait avoir besoin d'un champs pour concerver la date de validation ou voir cela dans les revisions.
+       * On enleve les champs statiques de la contruction dynamique.
        */
-      // Mise à jour du status de la tache
-      if (this.statique_fields.status_execution.model.status_execution) {
-        const value = {
-          value: "validate",
-        };
-        this.$store.dispatch("storeProject/setValue", {
-          fieldName: "0.entity.status_execution",
-          value: [value],
-        });
-      }
-    },
-    /**
-     * --
-     */
-    async abondonner() {
-      // Mise à jour du champs durée.
-      if (this.statique_fields.duree.model.duree) {
-        const value = this.statique_fields.duree.model.duree[0];
-        value.end_value = await this.getDateForDrupal();
-        this.$store.dispatch("storeProject/setValue", {
-          fieldName: "0.entity.duree",
-          value: [value],
-        });
-      }
-      // Mise à jour du status de la tache
-      if (this.statique_fields.status_execution.model.status_execution) {
-        const value = {
-          value: "cancel",
-        };
-        this.$store.dispatch("storeProject/setValue", {
-          fieldName: "0.entity.status_execution",
-          value: [value],
-        });
-      }
-    },
-    resetTache() {
-      // Mise à jour du status de la tache
-      if (this.statique_fields.status_execution.model.status_execution) {
-        const value = {
-          value: "new",
-        };
-        this.$store.dispatch("storeProject/setValue", {
-          fieldName: "0.entity.status_execution",
-          value: [value],
-        });
-      }
-    },
+      fields_wihiout_statiques() {
+        const statique_fields = [
+          "name",
+          "project_manager",
+          "duree",
+          "duree_execution",
+          // "executants", // l'tilisateur doit choisir les autres membres pour constituer son equipe.
+          "type_project",
+          "description",
+          "status_execution"
+        ];
+        const new_fields = [];
+        for (const c in this.fields) {
+          const item = this.fields[c];
+          const fields = [];
+          for (const i in item.fields) {
+            const field = item.fields[i];
+            if (!statique_fields.includes(field.field.name)) fields.push(field);
+            else {
+              this.addStatiqueField(field.field.name, field);
+              // On ajoute une description pour le champs duree_execution
+              if (field.field.name == "duree_execution")
+                this.addDescriptionToDureeExecution();
+            }
+          }
 
-    /**
-     *
-     * @param {*} DateTimeStamp
-     */
-    getDateForDrupal(add_minutes = 0) {
-      return request.getDateForDrupal(null, add_minutes);
+          new_fields.push({
+            entity: item.entity,
+            template: item.template,
+            fields: fields
+          });
+        }
+
+        return new_fields;
+      }
     },
-  },
-};
+    methods: {
+      /**
+       * @private
+       * @param {*} event
+       */
+      onSubmit(event) {
+        event.preventDefault();
+        this.submit();
+      },
+      /**
+       * Permet de valider le formulaire.
+       */
+      ValidationForm() {
+        return new Promise((resovl, reject) => {
+          this.$refs.formObserver
+            .validate()
+            .then((status) => {
+              resovl({ status: status, formObserver: this.$refs.formObserver });
+            })
+            .catch((error) => {
+              reject({
+                status: false,
+                formObserver: this.$refs.formObserver,
+                error: error
+              });
+            });
+        });
+      },
+      onReset(event) {
+        event.preventDefault();
+        // Reset our form values
+        this.form.id = "";
+        this.form.label = "";
+        this.form.description = "";
+        this.form.users = [];
+        // Trick to reset/clear native browser form validation state
+        this.show = false;
+        this.$nextTick(() => {
+          this.show = true;
+        });
+      },
+      setId(id) {
+        // Si l'uuid n'existe, alors c'est une creation de type, on peut generer l'id.
+        if (!this.form.uuid) this.form.id = id;
+      },
+      addStatiqueField(name, field) {
+        this.$set(this.statique_fields, name, field);
+      },
+      getStatusAccordion() {
+        this.accordionOpen = !this.accordionOpen;
+      },
+      /**
+       * --
+       */
+      addDescriptionToDureeExecution() {
+        if (
+          this.statique_fields.duree_execution &&
+          this.statique_fields.duree_execution.field
+        ) {
+          this.statique_fields.duree_execution.field.description =
+            " Journée de travail " +
+            this.$store.state.userConfig.duration_work_day +
+            "h";
+        }
+      },
+      /**
+       *
+       * @param {Array} values
+       */
+      getDureeExecution(values) {
+        if (values && values[0]) {
+          return request.convertTimeMinuteToRead(values[0].value);
+        }
+      },
+      userCanRunTache() {
+        if (this.statique_fields.project_manager.field)
+          return AccessController.userCanRunTache(
+            this.statique_fields.project_manager.field,
+            this.statique_fields.project_manager.model
+          );
+        else return false;
+      },
+      userCanEndTache() {
+        if (this.statique_fields.project_manager.field)
+          return AccessController.userCanEndTache(
+            this.statique_fields.project_manager.field,
+            this.statique_fields.project_manager.model
+          );
+        else return false;
+      },
+      userCanGiveUp() {
+        if (this.statique_fields.project_manager.field)
+          return AccessController.userCanGiveUp(
+            this.statique_fields.project_manager.field,
+            this.statique_fields.project_manager.model
+          );
+        else return false;
+      },
+      /**
+       * -- userCanValidate
+       */
+      userCanValidate() {
+        if (
+          this.statique_fields.status_execution &&
+          this.statique_fields.status_execution.model.status_execution &&
+          this.statique_fields.project_manager.field
+        )
+          return AccessController.userCanValidate(
+            this.statique_fields.project_manager.field,
+            this.statique_fields.status_execution.model
+          );
+        return false;
+      },
+      userCanReset() {
+        return AccessController.userCanReset();
+      },
+      /**
+       * Lorsqu'on clique sur une tache, il met à jour le champs durée :
+       * La date de depart est l'instant ou on a cliqué et la date de fin est determiné à partir du temps d'execution.
+       * On met à jour egalement le chef d'execution du projet, il doit etre membre de l'execution de la tache.
+       * On change egalement le status de la tache.
+       */
+      async start() {
+        // Dure d'execution de la tache.
+        var duree_execution = 0;
+        if (
+          this.statique_fields.duree_execution.model.duree_execution &&
+          this.statique_fields.duree_execution.model.duree_execution[0]
+        ) {
+          duree_execution =
+            this.statique_fields.duree_execution.model.duree_execution[0].value;
+        }
+        // Mise à jour du champs durée.
+        if (
+          this.statique_fields.duree &&
+          this.statique_fields.duree.model.duree
+        ) {
+          const value = {
+            value: await this.getDateForDrupal(),
+            end_value: await this.getDateForDrupal(duree_execution)
+          };
+          console.log("duree :: ", value);
+          this.$store.dispatch("storeProject/setValue", {
+            fieldName: "0.entity.duree",
+            value: [value]
+          });
+        } else {
+          alert("Champs durée non definie");
+        }
+        // Mise à jour du chef de projet.
+        if (
+          this.statique_fields.project_manager &&
+          this.statique_fields.project_manager.model.project_manager
+        ) {
+          const value = {
+            target_id: this.$store.getters.uid
+          };
+          this.$store.dispatch("storeProject/setValue", {
+            fieldName: "0.entity.project_manager",
+            value: [value]
+          });
+        } else {
+          alert("Champs project_manager non definie");
+        }
+        // Mise à jour du status de la tache
+        if (
+          this.statique_fields.status_execution &&
+          this.statique_fields.status_execution.model.status_execution
+        ) {
+          const value = {
+            value: "running"
+          };
+          this.$store.dispatch("storeProject/setValue", {
+            fieldName: "0.entity.status_execution",
+            value: [value]
+          });
+        } else {
+          alert("Champs status_execution non definie");
+        }
+        //
+      },
+      /**
+       * Seul le chef de projet doit pouvoir marquer une tache comme terminer.
+       */
+      async endTache() {
+        // Mise à jour du champs durée.
+        if (this.statique_fields.duree.model.duree) {
+          const value = this.statique_fields.duree.model.duree[0];
+          value.end_value = await this.getDateForDrupal();
+          this.$store.dispatch("storeProject/setValue", {
+            fieldName: "0.entity.duree",
+            value: [value]
+          });
+        }
+        // Mise à jour du status de la tache
+        if (this.statique_fields.status_execution.model.status_execution) {
+          const value = {
+            value: "end"
+          };
+          this.$store.dispatch("storeProject/setValue", {
+            fieldName: "0.entity.status_execution",
+            value: [value]
+          });
+        }
+      },
+      ValidTache() {
+        /**
+         * On pourrait avoir besoin d'un champs pour concerver la date de validation ou voir cela dans les revisions.
+         */
+        // Mise à jour du status de la tache
+        if (this.statique_fields.status_execution.model.status_execution) {
+          const value = {
+            value: "validate"
+          };
+          this.$store.dispatch("storeProject/setValue", {
+            fieldName: "0.entity.status_execution",
+            value: [value]
+          });
+        }
+      },
+      /**
+       * --
+       */
+      async abondonner() {
+        // Mise à jour du champs durée.
+        if (this.statique_fields.duree.model.duree) {
+          const value = this.statique_fields.duree.model.duree[0];
+          value.end_value = await this.getDateForDrupal();
+          this.$store.dispatch("storeProject/setValue", {
+            fieldName: "0.entity.duree",
+            value: [value]
+          });
+        }
+        // Mise à jour du status de la tache
+        if (this.statique_fields.status_execution.model.status_execution) {
+          const value = {
+            value: "cancel"
+          };
+          this.$store.dispatch("storeProject/setValue", {
+            fieldName: "0.entity.status_execution",
+            value: [value]
+          });
+        }
+      },
+      resetTache() {
+        // Mise à jour du status de la tache
+        if (this.statique_fields.status_execution.model.status_execution) {
+          const value = {
+            value: "new"
+          };
+          this.$store.dispatch("storeProject/setValue", {
+            fieldName: "0.entity.status_execution",
+            value: [value]
+          });
+        }
+      },
+
+      /**
+       *
+       * @param {*} DateTimeStamp
+       */
+      getDateForDrupal(add_minutes = 0) {
+        const date = new Date();
+        // On force la date pour valider le developpment.
+        // date.setHours(17, 30, 0);
+        // date.setMilliseconds(0);
+        return request.getDateForDrupal(date, add_minutes);
+      }
+    }
+  };
 </script>
 <style lang="scss">
-.form-edit-entity {
-  .btn.disabled:hover {
-    box-shadow: none;
+  .form-edit-entity {
+    .btn.disabled:hover {
+      box-shadow: none;
+    }
   }
-}
 </style>

@@ -29,6 +29,18 @@ module.exports = {
     // Enable CSS source maps.
     // sourceMap: process.env.NODE_ENV !== "production",
     sourceMap: true
+  },
+  devServer: {
+    client: {
+      overlay: {
+        // errors: true,
+        // warnings: false,
+        // runtimeErrors: true
+        errors: false,
+        warnings: false,
+        runtimeErrors: false
+      }
+    }
   }
   //
   // outputDir: "public",

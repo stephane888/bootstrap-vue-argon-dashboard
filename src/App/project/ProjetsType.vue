@@ -128,7 +128,7 @@
         manageModal: false,
         titleModal: "Creer un nouveau projet",
         /**
-         * determiner le type de d'entite de configuration à partir du /{path}.
+         * Determiner le type de d'entite de configuration à partir du /{path}.
          */
         projet_type_id: null,
         AccessController: AccessController
