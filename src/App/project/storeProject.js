@@ -375,7 +375,7 @@ export default {
         }
       });
     },
-    loadEntitiesWithFilters({ commit }, payload) {
+    loadEntitiesWithFilters({ commit }, payload) { 
       return new Promise((resolv, reject) => {
         commit("SET_ALL_ENTITIES", []);
         request

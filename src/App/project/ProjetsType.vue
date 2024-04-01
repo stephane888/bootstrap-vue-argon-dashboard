@@ -19,63 +19,30 @@
       <div v-for="(item, index) in projects" :key="index" class="">
         <h3>{{ item.label }}</h3>
         <b-row>
-          <b-col
-            v-for="(entity, i) in item.entities"
-            :key="i"
-            xl="4"
-            lg="6"
-            md="6"
-            sm="6"
-            class=""
-          >
-            <stats-card
-              icon="ni ni-active-40"
-              class="mb-4 bg-gradient-white"
-              :class="[entity.private ? 'border-danger' : '']"
-            >
+          <b-col v-for="(entity, i) in item.entities" :key="i" xl="6" lg="6" md="12" sm="12" class="">
+            <stats-card icon="ni ni-active-40" class="mb-4 bg-gradient-white" :class="[entity.private ? 'border-danger' : '']">
               <router-link :to="'/projets/' + item.id + '/' + entity.id">
                 <div v-html="entity.label"></div>
               </router-link>
               <template slot="icon">
-                <b-button
-                  variant="transparent"
-                  size="sm"
-                  @click="seeProject(entity)"
-                >
+                <b-button variant="transparent" size="sm" @click="seeProject(entity)">
                   <b-icon icon="eye"></b-icon>
                 </b-button>
-                <b-button
-                  v-if="AccessController.accessToEditEntityConfig(entity)"
-                  variant="transparent"
-                  size="sm"
-                  @click="editProject(entity)"
-                >
+                <b-button v-if="AccessController.accessToEditEntityConfig(entity)" variant="transparent" size="sm" @click="editProject(entity)">
                   <b-icon icon="pencil-fill"></b-icon>
                 </b-button>
-                <b-button
-                  v-if="AccessController.accessToDeleteEntityConfig(entity)"
-                  variant="transparent"
-                  size="sm"
-                  @click="DeleteProject(entity)"
-                >
+                <b-button v-if="AccessController.accessToDeleteEntityConfig(entity)" variant="transparent" size="sm" @click="DeleteProject(entity)">
                   <b-icon icon="trash" variant="danger"></b-icon>
                 </b-button>
               </template>
               <template slot="footer">
                 <span class="text-info mr-2 font-weight-600 d-none">3.48%</span>
                 <span class="text-nowrap d-none">Since last month</span>
+                <StatistiqueEntity :statistiques="entity.statistiques"></StatistiqueEntity>
                 <small class="text-nowrap">
                   <i class="far fa-user"></i> by
                   <i>{{ getUserName(entity.user_id) }}</i>
                 </small>
-                <div>
-                  <small
-                    v-if="entity.statistiques"
-                    v-b-tooltip.hover.bottom="' Total des taches '"
-                  >
-                    {{ entity.statistiques.total }}
-                  </small>
-                </div>
               </template>
             </stats-card>
           </b-col>
@@ -83,13 +50,7 @@
       </div>
       <b-row class="d-none">
         <b-col xl="3" md="4">
-          <stats-card
-            title="Total traffic"
-            type="gradient-red"
-            sub-title="350,897"
-            icon="ni ni-active-40"
-            class="mb-4"
-          >
+          <stats-card title="Total traffic" type="gradient-red" sub-title="350,897" icon="ni ni-active-40" class="mb-4">
             <template slot="footer">
               <span class="text-success mr-2">3.48%</span>
               <span class="text-nowrap">Since last month</span>
@@ -98,12 +59,7 @@
         </b-col>
       </b-row>
     </b-container>
-    <modalFrom
-      :manage-modal="manageModal"
-      :title-modal="titleModal"
-      @closeModal="closeModal"
-      @submitModel="submif"
-    >
+    <modalFrom :manage-modal="manageModal" :title-modal="titleModal" @closeModal="closeModal" @submitModel="submif">
       <formProjet ref="formProjet" @saveProjectType="saveProjectType" />
     </modalFrom>
   </div>
@@ -117,6 +73,7 @@ import formProjet from "./formProjetType.vue";
 import config from "../request";
 import itemsEntity from "drupal-vuejs/src/App/jsonApi/itemsEntity.js";
 import AccessController from "../AccessController.js";
+import StatistiqueEntity from "../components/StatistiqueEntity.vue";
 
 export default {
   name: "ProjetsType",
@@ -125,6 +82,7 @@ export default {
     ButtonApp,
     AppBreadcrumb,
     formProjet,
+    StatistiqueEntity,
   },
   props: {
     //
@@ -186,24 +144,19 @@ export default {
       console.log("entity : ", entity);
     },
     DeleteProject(entity) {
-      config
-        .modalConfirmDelete(
-          "Confirmer la suppression, NB : cette action est irreverssible.",
-          { title: " Suppresion de : " + entity.label }
-        )
-        .then((status) => {
-          if (status) {
-            this.$store
-              .dispatch("storeProject/deleteEntity", {
-                entity_type_id: this.projet_type_id,
-                id: entity.id,
-                delete_subentities: false,
-              })
-              .then(() => {
-                this.loadEntities();
-              });
-          }
-        });
+      config.modalConfirmDelete("Confirmer la suppression, NB : cette action est irreverssible.", { title: " Suppresion de : " + entity.label }).then((status) => {
+        if (status) {
+          this.$store
+            .dispatch("storeProject/deleteEntity", {
+              entity_type_id: this.projet_type_id,
+              id: entity.id,
+              delete_subentities: false,
+            })
+            .then(() => {
+              this.loadEntities();
+            });
+        }
+      });
     },
     /**
      * Permet de sauverger les données de creation ou de modification
@@ -230,6 +183,20 @@ export default {
     },
     getUserName(id) {
       return config.getUserName(id);
+    },
+    /**
+     * Permet de determiner le montant à gagner et les investissements.
+     */
+    getMontant(montants) {
+      const values = {
+        montant: 0,
+        investissement: 0,
+      };
+      montants.forEach((val) => {
+        if (val.investissements) values.investissement += parseInt(val.investissements);
+        if (val.montants) values.montant += parseInt(val.montants);
+      });
+      return values;
     },
   },
 };

@@ -234,7 +234,7 @@ export default {
               this.addDescriptionToDureeExecution();
           }
         }
-        // console.log("new_fields : ", fields);
+        
         new_fields.push({
           entity: item.entity,
           template: item.template,
@@ -291,7 +291,6 @@ export default {
       if (!this.form.uuid) this.form.id = id;
     },
     addStatiqueField(name, field) {
-      console.log("name : ", name, field);
       this.$set(this.statique_fields, name, field);
     },
     getStatusAccordion() {
@@ -320,11 +319,7 @@ export default {
         return request.convertTimeMinuteToRead(values[0].value);
       }
     },
-    userCanRunTache() {
-      console.log(
-        "this.statique_fields.project_manager : ",
-        this.statique_fields.project_manager
-      );
+    userCanRunTache() {      
       if (this.statique_fields.project_manager.field)
         return AccessController.userCanRunTache(
           this.statique_fields.project_manager.field,
@@ -391,12 +386,7 @@ export default {
           value: await this.getDateForDrupal(),
           end_value: await this.getDateForDrupal(duree_execution),
         };
-        console.log(
-          "value : ",
-          value,
-          "\n duree_execution : ",
-          duree_execution
-        );
+        
         this.$store.dispatch("storeProject/setValue", {
           fieldName: "0.entity.duree",
           value: [value],

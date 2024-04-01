@@ -11,8 +11,7 @@
     "dev": "npm run serve"
   },
   "dependencies": {
-    "@babel/eslint-parser": "^7.19.1",
-    "@stephane888/wbu-atomique": "file:../wbu-atomique",
+    "@stephane888/wbu-atomique": "github:stephane888/wbu-atomique#1x",
     "@typescript-eslint/parser": "^5.40.1",
     "babel-plugin-component": "^1.1.1",
     "bootstrap": "^4.6.2",
@@ -27,7 +26,6 @@
     "drupal-vuejs": "file:../drupal-vuejs",
     "element-ui": "^2.4.11",
     "es6-promise": "^4.1.1",
-    "eslint-plugin-vue": "^6.2.2",
     "flatpickr": "^4.5.7",
     "fuse.js": "^3.2.0",
     "google-maps": "^3.2.1",
@@ -55,12 +53,12 @@
     "@vue/cli-plugin-vuex": "^5.0.0",
     "@vue/cli-service": "^5.0.8",
     "eslint": "^7.32.0",
-    "eslint-config-prettier": "^8.5.0",
+    "eslint-config-prettier": "^8.10.0",
     "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-prettier-vue": "^4.2.0",
     "eslint-plugin-vue": "^8.7.1",
-    "sass": "^1.55.0",
-    "sass-loader": "^10.3.1",
+    "sass": "^1.72.0",
+    "sass-loader": "^10.5.2",
     "vue-template-compiler": "^2.6.11"
   },
   "postcss": {

@@ -212,7 +212,7 @@ export default {
       ) {
         this.$store.commit(
           "storeProject/SET_CURRENT_PROJECT",
-          this.projects[this.configEntityTypeId].entities[this.configEntityId]
+          this.projects[this.configEntityTypeId].entities[this.configEntityId],
         );
       } else {
         this.$store

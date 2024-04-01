@@ -1,19 +1,19 @@
 module.exports = {
   // @source https://eslint.vuejs.org/rules/
   extends: [
-    "plugin:prettier-vue/recommended",
+    //"plugin:prettier-vue/recommended",
     "plugin:vue/essential",
     "plugin:vue/strongly-recommended",
-    "plugin:vue/recommended",
+    "plugin:vue/recommended"
   ],
   root: true,
 
   env: {
-    node: true,
+    node: true
   },
 
   parserOptions: {
-    parser: "@babel/eslint-parser",
+    parser: "@babel/eslint-parser"
   },
 
   rules: {
@@ -22,6 +22,6 @@ module.exports = {
     "vue/html-self-closing": 0,
     "vue/singleline-html-element-content-newline": 0,
     "vue/max-attributes-per-line": 0,
-    "vue/no-v-html": 0,
-  },
+    "vue/no-v-html": 0
+  }
 };

@@ -30,6 +30,9 @@
       <b-form-group label="Privée">
         <b-form-checkbox v-model="form.private" required></b-form-checkbox>
       </b-form-group>
+      <b-form-group label="Status">
+        <b-form-checkbox v-model="form.status" required></b-form-checkbox>
+      </b-form-group>
       <b-form-group
         label="Liste de personne autorisé à travailler sur le projet"
       >

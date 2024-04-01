@@ -152,7 +152,7 @@ export default {
           };
           const begin = await getReelValue(this.model.duree.value);
           const end = await getReelValue(this.model.duree.end_value);
-          //console.log("begin : ", begin, "\n end : ", end);
+          // console.log("begin : ", begin, "\n end : ", end);
           return {
             begin: begin,
             end: end,

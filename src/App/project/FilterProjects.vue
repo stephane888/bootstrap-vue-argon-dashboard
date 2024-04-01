@@ -138,7 +138,7 @@ export default {
     this.getUsers();
     if (!this.filters.date_begin && !this.filters.date_end) {
       const date = new Date();
-      date.setDate(date.getDate() - 15);
+      date.setDate(date.getDate() - 30);
       this.filters.date_begin = date;
       // Apres chargement de la configuration par defaut, on demande le chargement des données.
       this.$emit("submit_filter");

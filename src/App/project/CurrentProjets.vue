@@ -137,8 +137,15 @@ export default {
   },
   methods: {
     loadEntitiesWithFilters() {
+      const date = new Date();
+      date.setDate(date.getDate() - 40);
       const filters = [
         { field: "status_execution", value: "new", operator: "=" },
+        {
+          field: "changed",
+          value: parseInt(date.getTime() / 1000),
+          operator: ">",
+        },
       ];
       this.$store.dispatch("storeProject/loadEntitiesWithFilters", filters);
     },
