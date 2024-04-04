@@ -388,7 +388,6 @@
             value: await this.getDateForDrupal(),
             end_value: await this.getDateForDrupal(duree_execution)
           };
-          console.log("duree :: ", value);
           this.$store.dispatch("storeProject/setValue", {
             fieldName: "0.entity.duree",
             value: [value]
@@ -511,7 +510,8 @@
       getDateForDrupal(add_minutes = 0) {
         const date = new Date();
         // On force la date pour valider le developpment.
-        // date.setHours(17, 30, 0);
+        // date.setDate(5);
+        // date.setHours(9, 45, 0);
         // date.setMilliseconds(0);
         return request.getDateForDrupal(date, add_minutes);
       }

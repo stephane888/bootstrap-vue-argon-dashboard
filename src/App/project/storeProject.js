@@ -3,13 +3,14 @@ import request from "../request";
 import generateField from "components_h_vuejs/src/js/FormUttilities";
 import loadField from "components_h_vuejs/src/components/fieldsDrupal/loadField";
 import itemsEntity from "drupal-vuejs/src/App/jsonApi/itemsEntity.js";
+import manageTime from "./manage-time";
 const entity_type_project = () => {
   return {
     id: "",
     label: "",
     description: "",
     private: false,
-    users: [],
+    users: []
   };
 };
 export default {
@@ -42,7 +43,7 @@ export default {
      */
     RunBuildingForm: {
       time: 3000,
-      timeout: null,
+      timeout: null
     },
     /**
      * Permet de suivre la creation des entites.
@@ -50,7 +51,7 @@ export default {
     run_entity: {
       numbers: 0,
       creates: 0,
-      page: "",
+      page: ""
     },
     /**
      * Actif s'il ya une sauvegarde encours.
@@ -79,8 +80,8 @@ export default {
       search_in_description: false,
       status_execution: ["new", "running"],
       user_id: [],
-      executants: [],
-    },
+      executants: []
+    }
   }),
   mutations: {
     SET_PROJECTS(state, payload) {
@@ -158,7 +159,7 @@ export default {
     },
     SET_CLEAN_CURRENT_PROJECT(state) {
       state.currentProject = entity_type_project();
-    },
+    }
   },
   actions: {
     loadProjectType({ commit }) {
@@ -219,7 +220,7 @@ export default {
               if (!state.currentProject.uuid)
                 commit("ADD_PROJECT", {
                   entity: resp.data,
-                  entity_type_id: payload.entity_type_id,
+                  entity_type_id: payload.entity_type_id
                 });
               resolv(resp);
             })
@@ -306,18 +307,53 @@ export default {
       IE.get()
         .then((resp) => {
           /**
-           * On ajoute les proprietes supplementaire afin de contruire un accordeon.
+           * La date renvoyée ici est contient le decallage.
+           * example en BD on a : 2023-05-16T06:55:59 ==> 2023-05-16T07:55:59+01:00
+           */
+          // petite fonction pour corriger cela, en attendant la MAJ sur drupal.
+          const getReelValueDate = (str) => {
+            if (str) var d2 = str.split("+");
+            else return str;
+            if (d2[1]) {
+              const date = new Date(d2[0]);
+              const time_zone = d2[1].split(":");
+              const dd = parseInt(time_zone[0]);
+              if (dd > 0) {
+                date.setHours(date.getHours() - dd);
+              }
+              const date_string = manageTime.formatDate(date);
+              return date_string.date + "T" + date_string.hour;
+            } else return str;
+          };
+          /**
+           * FORMATAGE DES DONNEES
+           *
+           * 1- On ajoute les proprietes supplementaire afin de contruire un accordeon.
+           * 2- On format egalement les dates. ( plus tard on va corriger le prpbleme au niveau de Drupal ).
            */
           const items = [];
           if (resp.data) {
-            console.log(" resp: resp.data ", resp.data);
             resp.data.forEach((item) => {
+              if (item.attributes.duree && item.attributes.duree.length) {
+                item.attributes.duree.forEach((duree, d_index) => {
+                  item.attributes.duree[d_index].value = getReelValueDate(
+                    duree.value
+                  );
+                  item.attributes.duree[d_index].end_value = getReelValueDate(
+                    duree.end_value
+                  );
+                });
+              }
+              //
               items.push({
                 ...item,
                 accordionId: item.id,
-                accordionOpen: false,
+                accordionOpen: false
               });
             });
+            //
+
+            //
             commit("SET_ENTITIES", items);
           } else {
             console.log("SET_ENTITIES : ", items);
@@ -375,7 +411,7 @@ export default {
         }
       });
     },
-    loadEntitiesWithFilters({ commit }, payload) { 
+    loadEntitiesWithFilters({ commit }, payload) {
       return new Promise((resolv, reject) => {
         commit("SET_ALL_ENTITIES", []);
         request
@@ -412,9 +448,9 @@ export default {
           reject(" Parametre de configuration manquant. ");
         }
       });
-    },
+    }
   },
   getters: {
     //
-  },
+  }
 };

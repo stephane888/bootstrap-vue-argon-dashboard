@@ -95,89 +95,89 @@
 </template>
 
 <script>
-import request from "../request";
-import itemsEntity from "drupal-vuejs/src/App/jsonApi/itemsEntity.js";
-import { mapState } from "vuex";
-export default {
-  name: "FilterProjects",
-  props: {
-    configEntityId: {
-      type: [String, Number],
-      default: "",
-    },
-    drupalInternalId: {
-      type: [String, Number],
-      default: null,
-    },
-  },
-
-  data() {
-    return {
-      status_execution: [
-        { text: "Nouvelle taches", value: "new" },
-        { text: "En cours d'execution", value: "running" },
-        { text: "Terminée", value: "end" },
-        { text: "Validée", value: "validate" },
-        { text: "Annulée", value: "cancel" },
-      ],
-      users: [],
-    };
-  },
-  computed: {
-    ...mapState({
-      filters: (state) => state.storeProject.filters,
-      running: (state) => state.storeProject.running,
-    }),
-  },
-  updated: function () {
-    // this.$nextTick(function () {
-    //   console.log("affichage du filtre : ", this.configEntityId);
-    // });
-  },
-  mounted() {
-    this.getUsers();
-    if (!this.filters.date_begin && !this.filters.date_end) {
-      const date = new Date();
-      date.setDate(date.getDate() - 30);
-      this.filters.date_begin = date;
-      // Apres chargement de la configuration par defaut, on demande le chargement des données.
-      this.$emit("submit_filter");
-    } else this.$emit("submit_filter");
-  },
-  methods: {
-    onSubmit(event) {
-      event.preventDefault();
-      this.$emit("submit_filter");
-    },
-    onReset() {
-      //
-    },
-    getUsers() {
-      let vocabulary = "user";
-      if (vocabulary && request) {
-        const terms = new itemsEntity(vocabulary, vocabulary, request);
-        terms.remplaceConfig();
-        terms.get().then(() => {
-          this.users = terms.getOptions();
-          console.log("users : ", this.users);
-        });
+  import request from "../request";
+  import itemsEntity from "drupal-vuejs/src/App/jsonApi/itemsEntity.js";
+  import { mapState } from "vuex";
+  export default {
+    name: "FilterProjects",
+    props: {
+      configEntityId: {
+        type: [String, Number],
+        default: ""
+      },
+      drupalInternalId: {
+        type: [String, Number],
+        default: null
       }
     },
-  },
-};
+
+    data() {
+      return {
+        status_execution: [
+          { text: "Nouvelle taches", value: "new" },
+          { text: "En cours d'execution", value: "running" },
+          { text: "Terminée", value: "end" },
+          { text: "Validée", value: "validate" },
+          { text: "Annulée", value: "cancel" }
+        ],
+        users: []
+      };
+    },
+    computed: {
+      ...mapState({
+        filters: (state) => state.storeProject.filters,
+        running: (state) => state.storeProject.running
+      })
+    },
+    updated: function () {
+      // this.$nextTick(function () {
+      //   console.log("affichage du filtre : ", this.configEntityId);
+      // });
+    },
+    mounted() {
+      this.getUsers();
+      if (!this.filters.date_begin && !this.filters.date_end) {
+        const date = new Date();
+        date.setDate(date.getDate() - 50);
+        this.filters.date_begin = date;
+        // Apres chargement de la configuration par defaut, on demande le chargement des données.
+        this.$emit("submit_filter");
+      } else this.$emit("submit_filter");
+    },
+    methods: {
+      onSubmit(event) {
+        event.preventDefault();
+        this.$emit("submit_filter");
+      },
+      onReset() {
+        //
+      },
+      getUsers() {
+        let vocabulary = "user";
+        if (vocabulary && request) {
+          const terms = new itemsEntity(vocabulary, vocabulary, request);
+          terms.remplaceConfig();
+          terms.get().then(() => {
+            this.users = terms.getOptions();
+            console.log("users : ", this.users);
+          });
+        }
+      }
+    }
+  };
 </script>
 
 <style lang="scss">
-.accordion-filtre {
-  margin-bottom: 3rem;
-  .collapse {
-    min-height: 0;
+  .accordion-filtre {
+    margin-bottom: 3rem;
+    .collapse {
+      min-height: 0;
+    }
+    .collapse.show {
+      min-height: 150px;
+    }
+    &.accordion > .card {
+      overflow: visible;
+    }
   }
-  .collapse.show {
-    min-height: 150px;
-  }
-  &.accordion > .card {
-    overflow: visible;
-  }
-}
 </style>

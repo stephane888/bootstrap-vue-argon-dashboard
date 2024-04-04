@@ -26,7 +26,11 @@ export default {
   max_day_add: 498, // 249*2
   // Recupere la configuration de l'utilisateur.
   getUserConf() {
-    return store.state.userConfig;
+    const userConfig = store.state.userConfig;
+    if (!userConfig || !userConfig.work_days || !userConfig.duration_work_day) {
+      throw new Error("Configuration n'ont definit ou paramettre manquant");
+    }
+    return userConfig;
   },
   /**
    * Permet de convertir les minutes en une durée assez lisible par l'utilisateur.
@@ -98,7 +102,7 @@ export default {
    * @param {Date} date
    */
   async addtime(date, add_minutes) {
-    //heure debut et de fin.
+    // heure debut et de fin.
     const day_duration = this.getUserConf().day_duration;
     const time_ToLeaveDay = await this.timeToLeaveForday(date);
     console.log("time_ToLeaveDay : ", time_ToLeaveDay);
@@ -106,6 +110,10 @@ export default {
      * Cas 1 : Le temps definit est inferieur ou egal à la duree de la jounrée restante.
      */
     if (add_minutes <= time_ToLeaveDay) {
+      // il faut egalement se rassurer que le calcul se fait dans la plage de temps valide.
+      if (date.getHours() < day_duration[0]) {
+        date.setHours(day_duration[0], 0, 0);
+      }
       date.setMinutes(date.getMinutes() + add_minutes);
       return date;
     }
@@ -135,97 +143,16 @@ export default {
         MinutesRestante = add_minutes - time_ToLeaveDay;
       }
       // si MinutesRestante est > à une journée de travail
-      // console.log(
-      //   "MinutesRestante : ",
-      //   MinutesRestante,
-      //   "\n",
-      //   "nombreJours : ",
-      //   nombreJours
-      // );
+      console.log(
+        "MinutesRestante : ",
+        MinutesRestante,
+        "\n",
+        "nombreJours : ",
+        nombreJours
+      );
       date.setMinutes(MinutesRestante);
       return date;
     }
-
-    /////////////////
-    ////////////////
-    const time_toLeaveNextBreack = await this.timeToLeaveBeforeNextBreak(date);
-    console.log("time_toLeaveNextBreack : ", time_toLeaveNextBreack);
-    // si le temps definit est <= au prochain break.
-    if (add_minutes <= time_toLeaveNextBreack) {
-      date.setMinutes(date.getMinutes() + add_minutes);
-      return date;
-    }
-    // Le nombre de jour à ajouter.
-    const nbre_days = Math.floor(
-      add_minutes / (this.getUserConf().duration_work_day * 60)
-    );
-    var time_ToLeave = add_minutes;
-    console.log(" nbre_days : ", nbre_days, "\n time_ToLeave : ", time_ToLeave);
-    if (nbre_days > 0) {
-      // temps restant, par rapport au nombre de jour.
-      time_ToLeave = add_minutes % this.getUserConf().duration_work_day;
-      var index = 1;
-      var day = 1;
-      while (index <= this.max_day_add && day <= nbre_days) {
-        ++index;
-        date.setDate(date.getDate() + 1);
-        if (this.getUserConf().work_days[date.getDay()]) {
-          ++day;
-        }
-      }
-    }
-    //
-    const loopTimeAdd = (ToLeave, date) => {
-      return new Promise((resolv2, reject2) => {
-        this.timeToLeaveBeforeNextBreak(date)
-          .then((toLeaveNextBreack) => {
-            console.log(
-              "loopTimeAdd : ",
-              toLeaveNextBreack,
-              "\n ToLeave : ",
-              ToLeave
-            );
-
-            if (toLeaveNextBreack > 0 && toLeaveNextBreack >= ToLeave) {
-              date.setMinutes(date.getMinutes() + ToLeave);
-              resolv2(date);
-            }
-            //
-            else {
-              /**
-               * On distingue plusieurs cas :
-               * 1 - toLeaveNextBreack =0 ( i.e on est en pause )
-               */
-              // le temps restant avant le prochain breack n'est pas suffisant.
-              //  on ajoute cela au temps present.
-              if (toLeaveNextBreack > 0) {
-                date.setMinutes(date.getMinutes() + toLeaveNextBreack);
-                ToLeave = ToLeave - toLeaveNextBreack;
-              }
-              // on ajoute s'il existe la prochaine pause.
-              const duration_pause = this.getDurationTimeNextPause(date);
-              if (duration_pause) {
-                date.setMinutes(date.getMinutes() + duration_pause);
-                console.log(
-                  "date second phase ",
-                  date,
-                  "\n duration_pause : ",
-                  duration_pause
-                );
-                // une foix la pause ajoutée, on reprend la processus.
-                resolv2(loopTimeAdd(ToLeave, date));
-              } else {
-                console.log("ERROR de logique: calcul du temps");
-                resolv2(date);
-              }
-            }
-          })
-          .catch((er) => {
-            reject2(er);
-          });
-      });
-    };
-    return loopTimeAdd(time_ToLeave, date);
   },
   /**
    * Permet d'ajouter les jours tous en tenant compte des WK ( et plustard des jours feriers).
@@ -238,7 +165,7 @@ export default {
     while (index <= this.max_day_add && day <= nbreDays) {
       ++index;
       date.setDate(date.getDate() + 1);
-      if (this.getUserConf().work_days[date.getDay()]) {
+      if (this.getUserConf().work_days.includes(date.getDay())) {
         ++day;
       }
     }
@@ -407,6 +334,12 @@ export default {
     } else timeDay = 60 - date.getMinutes();
     return timeDay;
   },
+  /**
+   * Format un object date en string valid
+   * @param {*} date_ob
+   * @param {*} format
+   * @returns
+   */
   formatDate(date_ob, format = "drupal") {
     let month = parseInt(date_ob.getMonth()) + 1;
     const constDateObj = {

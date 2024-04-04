@@ -136,7 +136,7 @@
                   <TacheProgressBar
                     class="ml-2"
                     :model="item.attributes"
-                    class-progress="mb-1 ml-2 "
+                    class-progress="mb-0"
                     :show-date="false"
                     :show-end-date="true"
                   ></TacheProgressBar>
@@ -172,181 +172,181 @@
   </div>
 </template>
 <script>
-import { mapState, mapGetters } from "vuex";
-import config from "../request";
-import TacheProgressBar from "../components/TacheProgressBar.vue";
-import TimeAgo from "javascript-time-ago";
-import fr from "javascript-time-ago/locale/fr";
-import hljs from "highlight.js";
+  import { mapState, mapGetters } from "vuex";
+  import config from "../request";
+  import TacheProgressBar from "../components/TacheProgressBar.vue";
+  import TimeAgo from "javascript-time-ago";
+  import fr from "javascript-time-ago/locale/fr";
+  import hljs from "highlight.js";
 
-TimeAgo.addDefaultLocale(fr);
-export default {
-  name: "AccordionEntities",
-  components: {
-    titreInfos: () => import("../components/TitreInfos.vue"),
-    TacheProgressBar: TacheProgressBar,
-    countsubTaches: () => import("../components/CountsubTaches.vue"),
-  },
-  props: {
-    configEntityTypeId: {
-      type: [String, Number],
-      required: true,
+  TimeAgo.addDefaultLocale(fr);
+  export default {
+    name: "AccordionEntities",
+    components: {
+      titreInfos: () => import("../components/TitreInfos.vue"),
+      TacheProgressBar: TacheProgressBar,
+      countsubTaches: () => import("../components/CountsubTaches.vue")
     },
-    configEntityId: {
-      type: [String, Number],
-      required: true,
-    },
-  },
-  data() {
-    return {
-      idBase: "accd-item-" + Math.random().toString(36),
-    };
-  },
-  computed: {
-    ...mapState({
-      entities: (state) => state.storeProject.entities,
-    }),
-    ...mapGetters(["entity_type_id"]),
-    entities_groups() {
-      var groupe_taches = config.initGroupeStatus();
-      if (this.entities) {
-        this.entities.forEach((item) => {
-          if (item.attributes.status_execution) {
-            groupe_taches[item.attributes.status_execution].items.push(item);
-          } else {
-            groupe_taches.undefined.items.push(item);
-          }
-        });
-      }
-      return groupe_taches;
-    },
-  },
-  mounted() {
-    //
-  },
-  methods: {
-    timeAgoText(string_date) {
-      const date = new Date(string_date);
-      const timeAgo = new TimeAgo();
-      return timeAgo.format(date);
-    },
-    getDateInfrench(string_date) {
-      const date = new Date(string_date);
-      if (date) {
-        let month = parseInt(date.getMonth()) + 1;
-        return (
-          ("0" + date.getDate()).slice(-2) +
-          "-" +
-          ("0" + month).slice(-2) +
-          "-" +
-          date.getFullYear() +
-          " " +
-          ("0" + date.getHours()).slice(-2) +
-          ":" +
-          ("0" + date.getMinutes()).slice(-2)
-        );
+    props: {
+      configEntityTypeId: {
+        type: [String, Number],
+        required: true
+      },
+      configEntityId: {
+        type: [String, Number],
+        required: true
       }
     },
-    /**
-     * --
-     */
-    editEntity(attributes) {
-      this.$emit("editEntity", attributes);
+    data() {
+      return {
+        idBase: "accd-item-" + Math.random().toString(36)
+      };
     },
-    getStatusAccordionAndLoadEntity(item, event) {
-      console.log("getStatusAccordion : ", item, event);
-      window.custom_event = event;
-      item.accordionOpen = !item.accordionOpen;
-      if (event.target && event.target.classList) {
-        if (!event.target.classList.contains("entity_loaded")) {
-          event.target.classList.add("entity_loaded");
-          if (item.links.self.href) {
-            this.$store
-              .dispatch("storeProject/LaodEntityByUrl", {
-                url: item.links.self.href,
-              })
-              .then((resp) => {
-                console.log("resp.data--- : ", resp.data);
-                if (resp.data.attributes) {
-                  // for (const i in resp.data.attributes) {
-                  //   if (!item.attributes[i]) {
-                  //     item.attributes[i] = resp.data.attributes[i];
-                  //   }
-                  // }
-                  item.attributes = resp.data.attributes;
-                }
-                // item={item, }
-                console.log("item adddedd: ", item);
-              })
-              .catch(() => {
-                event.target.classList.remove("entity_loaded");
-              });
+    computed: {
+      ...mapState({
+        entities: (state) => state.storeProject.entities
+      }),
+      ...mapGetters(["entity_type_id"]),
+      entities_groups() {
+        var groupe_taches = config.initGroupeStatus();
+        if (this.entities) {
+          this.entities.forEach((item) => {
+            if (item.attributes.status_execution) {
+              groupe_taches[item.attributes.status_execution].items.push(item);
+            } else {
+              groupe_taches.undefined.items.push(item);
+            }
+          });
+        }
+        return groupe_taches;
+      }
+    },
+    mounted() {
+      //
+    },
+    methods: {
+      timeAgoText(string_date) {
+        const date = new Date(string_date);
+        const timeAgo = new TimeAgo();
+        return timeAgo.format(date);
+      },
+      getDateInfrench(string_date) {
+        const date = new Date(string_date);
+        if (date) {
+          let month = parseInt(date.getMonth()) + 1;
+          return (
+            ("0" + date.getDate()).slice(-2) +
+            "-" +
+            ("0" + month).slice(-2) +
+            "-" +
+            date.getFullYear() +
+            " " +
+            ("0" + date.getHours()).slice(-2) +
+            ":" +
+            ("0" + date.getMinutes()).slice(-2)
+          );
+        }
+      },
+      /**
+       * --
+       */
+      editEntity(attributes) {
+        this.$emit("editEntity", attributes);
+      },
+      getStatusAccordionAndLoadEntity(item, event) {
+        console.log("getStatusAccordion : ", item, event);
+        window.custom_event = event;
+        item.accordionOpen = !item.accordionOpen;
+        if (event.target && event.target.classList) {
+          if (!event.target.classList.contains("entity_loaded")) {
+            event.target.classList.add("entity_loaded");
+            if (item.links.self.href) {
+              this.$store
+                .dispatch("storeProject/LaodEntityByUrl", {
+                  url: item.links.self.href
+                })
+                .then((resp) => {
+                  console.log("resp.data--- : ", resp.data);
+                  if (resp.data.attributes) {
+                    // for (const i in resp.data.attributes) {
+                    //   if (!item.attributes[i]) {
+                    //     item.attributes[i] = resp.data.attributes[i];
+                    //   }
+                    // }
+                    item.attributes = resp.data.attributes;
+                  }
+                  // item={item, }
+                  console.log("item adddedd: ", item);
+                })
+                .catch(() => {
+                  event.target.classList.remove("entity_loaded");
+                });
+            }
           }
         }
-      }
-    },
-    DeleteEntity(item) {
-      config
-        .modalConfirmDelete(
-          "Confirmer la suppression, NB : cette action est irreverssible.",
-          { title: " Suppresion de : " + item.attributes.name }
-        )
-        .then((status) => {
-          if (status) {
-            this.$emit("DeleteEntity", item);
-          }
+      },
+      DeleteEntity(item) {
+        config
+          .modalConfirmDelete(
+            "Confirmer la suppression, NB : cette action est irreverssible.",
+            { title: " Suppresion de : " + item.attributes.name }
+          )
+          .then((status) => {
+            if (status) {
+              this.$emit("DeleteEntity", item);
+            }
+          });
+      },
+      getUserName(relationships) {
+        if (relationships.user_id.data.meta.drupal_internal__target_id) {
+          const id = relationships.user_id.data.meta.drupal_internal__target_id;
+          return config.getUserName(id);
+        }
+      },
+      /**
+       * Permet de recuperer l'etat de la classe du header en function du status.
+       * @param {*} item
+       */
+      getdynamicHeaderClassByStatus(item, group_id) {
+        var variant_header = "bg-light";
+        switch (group_id) {
+          case "running":
+            variant_header = "bg-gradient-vert-sombre text-white";
+            break;
+          case "validate":
+            variant_header = "bg-gradient-vert-sombre2 text-white";
+            break;
+          case "end":
+            variant_header = "bg-gradient-gray-dark text-white";
+            break;
+        }
+        if (item.attributes.private) {
+          variant_header += " border-right border-danger";
+        }
+        return variant_header;
+      },
+      /**
+       * On parcout le texte et on remplace les balises.
+       * @param {*} description
+       */
+      textDisplayHljs(description) {
+        var newDiv = document.createElement("div");
+        newDiv.innerHTML = description;
+        newDiv.querySelectorAll("pre code").forEach((block) => {
+          hljs.highlightBlock(block);
         });
-    },
-    getUserName(relationships) {
-      if (relationships.user_id.data.meta.drupal_internal__target_id) {
-        const id = relationships.user_id.data.meta.drupal_internal__target_id;
-        return config.getUserName(id);
+        return newDiv.outerHTML;
       }
-    },
-    /**
-     * Permet de recuperer l'etat de la classe du header en function du status.
-     * @param {*} item
-     */
-    getdynamicHeaderClassByStatus(item, group_id) {
-      var variant_header = "bg-light";
-      switch (group_id) {
-        case "running":
-          variant_header = "bg-gradient-vert-sombre text-white";
-          break;
-        case "validate":
-          variant_header = "bg-gradient-vert-sombre2 text-white";
-          break;
-        case "end":
-          variant_header = "bg-gradient-gray-dark text-white";
-          break;
-      }
-      if (item.attributes.private) {
-        variant_header += " border-right border-danger";
-      }
-      return variant_header;
-    },
-    /**
-     * On parcout le texte et on remplace les balises.
-     * @param {*} description
-     */
-    textDisplayHljs(description) {
-      var newDiv = document.createElement("div");
-      newDiv.innerHTML = description;
-      newDiv.querySelectorAll("pre code").forEach((block) => {
-        hljs.highlightBlock(block);
-      });
-      return newDiv.outerHTML;
-    },
-  },
-};
+    }
+  };
 </script>
 <style lang="scss">
-.list-entities {
-  .badge {
-    font-size: 78%;
+  .list-entities {
+    .badge {
+      font-size: 78%;
+    }
+    .card-header a {
+      color: inherit;
+    }
   }
-  .card-header a {
-    color: inherit;
-  }
-}
 </style>

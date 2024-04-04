@@ -25,7 +25,6 @@
               <h1 class="pr-3">{{ entity.attributes.name }}</h1>
               <titreInfos :item="entity"></titreInfos>
             </div>
-
             <TacheProgressBar
               class=""
               :model="entity.attributes"
@@ -85,150 +84,150 @@
 </template>
 
 <script>
-import modalFrom from "./modalForm.vue";
-import formEntity from "./formEntity.vue";
-import AppBreadcrumb from "../components/AppBreadcrumb.vue";
-import ButtonApp from "../components/buttonApp.vue";
-import { mapState, mapGetters } from "vuex";
-export default {
-  name: "EntityView",
-  components: {
-    modalFrom,
-    ButtonApp,
-    AppBreadcrumb,
-    formEntity,
-    TacheProgressBar: () => import("../components/TacheProgressBar.vue"),
-    titreInfos: () => import("../components/TitreInfos.vue"),
-    MainTache: () => import("./taches/MainTache.vue"),
-  },
-  props: {
-    configEntityTypeId: {
-      type: [String, Number],
-      required: true,
+  import modalFrom from "./modalForm.vue";
+  import formEntity from "./formEntity.vue";
+  import AppBreadcrumb from "../components/AppBreadcrumb.vue";
+  import ButtonApp from "../components/buttonApp.vue";
+  import { mapState, mapGetters } from "vuex";
+  export default {
+    name: "EntityView",
+    components: {
+      modalFrom,
+      ButtonApp,
+      AppBreadcrumb,
+      formEntity,
+      TacheProgressBar: () => import("../components/TacheProgressBar.vue"),
+      titreInfos: () => import("../components/TitreInfos.vue"),
+      MainTache: () => import("./taches/MainTache.vue")
     },
-    configEntityId: {
-      type: [String, Number],
-      required: true,
-    },
-    drupalInternalId: {
-      type: [String, Number],
-      required: true,
-    },
-  },
-  data() {
-    return {
-      manageModal: false,
-      titleModal: "Creer une nouvelle tache ou memo ou article ...",
-      iconFormEdit: "",
-      timer: "",
-    };
-  },
-
-  computed: {
-    ...mapState({
-      currentProject: (state) => state.storeProject.currentProject,
-      entity: (state) => state.storeProject.entity,
-    }),
-    ...mapGetters(["entity_type_id"]),
-    breadCrumbs() {
-      const staticUrl = [{ path: "/projets", name: "Liste de projets" }];
-      if (this.currentProject.id && this.currentProject.id) {
-        staticUrl.push({
-          path:
-            "/projets/" + this.configEntityTypeId + "/" + this.configEntityId,
-          name: this.currentProject.label,
-        });
+    props: {
+      configEntityTypeId: {
+        type: [String, Number],
+        required: true
+      },
+      configEntityId: {
+        type: [String, Number],
+        required: true
+      },
+      drupalInternalId: {
+        type: [String, Number],
+        required: true
       }
-      return staticUrl;
     },
-  },
-  watch: {
-    drupalInternalId() {
-      console.log("watch drupalInternalId");
+    data() {
+      return {
+        manageModal: false,
+        titleModal: "Creer une nouvelle tache ou memo ou article ...",
+        iconFormEdit: "",
+        timer: ""
+      };
+    },
+
+    computed: {
+      ...mapState({
+        currentProject: (state) => state.storeProject.currentProject,
+        entity: (state) => state.storeProject.entity
+      }),
+      ...mapGetters(["entity_type_id"]),
+      breadCrumbs() {
+        const staticUrl = [{ path: "/projets", name: "Liste de projets" }];
+        if (this.currentProject.id && this.currentProject.id) {
+          staticUrl.push({
+            path:
+              "/projets/" + this.configEntityTypeId + "/" + this.configEntityId,
+            name: this.currentProject.label
+          });
+        }
+        return staticUrl;
+      }
+    },
+    watch: {
+      drupalInternalId() {
+        console.log("watch drupalInternalId");
+        this.getProjet();
+        this.loadEntity();
+      }
+    },
+    mounted() {
       this.getProjet();
       this.loadEntity();
     },
-  },
-  mounted() {
-    this.getProjet();
-    this.loadEntity();
-  },
-  methods: {
-    /**
-     * Recupere le formulaire pour la creation d'une entité.
-     *
-     * @param {*} clean
-     */
-    LoadEmptyForm() {
-      this.manageModal = this.manageModal ? false : true;
-      this.titleModal = "Creer une nouvelle tache ou memo ou article ...";
-      this.iconFormEdit = "plus-square";
-      if (this.manageModal) {
-        this.$store.commit("storeProject/CLEAN_ENTITY_EDIT");
-        this.$store.dispatch("storeProject/loadFormEntity", {
-          entity_type_id: this.configEntityTypeId,
-          bundle: this.configEntityId,
-        });
-      }
-    },
-    /**
-     *
-     * @param {*} val
-     */
-    closeModal(val) {
-      this.manageModal = val;
-    },
-    // editProject(entity) {
-    //   this.$store.commit("storeProject/SET_CURRENT_PROJECT", entity);
-    //   this.userClick(false);
-    // },
-    submitModel() {
-      this.$refs.formProjet.ValidationForm().then((data) => {
-        if (data.status) {
-          this.$store.dispatch("storeProject/saveEntities").then(() => {
-            this.$store.commit("storeProject/CLEAN_ENTITY_EDIT");
-            //this.loadEntities();
-            this.$bvModal.hide("b-modal-manage-project");
+    methods: {
+      /**
+       * Recupere le formulaire pour la creation d'une entité.
+       *
+       * @param {*} clean
+       */
+      LoadEmptyForm() {
+        this.manageModal = this.manageModal ? false : true;
+        this.titleModal = "Creer une nouvelle tache ou memo ou article ...";
+        this.iconFormEdit = "plus-square";
+        if (this.manageModal) {
+          this.$store.commit("storeProject/CLEAN_ENTITY_EDIT");
+          this.$store.dispatch("storeProject/loadFormEntity", {
+            entity_type_id: this.configEntityTypeId,
+            bundle: this.configEntityId
           });
-        } else {
-          for (const i in data.formObserver.fields) {
-            const field = data.formObserver.fields[i];
-            if (field.invalid) {
-              console.log("field invalid", field.name, "\n field : ", field);
+        }
+      },
+      /**
+       *
+       * @param {*} val
+       */
+      closeModal(val) {
+        this.manageModal = val;
+      },
+      // editProject(entity) {
+      //   this.$store.commit("storeProject/SET_CURRENT_PROJECT", entity);
+      //   this.userClick(false);
+      // },
+      submitModel() {
+        this.$refs.formProjet.ValidationForm().then((data) => {
+          if (data.status) {
+            this.$store.dispatch("storeProject/saveEntities").then(() => {
+              this.$store.commit("storeProject/CLEAN_ENTITY_EDIT");
+              //this.loadEntities();
+              this.$bvModal.hide("b-modal-manage-project");
+            });
+          } else {
+            for (const i in data.formObserver.fields) {
+              const field = data.formObserver.fields[i];
+              if (field.invalid) {
+                console.log("field invalid", field.name, "\n field : ", field);
+              }
             }
           }
+        });
+      },
+      /**
+       * Recupere le projet en fonction des paramettres de l'url.
+       */
+      getProjet() {
+        this.$store
+          .dispatch("storeProject/loadProject", {
+            entity_type_id: this.configEntityTypeId,
+            id: this.configEntityId
+          })
+          .then((resp) => {
+            this.$store.commit("storeProject/SET_CURRENT_PROJECT", resp.data);
+          });
+      },
+      /**
+       *
+       * @param {*} clean
+       */
+      loadEntity(clean = true) {
+        if (this.entity_type_id && this.configEntityId) {
+          this.$store.dispatch("storeProject/loadEntity", {
+            entity_type_id: this.entity_type_id,
+            bundle: this.configEntityId,
+            id: this.drupalInternalId,
+            clean: clean
+          });
         }
-      });
-    },
-    /**
-     * Recupere le projet en fonction des paramettres de l'url.
-     */
-    getProjet() {
-      this.$store
-        .dispatch("storeProject/loadProject", {
-          entity_type_id: this.configEntityTypeId,
-          id: this.configEntityId,
-        })
-        .then((resp) => {
-          this.$store.commit("storeProject/SET_CURRENT_PROJECT", resp.data);
-        });
-    },
-    /**
-     *
-     * @param {*} clean
-     */
-    loadEntity(clean = true) {
-      if (this.entity_type_id && this.configEntityId) {
-        this.$store.dispatch("storeProject/loadEntity", {
-          entity_type_id: this.entity_type_id,
-          bundle: this.configEntityId,
-          id: this.drupalInternalId,
-          clean: clean,
-        });
       }
-    },
-  },
-};
+    }
+  };
 </script>
 
 <style lang="scss"></style>
