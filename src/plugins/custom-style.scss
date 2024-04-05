@@ -7,12 +7,50 @@
 //@use "highlight.js/scss/monokai.scss";
 @use "highlight.js/scss/foundation.scss";
 @use "./components/statistiques.scss";
+@use "./components/form.scss";
 //
-@import url("https://fonts.googleapis.com/css2?family=Encode+Sans:wght@300;600;900&display=swap");
+// @import url("https://fonts.googleapis.com/css2?family=Encode+Sans:wght@300;600;900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+Display:ital,wght@0,100..900;1,100..900&display=swap");
+// @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@100..900&display=swap");
+// @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+Meetei+Mayek:wght@100..900&display=swap");
 
 body {
-  font-family: "Encode Sans", sans-serif;
-  // On definit un largeur min afin que le label soit toujours visible
+  // #
+  // font-family: "Encode Sans", sans-serif;
+  // #
+  // Noto+Sans+Display
+  font-family: "Noto Sans Display", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 300;
+  font-style: normal;
+  font-variation-settings: "wdth" 100;
+  // #
+  // Noto+Sans+Devanagari
+  // font-family: "Noto Sans Devanagari", sans-serif;
+  // font-optical-sizing: auto;
+  // font-weight: 300;
+  // font-style: normal;
+  // font-variation-settings: "wdth" 100;
+  // #
+  // Noto+Sans+Meetei+Mayek
+  // font-family: "Noto Sans Meetei Mayek", sans-serif;
+  // font-optical-sizing: auto;
+  // font-weight: 300;
+  // font-style: normal;
+  //
+  // font-family:
+  //   -apple-system,
+  //   BlinkMacSystemFont,
+  //   Segoe UI,
+  //   Roboto,
+  //   Helvetica Neue,
+  //   Arial,
+  //   Noto Sans,
+  //   sans-serif,
+  //   Apple Color Emoji,
+  //   Segoe UI Emoji,
+  //   Segoe UI Symbol,
+  //   Noto Color Emoji;
 }
 img {
   max-width: 100%;
@@ -21,16 +59,19 @@ img {
 //
 .text-info {
   &--03 {
-    font-size: 70%;
+    font-size: 80%;
     font-style: italic;
-    padding-left: 10px;
+    padding-left: 1rem;
     color: #858d99;
+    &:first-child {
+      padding-left: 0.5rem;
+    }
   }
 }
 .text-white {
   .text-info {
     &--03 {
-      color: #cbcbcb;
+      color: #efefef;
     }
   }
 }

@@ -78,7 +78,7 @@ export default {
       date_end: null,
       search: null,
       search_in_description: false,
-      status_execution: ["new", "running"],
+      status_execution: ["new", "running", "break", "end"],
       user_id: [],
       executants: []
     }

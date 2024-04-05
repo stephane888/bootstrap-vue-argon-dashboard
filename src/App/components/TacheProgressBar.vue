@@ -19,8 +19,10 @@
       <b-progress-bar
         :variant="progress_bar_variant"
         :value="value"
+        :precision="3"
+        :label="'..'"
       ></b-progress-bar>
-      <div class="custom-label text-vert-sombre2">
+      <div class="custom-label">
         {{ percent_progress + "%" }}
       </div>
     </b-progress>
@@ -28,10 +30,6 @@
       <small>{{ manageTime.getDateToFrench(date_interval.begin) }}</small>
       <small>{{ manageTime.getDateToFrench(date_interval.end) }}</small>
     </div>
-
-    <!-- <pre> animated : {{ animated }} </pre>
-    <pre> percent_progress : {{ percent_progress }} </pre>
-    <pre> value : {{ value }} </pre> -->
   </div>
 </template>
 <script>
@@ -54,7 +52,8 @@
         max: 0,
         date_interval: { begin: null, end: null },
         percent_progress: "",
-        manageTime: manageTime
+        manageTime: manageTime,
+        timerProgressBar: null
       };
     },
     computed: {
@@ -95,9 +94,7 @@
       }
     },
     mounted() {
-      this.getValue().then(() => {
-        this.getLabelPercent();
-      });
+      this.runProgressBar();
     },
     methods: {
       async getValue() {
@@ -114,6 +111,8 @@
             this.value = diff_minutes(dt1, new Date());
           } else this.value = diff_minutes(dt1, dt2);
           this.max = diff_minutes(dt1, dt2);
+          //
+          this.getLabelPercent();
           return this.value;
         } else return this.value;
       },
@@ -121,10 +120,19 @@
         const data = getDureeDisplay.retrivePlageDuree(this.model.duree);
         return data;
       },
-      async getLabelPercent() {
+      getLabelPercent() {
         if (this.max && this.value) {
-          this.percent_progress = ((this.value / this.max) * 100).toFixed(1);
+          this.percent_progress = ((this.value / this.max) * 100).toFixed(2);
         } else this.percent_progress = 0;
+      },
+      runProgressBar() {
+        this.getValue();
+        if (this.get_status_execution == "running") {
+          clearInterval(this.timerProgressBar);
+          this.timerProgressBar = setInterval(() => {
+            this.getValue();
+          }, 120000);
+        }
       }
     }
   };
@@ -137,12 +145,17 @@
       height: 16px;
       position: relative;
       line-height: 1;
+      background: #778174;
+      .progress-bar {
+        opacity: 0.5;
+      }
       .custom-label {
         position: absolute;
         left: 15px;
         line-height: 1;
         top: 50%;
         transform: translate(10px, -50%);
+        font-weight: 600;
       }
     }
     .accordi-date {

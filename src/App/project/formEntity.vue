@@ -45,14 +45,28 @@
           </b-col>
           <b-col md="8">
             <div class="d-flex flex-wrap justify-content-end">
-              <b-button :disabled="!userCanRunTache()" size="sm" @click="start">
+              <b-button v-if="userCanRunTache()" size="sm" @click="start">
+                <b-icon icon="play-btn" variant="success" class="mr-1"></b-icon>
                 Démarrer
+              </b-button>
+              <b-button v-if="userCanBreakTache()" size="sm" @click="pause">
+                <b-icon icon="stop-btn" variant="danger" class="mr-1"></b-icon>
+                Pause
               </b-button>
               <b-button
                 :disabled="!userCanEndTache()"
                 size="sm"
                 @click="endTache"
               >
+                <b-icon
+                  icon="check-lg"
+                  :variant="
+                    userCanEndTache() || getStatusExecution() == 'end'
+                      ? 'info'
+                      : 'light'
+                  "
+                  class="mr-1"
+                ></b-icon>
                 Terminer
               </b-button>
               <b-button
@@ -60,6 +74,15 @@
                 size="sm"
                 @click="ValidTache"
               >
+                <b-icon
+                  icon="check2-all"
+                  :variant="
+                    userCanValidate() || getStatusExecution() == 'validate'
+                      ? 'success'
+                      : 'light'
+                  "
+                  class="mr-1"
+                ></b-icon>
                 Valider
               </b-button>
               <b-button
@@ -67,9 +90,19 @@
                 size="sm"
                 @click="abondonner"
               >
+                <b-icon
+                  icon="arrow-counterclockwise"
+                  :variant="userCanGiveUp() ? 'danger' : 'light'"
+                  class="mr-1"
+                ></b-icon>
                 Abondonner
               </b-button>
               <b-button v-if="userCanReset()" size="sm" @click="resetTache">
+                <b-icon
+                  icon="bootstrap-reboot"
+                  :variant="userCanReset() ? 'danger' : 'light'"
+                  class="mr-1"
+                ></b-icon>
                 Reset
               </b-button>
             </div>
@@ -193,7 +226,12 @@
       return {
         showForm: false,
         statique_fields: {},
-        accordionOpen: false
+        accordionOpen: false,
+        /**
+         * On doit eviter de creer un superflux de données dans les periodes.
+         * Pour une edition on ne peut ajouter q'une seule nouvelle periode.
+         */
+        defaultLengthDuree: 0
       };
     },
     computed: {
@@ -329,6 +367,14 @@
           );
         else return false;
       },
+      userCanBreakTache() {
+        if (this.statique_fields.project_manager.field)
+          return AccessController.userCanBreakTache(
+            this.statique_fields.project_manager.field,
+            this.statique_fields.project_manager.model
+          );
+        else return false;
+      },
       userCanEndTache() {
         if (this.statique_fields.project_manager.field)
           return AccessController.userCanEndTache(
@@ -384,16 +430,32 @@
           this.statique_fields.duree &&
           this.statique_fields.duree.model.duree
         ) {
-          const value = {
+          var values = [];
+          if (this.statique_fields.duree.model.id.length > 0)
+            values = this.statique_fields.duree.model.duree;
+          //
+          if (
+            values.length > 0 &&
+            this.defaultLengthDuree > 0 &&
+            values.length > this.defaultLengthDuree
+          ) {
+            values.pop();
+          }
+          // On definit le nombre d'element provenant de la derniere sauvegarde.
+          else if (values.length > 0) {
+            this.defaultLengthDuree = values.length;
+          }
+          values.push({
             value: await this.getDateForDrupal(),
             end_value: await this.getDateForDrupal(duree_execution)
-          };
+          });
+          console.log(" setValue durée : ", values);
           this.$store.dispatch("storeProject/setValue", {
             fieldName: "0.entity.duree",
-            value: [value]
+            value: values
           });
         } else {
-          alert("Champs durée non definie");
+          alert(" Champs durée non definie ");
         }
         // Mise à jour du chef de projet.
         if (
@@ -427,17 +489,42 @@
         }
         //
       },
+      async pause() {
+        // Mise à jour du status de la tache
+        if (this.statique_fields.status_execution.model.status_execution) {
+          const value = {
+            value: "break"
+          };
+          this.$store.dispatch("storeProject/setValue", {
+            fieldName: "0.entity.status_execution",
+            value: [value]
+          });
+        }
+        // Mise à jour du champs durée de fin, il faudra aussi se rassurer que le temps restant est suffisant pour mettre en pause.
+        if (
+          this.statique_fields.duree &&
+          this.statique_fields.duree.model.duree
+        ) {
+          const values = this.statique_fields.duree.model.duree;
+          values[values.length - 1].end_value = await this.getDateForDrupal();
+          console.log(" setValue pause durée : ", values);
+          this.$store.dispatch("storeProject/setValue", {
+            fieldName: "0.entity.duree",
+            value: values
+          });
+        }
+      },
       /**
        * Seul le chef de projet doit pouvoir marquer une tache comme terminer.
        */
       async endTache() {
         // Mise à jour du champs durée.
-        if (this.statique_fields.duree.model.duree) {
-          const value = this.statique_fields.duree.model.duree[0];
-          value.end_value = await this.getDateForDrupal();
+        if (this.statique_fields.duree.model.duree.length > 0) {
+          const values = this.statique_fields.duree.model.duree;
+          values[values.length - 1].end_value = await this.getDateForDrupal();
           this.$store.dispatch("storeProject/setValue", {
             fieldName: "0.entity.duree",
-            value: [value]
+            value: values
           });
         }
         // Mise à jour du status de la tache
@@ -471,14 +558,15 @@
        */
       async abondonner() {
         // Mise à jour du champs durée.
-        if (this.statique_fields.duree.model.duree) {
-          const value = this.statique_fields.duree.model.duree[0];
-          value.end_value = await this.getDateForDrupal();
+        if (this.statique_fields.duree.model.duree.length > 0) {
+          const values = this.statique_fields.duree.model.duree;
+          values[values.length - 1].end_value = await this.getDateForDrupal();
           this.$store.dispatch("storeProject/setValue", {
             fieldName: "0.entity.duree",
-            value: [value]
+            value: values
           });
         }
+
         // Mise à jour du status de la tache
         if (this.statique_fields.status_execution.model.status_execution) {
           const value = {
@@ -501,6 +589,15 @@
             value: [value]
           });
         }
+      },
+
+      getStatusExecution() {
+        return this.statique_fields &&
+          this.statique_fields.status_execution.model.status_execution &&
+          this.statique_fields.status_execution.model.status_execution[0].value
+          ? this.statique_fields.status_execution.model.status_execution[0]
+              .value
+          : "";
       },
 
       /**

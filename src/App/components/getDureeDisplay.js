@@ -8,12 +8,16 @@ export default {
    * Logique de calcul pour l'affichage.
    * un taf de 2h30 , [8h00 -- 10h30]
    * BD : [08h00 , 10h30]
-   * DS1 : 08h00 -- 10h30 //Display 1, il travaille de 08h00-09h00
+   * DS1 : 08h00 -- 10h30 //Display 1,
+   * => il travaille de 08h00-09h00
+   * BD : [08h00 , 09h00]
    *
    *
-   * Pause 1 : 1h00
+   *
+   * Pause 1 : 1h00, donc il reprend à 10h00.
+   * BD : [10h00 , 11h30] ==> { 11h30 = 09h00 + temps restant (Temps d'execution - temps consommé dans la plage de travail)  } NB: le temps doit etre > 0. ( si < 0 on ne peut plus mettre en pause)
    * DS2 : 08h00 -- 11h30 //Display 2, {heure de fin du precedent + pause} => [10h30 + 1h00]
-   * BD : [09h00 , 11h30]
+   *
    *
    * Pause 2 : 30mn
    * DS3 : 08h00 -- 12h00 //Display 3, {heure de fin du precedent + pause} => [11h30 + 30mn]
@@ -41,8 +45,9 @@ export default {
     if (duree && duree.length) {
       const begin = duree[0].value;
       var end;
-      if (duree.lenght > 1) {
+      if (duree.length > 1) {
         const last_duree = duree.slice(-1);
+        end = last_duree[0].end_value;
       } else {
         end = duree[0].end_value;
       }

@@ -78,28 +78,32 @@ export default {
     return {
       running: {
         label: "En cours d'execution",
-        items: [],
+        items: []
+      },
+      break: {
+        label: "Pauses",
+        items: []
       },
       new: {
         label: "Nouvelle taches",
-        items: [],
+        items: []
       },
       end: {
         label: "Terminée",
-        items: [],
+        items: []
       },
       validate: {
         label: "Validée",
-        items: [],
+        items: []
       },
       cancel: {
         label: "Annulée",
-        items: [],
+        items: []
       },
       undefined: {
         label: "Non definie",
-        items: [],
-      },
+        items: []
+      }
     };
-  },
+  }
 };

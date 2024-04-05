@@ -41,8 +41,23 @@ export default {
     const status_execution = model.status_execution;
     if (
       status_execution[0] &&
-      (status_execution[0].value == "new" || status_execution[0].value == "")
+      (status_execution[0].value == "new" ||
+        status_execution[0].value == "break" ||
+        status_execution[0].value == "")
     ) {
+      return this.userIsIncludeInperformer(field);
+    } else {
+      return false;
+    }
+  },
+  /**
+   * Permet de determiner si l'utilisateur peut mettre la tache en pause ou pas.
+   * il doit etre dans la liste des utilisateurs.
+   * @param {*} entity
+   */
+  userCanBreakTache(field, model) {
+    const status_execution = model.status_execution;
+    if (status_execution[0] && status_execution[0].value == "running") {
       return this.userIsIncludeInperformer(field);
     } else {
       return false;
@@ -119,5 +134,5 @@ export default {
     if (store.state.roles.length > 0) {
       return store.state.roles.includes("performer");
     } else return false;
-  },
+  }
 };
