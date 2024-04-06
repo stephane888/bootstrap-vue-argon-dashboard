@@ -32,7 +32,7 @@
     </span>
     <span
       v-b-tooltip.hover.bottom="' Durée d\'execution prevu / Durée reelle'"
-      class="item item-progress text-vert-sombre"
+      class="item item-progress text-gray-dark"
       :data_duree_execution_total="statistiquesFormat.duree_execution_total"
       :duree_execution_reelle_total="
         statistiquesFormat.duree_execution_reelle_total

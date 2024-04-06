@@ -51,91 +51,77 @@
 </template>
 
 <script>
-import request from "../request";
-import { mapState } from "vuex";
-import itemsEntity from "drupal-vuejs/src/App/jsonApi/itemsEntity.js";
-//import CKEditor from "ckeditor4-vue";
-export default {
-  name: "FormProjetType",
-  components: {
-    //ckeditor: CKEditor.component,
-  },
-  props: {
-    showSubmit: {
-      type: Boolean,
-      default: false,
+  import request from "../request";
+  import { mapState } from "vuex";
+  //import CKEditor from "ckeditor4-vue";
+  export default {
+    name: "FormProjetType",
+    components: {
+      //ckeditor: CKEditor.component,
     },
-  },
-  data() {
-    return {
-      show: true,
-      options: [],
-    };
-  },
-  computed: {
-    ...mapState({
-      form: (state) => state.storeProject.currentProject,
-    }),
-    idEntity() {
-      if (this.form.label !== "") {
-        var id = request.generateIdEntityType(this.form.label);
-        this.setId(id);
-        return id;
-      } else return "";
-    },
-  },
-  mounted() {
-    this.loadTerms();
-  },
-  methods: {
-    /**
-     * @private
-     * @param {*} event
-     */
-    onSubmit(event) {
-      event.preventDefault();
-      this.submit();
-    },
-    /**
-     * @public
-     */
-    submit() {
-      if (!this.form.id) {
-        alert("Contenu vide");
-        return;
+    props: {
+      showSubmit: {
+        type: Boolean,
+        default: false
       }
-      // return this.$store.dispatch("storeProject/saveEntity");
-      // const payload = { entity_type_id: "app_project_type", value: this.form };
-      // return this.$store.dispatch("storeProject/saveEntity", payload);
-      this.$emit("saveProjectType", this.form);
     },
-    onReset(event) {
-      event.preventDefault();
-      // Reset our form values
-      this.form.id = "";
-      this.form.label = "";
-      this.form.description = "";
-      this.form.users = [];
-      // Trick to reset/clear native browser form validation state
-      this.show = false;
-      this.$nextTick(() => {
-        this.show = true;
-      });
+    data() {
+      return {
+        show: true
+      };
     },
-    setId(id) {
-      // Si l'uuid n'existe, alors c'est une creation de type, on peut generer l'id.
-      if (!this.form.uuid) this.form.id = id;
+    computed: {
+      ...mapState({
+        form: (state) => state.storeProject.currentProject,
+        options: (state) => state.users
+      }),
+      idEntity() {
+        if (this.form.label !== "") {
+          var id = request.generateIdEntityType(this.form.label);
+          this.setId(id);
+          return id;
+        } else return "";
+      }
     },
-    loadTerms() {
-      let vocabulary = "user";
-      if (vocabulary && request) {
-        const terms = new itemsEntity(vocabulary, vocabulary, request);
-        terms.remplaceConfig();
-        terms.get().then(() => {
-          this.options = terms.getOptions();
+    methods: {
+      /**
+       * @private
+       * @param {*} event
+       */
+      onSubmit(event) {
+        event.preventDefault();
+        this.submit();
+      },
+      /**
+       * @public
+       */
+      submit() {
+        if (!this.form.id) {
+          alert("Contenu vide");
+          return;
+        }
+        // return this.$store.dispatch("storeProject/saveEntity");
+        // const payload = { entity_type_id: "app_project_type", value: this.form };
+        // return this.$store.dispatch("storeProject/saveEntity", payload);
+        this.$emit("saveProjectType", this.form);
+      },
+      onReset(event) {
+        event.preventDefault();
+        // Reset our form values
+        this.form.id = "";
+        this.form.label = "";
+        this.form.description = "";
+        this.form.users = [];
+        // Trick to reset/clear native browser form validation state
+        this.show = false;
+        this.$nextTick(() => {
+          this.show = true;
         });
+      },
+      setId(id) {
+        // Si l'uuid n'existe, alors c'est une creation de type, on peut generer l'id.
+        if (!this.form.uuid) this.form.id = id;
       }
-    },
-  },
-};
+    }
+  };
 </script>

@@ -12,23 +12,32 @@ export default new Vuex.Store({
      * information concernant l'utilisateur connecté.
      */
     user: null,
+
     /**
      * Roles attribues à l'utilisateur. Cela permet d'afficher certaines informations facilitant l'utilisation.
      * Cela ne modifie ou n'impacte pas les actions au niveau du serveur.
      */
     roles: [],
+
     /**
      * Contient les informations de configuration des utilisateurs
      */
     userConfig: {},
+
+    /**
+     * Contient les informations utile sur l'utlisateur connecté.
+     */
+    userInfos: [],
+
     /**
      * Contient la valeur de rediection.( Par defaut / );
      */
     redirectAfterLogin: "/",
+
     /**
      * Liste des utilisateurs.
      */
-    users: {}
+    users: []
   },
   getters: {
     isLoggedIn(state) {
@@ -78,6 +87,9 @@ export default new Vuex.Store({
     },
     SET_USER_CONFIG(state, payload) {
       state.userConfig = payload;
+    },
+    SET_USER_INFOS(state, payload) {
+      state.userInfos = payload;
     }
   },
   actions: {
@@ -113,6 +125,20 @@ export default new Vuex.Store({
         config.dGet("/gestion-project-v2/user-config/" + uid).then((resp) => {
           commit("SET_USER_CONFIG", resp.data);
           commit("SET_ROLES", resp.data.roles);
+        });
+      }
+    },
+    /**
+     * Permet de charger les informations utile sur l'utilisateur.
+     */
+    userInfos({ commit, state }) {
+      const uid =
+        state.user && state.user.current_user.uid
+          ? state.user.current_user.uid
+          : false;
+      if (uid) {
+        config.dGet("/gestion-project-v2/user-infos/" + uid).then((resp) => {
+          commit("SET_USER_INFOS", resp.data);
         });
       }
     },
@@ -160,13 +186,14 @@ export default new Vuex.Store({
       commit("SET_USER", null);
     },
     /**
-     * Liste des utilisateurs, utilisé à plusisieurs endroit;
+     * Liste des utilisateurs, utilisé dans plusieurs fonctionnalitées;
      */
     getUsers({ commit, state }) {
       let vocabulary = "user";
       if (vocabulary && config && Object.keys(state.users).length === 0) {
         const terms = new itemsEntity(vocabulary, vocabulary, config);
         terms.remplaceConfig();
+        terms.filter("status", "=", 1);
         terms.get().then(() => {
           commit("SET_USERS", terms.getOptions());
         });

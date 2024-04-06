@@ -5,6 +5,7 @@
       block
       class="p-0 m-0"
       variant="transparent"
+      right
     >
       <div class="p-0 m-0">
         <div class="accordion" role="tablist">
@@ -30,37 +31,6 @@
                     </div>
                   </div>
                 </b-col>
-
-                <!-- <b-col md="3" class="d-flex justify-content-end">
-                  <span
-                    v-if="item.accordionOpen"
-                    v-b-toggle="'cp-' + item.id"
-                    v-b-tooltip.hover
-                    variant="light"
-                    class="btn-action mr-4"
-                    title="Fermer"
-                    @click="getStatusAccordion(item)"
-                  >
-                    <b-icon
-                      icon="chevron-double-up"
-                      aria-hidden="true"
-                    ></b-icon>
-                  </span>
-                  <span
-                    v-if="!item.accordionOpen"
-                    v-b-toggle="'cp-' + item.id"
-                    v-b-tooltip.hover
-                    variant="light"
-                    class="btn-action mr-4 d-inline-block"
-                    title="Ouvrir"
-                    @click="getStatusAccordion(item)"
-                  >
-                    <b-icon
-                      icon="chevron-double-down"
-                      aria-hidden="true"
-                    ></b-icon>
-                  </span>
-                </b-col> -->
               </b-row>
             </b-card-header>
             <b-collapse
@@ -163,12 +133,8 @@
 <style lang="scss">
   .custom-drop-taches {
     .dropdown-menu {
-      width: 500px;
-      left: -50%;
-      right: auto;
-    }
-    a {
-      color: #2955e6;
+      width: 400px;
+      padding: 0.5rem;
     }
   }
 </style>
