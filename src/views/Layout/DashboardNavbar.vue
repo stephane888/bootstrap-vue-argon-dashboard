@@ -27,14 +27,15 @@
     </b-navbar-nav>
     <b-navbar-nav class="align-items-center ml-md-auto">
       <CurrentProjets></CurrentProjets>
+      <TimerExecution></TimerExecution>
     </b-navbar-nav>
     <b-navbar-nav class="align-items-center ml-auto ml-md-0">
       <b-form
         id="navbar-search-main"
-        class="navbar-search form-inline mr-sm-3"
+        class="navbar-search form-inline mr-sm-3 d-none"
         :class="{
           'navbar-search-dark': type === 'default',
-          'navbar-search-light': type === 'light',
+          'navbar-search-light': type === 'light'
         }"
       >
         <b-form-group class="mb-0">
@@ -104,59 +105,60 @@
   </base-nav>
 </template>
 <script>
-//import { CollapseTransition } from "vue2-transitions";
-import { BaseNav } from "@/components";
-import { mapState } from "vuex";
+  //import { CollapseTransition } from "vue2-transitions";
+  import { BaseNav } from "@/components";
+  import { mapState } from "vuex";
 
-export default {
-  components: {
-    BaseNav,
-    CurrentProjets: () => import("../../App/project/CurrentProjets.vue"),
-  },
-  props: {
-    type: {
-      type: String,
-      default: "default", // default|light
-      description:
-        "Look of the dashboard navbar. Default (Green) or light (gray)",
+  export default {
+    components: {
+      BaseNav,
+      CurrentProjets: () => import("../../App/project/CurrentProjets.vue"),
+      TimerExecution: () => import("../../App/project/TimerExecution.vue")
     },
-  },
-  data() {
-    return {
-      activeNotifications: false,
-      showMenu: false,
-      searchModalVisible: false,
-      searchQuery: "",
-      show_template: true,
-    };
-  },
-  computed: {
-    routeName() {
-      const { name } = this.$route;
-      return this.capitalizeFirstLetter(name);
+    props: {
+      type: {
+        type: String,
+        default: "default", // default|light
+        description:
+          "Look of the dashboard navbar. Default (Green) or light (gray)"
+      }
     },
-    userName() {
-      if (this.user && this.user.current_user) {
-        return this.user.current_user.name;
-      } else return "Anonyme";
+    data() {
+      return {
+        activeNotifications: false,
+        showMenu: false,
+        searchModalVisible: false,
+        searchQuery: "",
+        show_template: true
+      };
     },
-    ...mapState(["user"]),
-  },
+    computed: {
+      routeName() {
+        const { name } = this.$route;
+        return this.capitalizeFirstLetter(name);
+      },
+      userName() {
+        if (this.user && this.user.current_user) {
+          return this.user.current_user.name;
+        } else return "Anonyme";
+      },
+      ...mapState(["user"])
+    },
 
-  methods: {
-    capitalizeFirstLetter(string) {
-      return string.charAt(0).toUpperCase() + string.slice(1);
-    },
-    toggleNotificationDropDown() {
-      this.activeNotifications = !this.activeNotifications;
-    },
-    closeDropDown() {
-      this.activeNotifications = false;
-    },
-    deconnexion() {
-      this.$store.dispatch("deleteConnexion");
-      this.$router.push({ name: "login" });
-    },
-  },
-};
+    methods: {
+      capitalizeFirstLetter(string) {
+        return string.charAt(0).toUpperCase() + string.slice(1);
+      },
+      toggleNotificationDropDown() {
+        this.activeNotifications = !this.activeNotifications;
+      },
+      closeDropDown() {
+        this.activeNotifications = false;
+      },
+      deconnexion() {
+        this.$store.dispatch("deleteConnexion");
+        this.$router.push({ name: "login" });
+      }
+    }
+  };
 </script>

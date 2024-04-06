@@ -94,82 +94,81 @@
     </b-dropdown>
   </div>
 </template>
-
 <script>
-import { mapState } from "vuex";
-export default {
-  name: "CurrentProjets",
-  data() {
-    return {
-      total_taches: 0,
-    };
-  },
-  computed: {
-    ...mapState({
-      all_entitties: (state) => state.storeProject.all_entitties,
-    }),
-    list_has_datas() {
-      const list = [];
-      this.resetTotal();
-      if (this.all_entitties) {
-        for (const i in this.all_entitties) {
-          for (const j in this.all_entitties[i].entities) {
-            const entities = this.all_entitties[i].entities[j];
-            if (entities.entities_content.length) {
-              this.addToTotal(entities.entities_content.length);
-              entities["entity_type_id"] = i;
-              // get subTache
-              entities["count_sub_taches"] = 0;
-              for (const k in entities.entities_content) {
-                entities["count_sub_taches"] +=
-                  entities.entities_content[k].sub_taches.length;
+  import { mapState } from "vuex";
+  export default {
+    name: "CurrentProjets",
+    data() {
+      return {
+        total_taches: 0
+      };
+    },
+    computed: {
+      ...mapState({
+        all_entitties: (state) => state.storeProject.all_entitties
+      }),
+      list_has_datas() {
+        const list = [];
+        this.resetTotal();
+        if (this.all_entitties) {
+          for (const i in this.all_entitties) {
+            for (const j in this.all_entitties[i].entities) {
+              const entities = this.all_entitties[i].entities[j];
+              if (entities.entities_content.length) {
+                this.addToTotal(entities.entities_content.length);
+                entities["entity_type_id"] = i;
+                // get subTache
+                entities["count_sub_taches"] = 0;
+                for (const k in entities.entities_content) {
+                  entities["count_sub_taches"] +=
+                    entities.entities_content[k].sub_taches.length;
+                }
+                list.push(entities);
               }
-              list.push(entities);
             }
           }
         }
+        return list;
       }
-      return list;
     },
-  },
-  mounted() {
-    this.loadEntitiesWithFilters();
-  },
-  methods: {
-    loadEntitiesWithFilters() {
-      const date = new Date();
-      date.setDate(date.getDate() - 40);
-      const filters = [
-        { field: "status_execution", value: "new", operator: "=" },
-        {
-          field: "changed",
-          value: parseInt(date.getTime() / 1000),
-          operator: ">",
-        },
-      ];
-      this.$store.dispatch("storeProject/loadEntitiesWithFilters", filters);
+    mounted() {
+      this.loadEntitiesWithFilters();
     },
-    getStatusAccordion(item) {
-      item.accordionOpen = !item.accordionOpen;
-    },
-    resetTotal() {
-      this.total_taches = 0;
-    },
-    addToTotal(val) {
-      this.total_taches += val;
-    },
-  },
-};
+    methods: {
+      loadEntitiesWithFilters() {
+        const date = new Date();
+        date.setDate(date.getDate() - 40);
+        const filters = [
+          { field: "status_execution", value: "new", operator: "=" },
+          {
+            field: "changed",
+            value: parseInt(date.getTime() / 1000),
+            operator: ">"
+          }
+        ];
+        this.$store.dispatch("storeProject/loadEntitiesWithFilters", filters);
+      },
+      getStatusAccordion(item) {
+        item.accordionOpen = !item.accordionOpen;
+      },
+      resetTotal() {
+        this.total_taches = 0;
+      },
+      addToTotal(val) {
+        this.total_taches += val;
+      }
+    }
+  };
 </script>
 <style lang="scss">
-.custom-drop-taches {
-  .dropdown-menu {
-    width: 500px;
-    left: -50%;
-    right: auto;
+  .custom-drop-taches {
+    .dropdown-menu {
+      width: 500px;
+      left: -50%;
+      right: auto;
+    }
+    a {
+      color: #2955e6;
+    }
   }
-  a {
-    color: #2955e6;
-  }
-}
 </style>

@@ -1,7 +1,7 @@
 <template>
   <nav
     id="sidenav-main"
-    class="navbar navbar-vertical fixed-left navbar-expand-md navbar-light bg-white"
+    class="navbar navbar-vertical fixed-left navbar-expand-md navbar-light bg-gradient-lighter"
   >
     <div class="container-fluid">
       <!--Toggler-->
@@ -157,53 +157,53 @@
   </nav>
 </template>
 <script>
-import NavbarToggleButton from "@/components/NavbarToggleButton";
-import { mapState } from "vuex";
-export default {
-  name: "SideBar",
-  components: {
-    NavbarToggleButton,
-  },
-  provide() {
-    return {
-      autoClose: this.autoClose,
-    };
-  },
-  props: {
-    logo: {
-      type: String,
-      default: "img/brand/untitled-42_4x-v2.png",
-      description: "Sidebar app logo",
+  import NavbarToggleButton from "@/components/NavbarToggleButton";
+  import { mapState } from "vuex";
+  export default {
+    name: "SideBar",
+    components: {
+      NavbarToggleButton
     },
-    autoClose: {
-      type: Boolean,
-      default: true,
-      description:
-        "Whether sidebar should autoclose on mobile when clicking an item",
+    provide() {
+      return {
+        autoClose: this.autoClose
+      };
     },
-  },
-  computed: {
-    ...mapState({
-      userConfig: (state) => state.userConfig,
-    }),
-    // formatterWorkDay() {
-    //   if (this.userConfig) {
+    props: {
+      logo: {
+        type: String,
+        default: "img/brand/untitled-42_4x-v2.png",
+        description: "Sidebar app logo"
+      },
+      autoClose: {
+        type: Boolean,
+        default: true,
+        description:
+          "Whether sidebar should autoclose on mobile when clicking an item"
+      }
+    },
+    computed: {
+      ...mapState({
+        userConfig: (state) => state.userConfig
+      })
+      // formatterWorkDay() {
+      //   if (this.userConfig) {
 
-    //   } else return {};
-    // }
-  },
-  beforeDestroy() {
-    if (this.$sidebar.showSidebar) {
-      this.$sidebar.showSidebar = false;
+      //   } else return {};
+      // }
+    },
+    beforeDestroy() {
+      if (this.$sidebar.showSidebar) {
+        this.$sidebar.showSidebar = false;
+      }
+    },
+    methods: {
+      closeSidebar() {
+        this.$sidebar.displaySidebar(false);
+      },
+      showSidebar() {
+        this.$sidebar.displaySidebar(true);
+      }
     }
-  },
-  methods: {
-    closeSidebar() {
-      this.$sidebar.displaySidebar(false);
-    },
-    showSidebar() {
-      this.$sidebar.displaySidebar(true);
-    },
-  },
-};
+  };
 </script>

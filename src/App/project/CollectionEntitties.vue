@@ -3,7 +3,7 @@
 -->
 <template>
   <div>
-    <base-header class="pb-2 pt-5 bg-gradient-success">
+    <base-header class="pb-2 pt-5">
       <b-row class="pt-5">
         <b-col md="6">
           <nav aria-label="breadcrumb" class="d-none d-md-inline-block m-0">
@@ -117,311 +117,311 @@
   </div>
 </template>
 <script>
-import ButtonApp from "../components/buttonApp.vue";
-import modalFrom from "./modalForm.vue";
-import { mapState, mapGetters } from "vuex";
-import AppBreadcrumb from "../components/AppBreadcrumb.vue";
-import formEntity from "./formEntity.vue";
-export default {
-  name: "CollectionEntitties",
-  components: {
-    modalFrom,
-    ButtonApp,
-    AppBreadcrumb,
-    formEntity,
-    AccordionEntities: () => import("./AccordionEntities.vue"),
-    filtre: () => import("./FilterProjects.vue"),
-  },
-  props: {
-    configEntityTypeId: {
-      type: [String, Number],
-      default: "",
+  import ButtonApp from "../components/buttonApp.vue";
+  import modalFrom from "./modalForm.vue";
+  import { mapState, mapGetters } from "vuex";
+  import AppBreadcrumb from "../components/AppBreadcrumb.vue";
+  import formEntity from "./formEntity.vue";
+  export default {
+    name: "CollectionEntitties",
+    components: {
+      modalFrom,
+      ButtonApp,
+      AppBreadcrumb,
+      formEntity,
+      AccordionEntities: () => import("./AccordionEntities.vue"),
+      filtre: () => import("./FilterProjects.vue")
     },
-    configEntityId: {
-      type: [String, Number],
-      default: "",
-    },
-    drupalInternalId: {
-      type: [String, Number],
-      default: null,
-    },
-  },
-  data() {
-    return {
-      manageModal: false,
-      titleModal: "Creer une nouvelle tache ou memo ou article ...",
-      iconFormEdit: "",
-      timer: "",
-    };
-  },
-  computed: {
-    ...mapState({
-      currentProject: (state) => state.storeProject.currentProject,
-      projects: (state) => state.storeProject.projects,
-      entities: (state) => state.storeProject.entities,
-      filters: (state) => state.storeProject.filters,
-      running: (state) => state.storeProject.running,
-    }),
-    ...mapGetters(["entity_type_id"]),
-    breadCrumbs() {
-      const staticUrl = [{ path: "/projets", name: "Liste de projets" }];
-      if (this.currentProject.id && this.currentProject.id) {
-        staticUrl.push({
-          path:
-            "/projets/" + this.configEntityTypeId + "/" + this.configEntityId,
-          name: this.currentProject.label,
-        });
+    props: {
+      configEntityTypeId: {
+        type: [String, Number],
+        default: ""
+      },
+      configEntityId: {
+        type: [String, Number],
+        default: ""
+      },
+      drupalInternalId: {
+        type: [String, Number],
+        default: null
       }
-      return staticUrl;
     },
-    getNumbers() {
-      var total = 0;
-      if (this.entities && this.entities.length) {
-        total = this.entities.length;
+    data() {
+      return {
+        manageModal: false,
+        titleModal: "Creer une nouvelle tache ou memo ou article ...",
+        iconFormEdit: "",
+        timer: ""
+      };
+    },
+    computed: {
+      ...mapState({
+        currentProject: (state) => state.storeProject.currentProject,
+        projects: (state) => state.storeProject.projects,
+        entities: (state) => state.storeProject.entities,
+        filters: (state) => state.storeProject.filters,
+        running: (state) => state.storeProject.running
+      }),
+      ...mapGetters(["entity_type_id"]),
+      breadCrumbs() {
+        const staticUrl = [{ path: "/projets", name: "Liste de projets" }];
+        if (this.currentProject.id && this.currentProject.id) {
+          staticUrl.push({
+            path:
+              "/projets/" + this.configEntityTypeId + "/" + this.configEntityId,
+            name: this.currentProject.label
+          });
+        }
+        return staticUrl;
+      },
+      getNumbers() {
+        var total = 0;
+        if (this.entities && this.entities.length) {
+          total = this.entities.length;
+        }
+        return total;
       }
-      return total;
     },
-  },
-  mounted() {
-    this.getProjet();
-    this.PeriodiqueRun();
+    mounted() {
+      this.getProjet();
+      this.PeriodiqueRun();
 
-    /**
-     * On a un bug avec le modal de bootstrap,
-     * on force cette solution.
-     */
-    this.$root.$on("bv::modal::show", (bvEvent, modalId) => {
-      // console.log(" Modal is about to be shown", bvEvent, modalId );
-      setTimeout(() => {
-        const modal = document.getElementById(modalId);
-        if (modal) {
-          modal.querySelector(".modal-content").removeAttribute("tabindex");
-        }
-      }, 1500);
-    });
-  },
-  methods: {
-    /**
-     * Recupere le projet en fonction des paramettres de l'url.
-     */
-    getProjet() {
-      if (
-        this.projects[this.configEntityTypeId] &&
-        this.projects[this.configEntityTypeId].entities &&
-        this.projects[this.configEntityTypeId].entities[this.configEntityId]
-      ) {
-        this.$store.commit(
-          "storeProject/SET_CURRENT_PROJECT",
-          this.projects[this.configEntityTypeId].entities[this.configEntityId],
-        );
-      } else {
-        this.$store
-          .dispatch("storeProject/loadProject", {
-            entity_type_id: this.configEntityTypeId,
-            id: this.configEntityId,
-          })
-          .then((resp) => {
-            this.$store.commit("storeProject/SET_CURRENT_PROJECT", resp.data);
-          });
-      }
-    },
-
-    /**
-     * Recupere le formulaire pour la creation d'une entité.
-     *
-     * @param {*} clean
-     */
-    LoadEmptyForm() {
-      this.manageModal = this.manageModal ? false : true;
-      this.titleModal = "Creer une nouvelle tache ou memo ou article ...";
-      this.iconFormEdit = "plus-square";
-      if (this.manageModal) {
-        this.$store.commit("storeProject/CLEAN_ENTITY_EDIT");
-        this.$store.dispatch("storeProject/loadFormEntity", {
-          entity_type_id: this.configEntityTypeId,
-          bundle: this.configEntityId,
-        });
-      }
-    },
-
-    /**
-     *
-     * @param {*} val
-     */
-    closeModal(val) {
-      this.manageModal = val;
-    },
-
-    /**
-     *
-     * @param {*} clean
-     */
-    loadEntities(clean = true) {
-      if (this.entity_type_id && this.configEntityId) {
-        const filters = [];
-        // recuperation date de debut
-        if (this.filters.date_begin) {
-          const date_begin = new Date(this.filters.date_begin);
-          filters.push({
-            field_name: "created",
-            operator: ">",
-            value: date_begin.getTime() / 1000,
-          });
-        }
-        // recuperation date de fin
-        if (this.filters.date_end) {
-          const date_end = new Date(this.filters.date_end);
-          filters.push({
-            field_name: "created",
-            operator: "<",
-            value: date_end.getTime() / 1000,
-          });
-        }
-        // Recuperation du status des taches.
-        if (
-          this.filters.status_execution &&
-          this.filters.status_execution.length
-        ) {
-          filters.push({
-            field_name: "status_execution",
-            operator: "IN",
-            value: this.filters.status_execution,
-          });
-        }
-        // Recuperation creer par.
-        if (this.filters.user_id && this.filters.user_id.length) {
-          filters.push({
-            field_name: "user_id.meta.drupal_internal__target_id",
-            operator: "IN",
-            value: this.filters.user_id,
-          });
-        }
-        // Recuperation executer par.
-        if (this.filters.executants && this.filters.executants.length) {
-          filters.push({
-            field_name: "executants.meta.drupal_internal__target_id",
-            operator: "IN",
-            value: this.filters.executants,
-          });
-        }
-        //
-        if (this.filters.search && this.filters.search.length >= 3) {
-          filters.push({
-            field_name: "name",
-            operator: "CONTAINS",
-            value: this.filters.search,
-          });
-        }
-        if (filters) {
-          this.$store.dispatch("storeProject/loadEntityWithBundle", {
-            entity_type_id: this.entity_type_id,
-            bundle: this.configEntityId,
-            clean: clean,
-            url: "?include=executants,project_manager&sort=-created",
-            filters: filters,
-            fields: [
-              "drupal_internal__id",
-              "name",
-              "user_id",
-              "private",
-              "type_project",
-              "status_execution",
-              "type_tache",
-              "tache_renumerer",
-              "duree",
-              "duree_execution",
-              "primes",
-              "project_manager",
-              "executants",
-              "created",
-              "changed",
-            ],
-          });
-        }
-      }
-    },
-    // editProject(entity) {
-    //   this.$store.commit("storeProject/SET_CURRENT_PROJECT", entity);
-    //   this.userClick(false);
-    // },
-    submitModel() {
-      this.$refs.formProjet.ValidationForm().then((data) => {
-        if (data.status) {
-          this.$store.dispatch("storeProject/saveEntities").then(() => {
-            this.$store.commit("storeProject/CLEAN_ENTITY_EDIT");
-            this.loadEntities();
-            this.$bvModal.hide("b-modal-manage-project");
-          });
-        } else {
-          for (const i in data.formObserver.fields) {
-            const field = data.formObserver.fields[i];
-            if (field.invalid) {
-              console.log("field invalid", field.name, "\n field : ", field);
-            }
+      /**
+       * On a un bug avec le modal de bootstrap,
+       * on force cette solution.
+       */
+      this.$root.$on("bv::modal::show", (bvEvent, modalId) => {
+        // console.log(" Modal is about to be shown", bvEvent, modalId );
+        setTimeout(() => {
+          const modal = document.getElementById(modalId);
+          if (modal) {
+            modal.querySelector(".modal-content").removeAttribute("tabindex");
           }
-        }
+        }, 1500);
       });
     },
-
-    /**
-     *
-     * @param {*} attributes
-     */
-    editEntity(attributes) {
-      this.$store.commit("storeProject/CLEAN_ENTITY_EDIT");
-      this.manageModal = this.manageModal ? false : true;
-      this.titleModal = attributes.name;
-      this.iconFormEdit = "pencil-square";
-      const payload = {
-        id: attributes.drupal_internal__id,
-        entity_type_id: this.entity_type_id,
-      };
-      this.$store.dispatch("storeProject/loadEntityById", payload);
-    },
-
-    /**
-     *
-     * @param {*} item
-     */
-    DeleteEntity(item) {
-      var info = item.type.split("--");
-      this.$store
-        .dispatch("storeProject/deleteEntity", {
-          entity_type_id: info[0],
-          id: item.attributes.drupal_internal__id,
-          delete_subentities: false,
-        })
-        .then(() => {
-          this.loadEntities();
-        });
-    },
-
-    /**
-     * @
-     */
-    PeriodiqueRun() {
-      clearTimeout(this.timer);
+    methods: {
       /**
-       * - DrupalInternalId ne doit pas etre definie
-       * - configEntityId doit etre definie
+       * Recupere le projet en fonction des paramettres de l'url.
        */
-      if (!this.drupalInternalId && this.configEntityId)
-        this.timer = setInterval(() => {
-          this.loadEntities(false);
-        }, 1800000);
-      // durée : 30 minutes.
-      else {
-        this.timer = null;
+      getProjet() {
+        if (
+          this.projects[this.configEntityTypeId] &&
+          this.projects[this.configEntityTypeId].entities &&
+          this.projects[this.configEntityTypeId].entities[this.configEntityId]
+        ) {
+          this.$store.commit(
+            "storeProject/SET_CURRENT_PROJECT",
+            this.projects[this.configEntityTypeId].entities[this.configEntityId]
+          );
+        } else {
+          this.$store
+            .dispatch("storeProject/loadProject", {
+              entity_type_id: this.configEntityTypeId,
+              id: this.configEntityId
+            })
+            .then((resp) => {
+              this.$store.commit("storeProject/SET_CURRENT_PROJECT", resp.data);
+            });
+        }
+      },
+
+      /**
+       * Recupere le formulaire pour la creation d'une entité.
+       *
+       * @param {*} clean
+       */
+      LoadEmptyForm() {
+        this.manageModal = this.manageModal ? false : true;
+        this.titleModal = "Creer une nouvelle tache ou memo ou article ...";
+        this.iconFormEdit = "plus-square";
+        if (this.manageModal) {
+          this.$store.commit("storeProject/CLEAN_ENTITY_EDIT");
+          this.$store.dispatch("storeProject/loadFormEntity", {
+            entity_type_id: this.configEntityTypeId,
+            bundle: this.configEntityId
+          });
+        }
+      },
+
+      /**
+       *
+       * @param {*} val
+       */
+      closeModal(val) {
+        this.manageModal = val;
+      },
+
+      /**
+       *
+       * @param {*} clean
+       */
+      loadEntities(clean = true) {
+        if (this.entity_type_id && this.configEntityId) {
+          const filters = [];
+          // recuperation date de debut
+          if (this.filters.date_begin) {
+            const date_begin = new Date(this.filters.date_begin);
+            filters.push({
+              field_name: "created",
+              operator: ">",
+              value: date_begin.getTime() / 1000
+            });
+          }
+          // recuperation date de fin
+          if (this.filters.date_end) {
+            const date_end = new Date(this.filters.date_end);
+            filters.push({
+              field_name: "created",
+              operator: "<",
+              value: date_end.getTime() / 1000
+            });
+          }
+          // Recuperation du status des taches.
+          if (
+            this.filters.status_execution &&
+            this.filters.status_execution.length
+          ) {
+            filters.push({
+              field_name: "status_execution",
+              operator: "IN",
+              value: this.filters.status_execution
+            });
+          }
+          // Recuperation creer par.
+          if (this.filters.user_id && this.filters.user_id.length) {
+            filters.push({
+              field_name: "user_id.meta.drupal_internal__target_id",
+              operator: "IN",
+              value: this.filters.user_id
+            });
+          }
+          // Recuperation executer par.
+          if (this.filters.executants && this.filters.executants.length) {
+            filters.push({
+              field_name: "executants.meta.drupal_internal__target_id",
+              operator: "IN",
+              value: this.filters.executants
+            });
+          }
+          //
+          if (this.filters.search && this.filters.search.length >= 3) {
+            filters.push({
+              field_name: "name",
+              operator: "CONTAINS",
+              value: this.filters.search
+            });
+          }
+          if (filters) {
+            this.$store.dispatch("storeProject/loadEntityWithBundle", {
+              entity_type_id: this.entity_type_id,
+              bundle: this.configEntityId,
+              clean: clean,
+              url: "?include=executants,project_manager&sort=-created",
+              filters: filters,
+              fields: [
+                "drupal_internal__id",
+                "name",
+                "user_id",
+                "private",
+                "type_project",
+                "status_execution",
+                "type_tache",
+                "tache_renumerer",
+                "duree",
+                "duree_execution",
+                "primes",
+                "project_manager",
+                "executants",
+                "created",
+                "changed"
+              ]
+            });
+          }
+        }
+      },
+      // editProject(entity) {
+      //   this.$store.commit("storeProject/SET_CURRENT_PROJECT", entity);
+      //   this.userClick(false);
+      // },
+      submitModel() {
+        this.$refs.formProjet.ValidationForm().then((data) => {
+          if (data.status) {
+            this.$store.dispatch("storeProject/saveEntities").then(() => {
+              this.$store.commit("storeProject/CLEAN_ENTITY_EDIT");
+              this.loadEntities();
+              this.$bvModal.hide("b-modal-manage-project");
+            });
+          } else {
+            for (const i in data.formObserver.fields) {
+              const field = data.formObserver.fields[i];
+              if (field.invalid) {
+                console.log("field invalid", field.name, "\n field : ", field);
+              }
+            }
+          }
+        });
+      },
+
+      /**
+       *
+       * @param {*} attributes
+       */
+      editEntity(attributes) {
+        this.$store.commit("storeProject/CLEAN_ENTITY_EDIT");
+        this.manageModal = this.manageModal ? false : true;
+        this.titleModal = attributes.name;
+        this.iconFormEdit = "pencil-square";
+        const payload = {
+          id: attributes.drupal_internal__id,
+          entity_type_id: this.entity_type_id
+        };
+        this.$store.dispatch("storeProject/loadEntityById", payload);
+      },
+
+      /**
+       *
+       * @param {*} item
+       */
+      DeleteEntity(item) {
+        var info = item.type.split("--");
+        this.$store
+          .dispatch("storeProject/deleteEntity", {
+            entity_type_id: info[0],
+            id: item.attributes.drupal_internal__id,
+            delete_subentities: false
+          })
+          .then(() => {
+            this.loadEntities();
+          });
+      },
+
+      /**
+       * @
+       */
+      PeriodiqueRun() {
+        clearTimeout(this.timer);
+        /**
+         * - DrupalInternalId ne doit pas etre definie
+         * - configEntityId doit etre definie
+         */
+        if (!this.drupalInternalId && this.configEntityId)
+          this.timer = setInterval(() => {
+            this.loadEntities(false);
+          }, 1800000);
+        // durée : 30 minutes.
+        else {
+          this.timer = null;
+        }
       }
-    },
-  },
-};
+    }
+  };
 </script>
 <style lang="scss">
-.svg-loader {
-  margin-left: 1rem;
-}
-.box-spin {
-  animation: fa-spin 2s infinite linear;
-}
+  .svg-loader {
+    margin-left: 1rem;
+  }
+  .box-spin {
+    animation: fa-spin 2s infinite linear;
+  }
 </style>

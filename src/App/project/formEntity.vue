@@ -449,7 +449,6 @@
             value: await this.getDateForDrupal(),
             end_value: await this.getDateForDrupal(duree_execution)
           });
-          console.log(" setValue durée : ", values);
           this.$store.dispatch("storeProject/setValue", {
             fieldName: "0.entity.duree",
             value: values
@@ -507,7 +506,6 @@
         ) {
           const values = this.statique_fields.duree.model.duree;
           values[values.length - 1].end_value = await this.getDateForDrupal();
-          console.log(" setValue pause durée : ", values);
           this.$store.dispatch("storeProject/setValue", {
             fieldName: "0.entity.duree",
             value: values

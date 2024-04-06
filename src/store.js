@@ -28,7 +28,7 @@ export default new Vuex.Store({
     /**
      * Liste des utilisateurs.
      */
-    users: {},
+    users: {}
   },
   getters: {
     isLoggedIn(state) {
@@ -61,7 +61,7 @@ export default new Vuex.Store({
       if (state.user && state.user.current_user.uid) {
         return state.user.current_user.uid;
       } else return false;
-    },
+    }
   },
   mutations: {
     SET_USER(state, user) {
@@ -78,7 +78,7 @@ export default new Vuex.Store({
     },
     SET_USER_CONFIG(state, payload) {
       state.userConfig = payload;
-    },
+    }
   },
   actions: {
     /**
@@ -197,9 +197,9 @@ export default new Vuex.Store({
               reject(er);
             });
       });
-    },
+    }
   },
   modules: {
-    storeProject: storeProject,
-  },
+    storeProject: storeProject
+  }
 });

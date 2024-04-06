@@ -1,6 +1,6 @@
 <template>
   <div>
-    <base-header class="pb-6 pb-8 pt-5 pt-md-8 bg-gradient-success">
+    <base-header class="pb-6 pb-8 pt-5 pt-md-8 bg-gradient-gray">
       <!-- Card stats -->
       <b-row>
         <b-col xl="3" md="6">
@@ -65,9 +65,9 @@
   </div>
 </template>
 <script>
-// Charts
-// import fromProject from "../App/project/formProjetType.vue";
-export default {
-  components: {},
-};
+  // Charts
+  // import fromProject from "../App/project/formProjetType.vue";
+  export default {
+    components: {}
+  };
 </script>

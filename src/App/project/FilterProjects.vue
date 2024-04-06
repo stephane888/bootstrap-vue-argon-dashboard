@@ -1,6 +1,10 @@
 <template>
   <div class="accordion accordion-filtre" role="tablist">
-    <b-card no-body class="mb-1 border-1" bg-variant="transperent">
+    <b-card
+      no-body
+      class="mb-1 border-1 bg-gradient-lighter"
+      bg-variant="transperent"
+    >
       <b-card-header
         header-tag="header"
         class="p-1 border-0"

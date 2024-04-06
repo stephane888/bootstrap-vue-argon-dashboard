@@ -61,7 +61,6 @@
     computed: {
       statistiquesFormat() {
         const datas = this.statistiques;
-        console.log("statistiquesFormat : ", datas);
         //format montant.
         if (datas.montant) {
           let montant_sum = 0;

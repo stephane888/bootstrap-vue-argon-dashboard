@@ -1,6 +1,6 @@
 <template>
   <div>
-    <base-header class="pb-2 pt-5 bg-gradient-success">
+    <base-header class="pb-2 pt-5">
       <b-row class="pt-5">
         <b-col md="6">
           <nav aria-label="breadcrumb" class="d-none d-md-inline-block m-0">
