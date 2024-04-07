@@ -4,6 +4,8 @@ import manageTime from "../project/manage-time";
  */
 export default {
   /**
+   * Permet d'afficher l'heure de debut et l'heure de la fin sur une tache.
+   *
    * # Example 1.
    * Logique de calcul pour l'affichage.
    * un taf de 2h30 , [8h00 -- 10h30]
@@ -61,5 +63,34 @@ export default {
         end: null
       };
     }
+  },
+
+  /**
+   * Permet de terminer le temps deja effectuer sur une tache.
+   * @return le temps en minute
+   */
+  getTotalTimeOfProject(duree, status_execution) {
+    //console.log("getTotalTimeOfProject : ", duree, "\n", status_execution);
+    var totaltime = 0;
+    if (duree && duree.length) {
+      if (duree.length > 1) {
+        const length_duree = duree.length - 2;
+        for (let index = 0; index <= length_duree; index++) {
+          const dt_begin = new Date(duree[index].value);
+          const dt_end = new Date(duree[index].end_value);
+          totaltime += manageTime.diff_minutes(dt_end, dt_begin);
+        }
+      }
+      const last_duree = duree.slice(-1);
+      if (status_execution == "running") {
+        const dt_begin = new Date(last_duree[0].value);
+        totaltime += manageTime.diff_minutes(new Date(), dt_begin);
+      } else if (status_execution != "new") {
+        const dt_begin = new Date(last_duree[0].value);
+        const dt_end = new Date(last_duree[0].end_value);
+        totaltime += manageTime.diff_minutes(dt_end, dt_begin);
+      }
+    }
+    return totaltime;
   }
 };

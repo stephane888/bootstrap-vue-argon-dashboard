@@ -143,7 +143,6 @@
     },
     watch: {
       drupalInternalId() {
-        console.log("watch drupalInternalId");
         this.getProjet();
         this.loadEntity();
       }

@@ -366,5 +366,35 @@ export default {
           constDateObj.seconds
       };
     else return constDateObj;
+  },
+  /**
+   * La date renvoyée par jsonApi contient un decallage.
+   * Example en BD on a : 2023-05-16T06:55:59 ==> 2023-05-16T07:55:59+01:00
+   */
+  // petite fonction pour corriger cela, en attendant la MAJ sur drupal.
+  getReelValueDate(str) {
+    if (str) var d2 = str.split("+");
+    else return str;
+    if (d2[1]) {
+      const date = new Date(d2[0]);
+      const time_zone = d2[1].split(":");
+      const dd = parseInt(time_zone[0]);
+      if (dd > 0) {
+        date.setHours(date.getHours() - dd);
+      }
+      const date_string = this.formatDate(date);
+      return date_string.date + "T" + date_string.hour;
+    } else return str;
+  },
+  /**
+   * Retourne la difference en minute entre deux dates.
+   * @param {*} dt_fin
+   * @param {*} dt_debut
+   * @returns
+   */
+  diff_minutes(dt_fin, dt_debut) {
+    var diff = (dt_fin.getTime() - dt_debut.getTime()) / 1000;
+    diff /= 60;
+    return Math.round(diff);
   }
 };

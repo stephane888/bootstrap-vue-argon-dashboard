@@ -206,7 +206,7 @@
 
   // import loadField from "components_h_vuejs/src/components/fieldsDrupal/loadField";
   export default {
-    name: "FormProjetType",
+    name: "FormProjet",
     components: {
       DrupalString: () =>
         import(
@@ -260,6 +260,7 @@
           "description",
           "status_execution"
         ];
+
         const new_fields = [];
         for (const c in this.fields) {
           const item = this.fields[c];
@@ -280,8 +281,9 @@
             template: item.template,
             fields: fields
           });
-        }
 
+          console.log("fields_wihiout_statiques : ", new_fields);
+        }
         return new_fields;
       }
     },
@@ -331,6 +333,7 @@
         if (!this.form.uuid) this.form.id = id;
       },
       addStatiqueField(name, field) {
+        console.log("Ajout des champs statiques : ", name, "\n", field);
         this.$set(this.statique_fields, name, field);
       },
       getStatusAccordion() {
@@ -418,6 +421,11 @@
       async start() {
         // Dure d'execution de la tache.
         var duree_execution = 0;
+        const status_execution = this.statique_fields.status_execution.model
+          .status_execution[0]
+          ? this.statique_fields.status_execution.model.status_execution[0]
+              .value
+          : "";
         if (
           this.statique_fields.duree_execution.model.duree_execution &&
           this.statique_fields.duree_execution.model.duree_execution[0]
@@ -431,7 +439,15 @@
           this.statique_fields.duree.model.duree
         ) {
           var values = [];
-          if (this.statique_fields.duree.model.id.length > 0)
+          /**
+           * S'il ya deja des sauvagardes de temps et si le status de la tache n'est pas new.
+           * Si le status est "new", soit c'est une nouvelle tache qu'on vient de demarrer l'execution
+           * soit c'est une tache donc on a remis le compteur à zero.
+           */
+          if (
+            this.statique_fields.duree.model.id.length > 0 &&
+            status_execution != "new"
+          )
             values = this.statique_fields.duree.model.duree;
           //
           if (

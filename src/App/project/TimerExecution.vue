@@ -11,7 +11,7 @@
         <b-card v-for="(item, k) in userInfosFormat" :key="k" no-body>
           <b-card-header header-tag="header" class="p-2 bg-light" role="tab">
             <b-row>
-              <b-col v-b-toggle="'cp-' + item.type" class="d-flex">
+              <b-col v-b-toggle="'te-' + item.type" class="d-flex">
                 <span> {{ item.name_project }} </span>
                 <div>
                   <b-badge
@@ -24,7 +24,7 @@
             </b-row>
           </b-card-header>
           <b-collapse
-            :id="'cp-' + item.type"
+            :id="'te-' + item.type"
             accordion="my-cp-accordion"
             role="tabpanel"
           >
@@ -75,7 +75,8 @@
               datas[userInfo.type] = {
                 name_project: userInfo.name_project,
                 duree: parseInt(userInfo.duree),
-                elements: [userInfo]
+                elements: [userInfo],
+                type: userInfo.type
               };
             }
             this.addTime(userInfo.duree);

@@ -97,28 +97,10 @@
       this.runProgressBar();
     },
     methods: {
-      async getValue() {
-        const diff_minutes = (dt2, dt1) => {
-          var diff = (dt2.getTime() - dt1.getTime()) / 1000;
-          diff /= 60;
-          return Math.abs(Math.round(diff));
-        };
-        this.date_interval = await this.GetDateInterval();
-        if (this.date_interval.begin && this.date_interval.end) {
-          const dt1 = new Date(this.date_interval.begin);
-          var dt2 = new Date(this.date_interval.end);
-          if (this.get_status_execution == "running") {
-            this.value = diff_minutes(dt1, new Date());
-          } else this.value = diff_minutes(dt1, dt2);
-          this.max = diff_minutes(dt1, dt2);
-          //
-          this.getLabelPercent();
-          return this.value;
-        } else return this.value;
-      },
       async GetDateInterval() {
-        const data = getDureeDisplay.retrivePlageDuree(this.model.duree);
-        return data;
+        this.date_interval = getDureeDisplay.retrivePlageDuree(
+          this.model.duree
+        );
       },
       getLabelPercent() {
         if (this.max && this.value) {
@@ -126,13 +108,25 @@
         } else this.percent_progress = 0;
       },
       runProgressBar() {
-        this.getValue();
+        this.GetDateInterval();
+        this.max = this.duree_execution;
+        this.runContinue();
         if (this.get_status_execution == "running") {
           clearInterval(this.timerProgressBar);
           this.timerProgressBar = setInterval(() => {
-            this.getValue();
+            this.runContinue();
           }, 120000);
         }
+      },
+      /**
+       * Enssemble de fonction qui doivent se mettre à jour continuellment
+       */
+      runContinue() {
+        this.value = getDureeDisplay.getTotalTimeOfProject(
+          this.model.duree,
+          this.get_status_execution
+        );
+        this.getLabelPercent();
       }
     }
   };

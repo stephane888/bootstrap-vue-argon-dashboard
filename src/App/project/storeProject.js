@@ -261,6 +261,7 @@ export default {
         generateField
           .generateFields(state.entityEdit, fields, null)
           .then((resp) => {
+            console.log("generateFields : ", resp);
             commit("SET_FIELDS", resp);
           });
       }
@@ -307,25 +308,6 @@ export default {
       IE.get()
         .then((resp) => {
           /**
-           * La date renvoyée ici est contient le decallage.
-           * example en BD on a : 2023-05-16T06:55:59 ==> 2023-05-16T07:55:59+01:00
-           */
-          // petite fonction pour corriger cela, en attendant la MAJ sur drupal.
-          const getReelValueDate = (str) => {
-            if (str) var d2 = str.split("+");
-            else return str;
-            if (d2[1]) {
-              const date = new Date(d2[0]);
-              const time_zone = d2[1].split(":");
-              const dd = parseInt(time_zone[0]);
-              if (dd > 0) {
-                date.setHours(date.getHours() - dd);
-              }
-              const date_string = manageTime.formatDate(date);
-              return date_string.date + "T" + date_string.hour;
-            } else return str;
-          };
-          /**
            * FORMATAGE DES DONNEES
            *
            * 1- On ajoute les proprietes supplementaire afin de contruire un accordeon.
@@ -336,12 +318,10 @@ export default {
             resp.data.forEach((item) => {
               if (item.attributes.duree && item.attributes.duree.length) {
                 item.attributes.duree.forEach((duree, d_index) => {
-                  item.attributes.duree[d_index].value = getReelValueDate(
-                    duree.value
-                  );
-                  item.attributes.duree[d_index].end_value = getReelValueDate(
-                    duree.end_value
-                  );
+                  item.attributes.duree[d_index].value =
+                    manageTime.getReelValueDate(duree.value);
+                  item.attributes.duree[d_index].end_value =
+                    manageTime.getReelValueDate(duree.end_value);
                 });
               }
               //
@@ -386,7 +366,20 @@ export default {
       IE.getValueById(payload.id).then((resp) => {
         // On recupere le premier contenu.
         if (resp.data) {
-          if (resp.data[0]) commit("SET_ENTITY", resp.data[0]);
+          //
+          console.log("resp.data[0] : ", resp.data[0]);
+          if (resp.data[0]) {
+            const item = resp.data[0];
+            //Correction du decallage sur le champs duree.
+            item.attributes.duree.forEach((duree, index) => {
+              item.attributes.duree[index].end_value =
+                manageTime.getReelValueDate(duree.end_value);
+              item.attributes.duree[index].value = manageTime.getReelValueDate(
+                duree.value
+              );
+            });
+            commit("SET_ENTITY", item);
+          }
         }
       });
     },
