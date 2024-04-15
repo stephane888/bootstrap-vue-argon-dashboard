@@ -124,14 +124,14 @@
           { text: "Terminée", value: "end" },
           { text: "Validée", value: "validate" },
           { text: "Annulée", value: "cancel" }
-        ],
-        users: []
+        ]
       };
     },
     computed: {
       ...mapState({
         filters: (state) => state.storeProject.filters,
-        running: (state) => state.storeProject.running
+        running: (state) => state.storeProject.running,
+        users: (state) => state.users
       })
     },
     updated: function () {
@@ -140,7 +140,6 @@
       // });
     },
     mounted() {
-      this.getUsers();
       if (!this.filters.date_begin && !this.filters.date_end) {
         const date = new Date();
         date.setDate(date.getDate() - 50);
@@ -156,17 +155,6 @@
       },
       onReset() {
         //
-      },
-      getUsers() {
-        let vocabulary = "user";
-        if (vocabulary && request) {
-          const terms = new itemsEntity(vocabulary, vocabulary, request);
-          terms.remplaceConfig();
-          terms.get().then(() => {
-            this.users = terms.getOptions();
-            console.log("users : ", this.users);
-          });
-        }
       }
     }
   };

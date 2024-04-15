@@ -7,6 +7,7 @@
     size="lg"
     footer-bg-variant="secondary"
     :no-close-on-backdrop="true"
+    no-enforce-focus
     @ok="handleOk"
   >
     <template #modal-header>
@@ -25,31 +26,31 @@
   </b-modal>
 </template>
 <script>
-export default {
-  props: {
-    manageModal: {
-      type: Boolean,
-      default: false,
+  export default {
+    props: {
+      manageModal: {
+        type: Boolean,
+        default: false
+      }
     },
-  },
-  computed: {
-    openModel: {
-      get() {
-        if (this.manageModal) return true;
-        return false;
-      },
-      set(value) {
-        this.$emit("closeModal", value);
-      },
+    computed: {
+      openModel: {
+        get() {
+          if (this.manageModal) return true;
+          return false;
+        },
+        set(value) {
+          this.$emit("closeModal", value);
+        }
+      }
     },
-  },
-  methods: {
-    /**
-     * Informe le parent que la sauvegarde a été declenché
-     */
-    handleOk() {
-      this.$emit("submitModel");
-    },
-  },
-};
+    methods: {
+      /**
+       * Informe le parent que la sauvegarde a été declenché
+       */
+      handleOk() {
+        this.$emit("submitModel");
+      }
+    }
+  };
 </script>

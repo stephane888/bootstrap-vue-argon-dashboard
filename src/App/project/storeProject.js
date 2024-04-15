@@ -1,4 +1,5 @@
 //import store from "../../store";
+//import Vue from "vue";
 import request from "../request";
 import generateField from "components_h_vuejs/src/js/FormUttilities";
 import loadField from "components_h_vuejs/src/components/fieldsDrupal/loadField";
@@ -60,8 +61,9 @@ export default {
     /**
      * Contient les données d'un projet (taches, ressources,  bugs ...) et en
      * relations les données tels que les primes, client, executant ...
+     * Dans un soucis de reduire la charge de connexion, on va sauvagarger les données dans les clées ( example: id de type de projet ).
      */
-    entities: [],
+    entities: {},
     /**
      * Contient l'entite qui est affiché.
      */
@@ -148,8 +150,26 @@ export default {
     DISABLE_RUNNING(state) {
       state.running = false;
     },
+    /**
+     * --
+     * @param {*} state
+     * @param {*} payload
+     */
     SET_ENTITIES(state, payload) {
-      state.entities = payload;
+      if (
+        payload.key === undefined ||
+        payload.key === null ||
+        payload.items === undefined ||
+        !(typeof payload.key == "string")
+      )
+        throw new Error(" La clée de sauvegarde n'est pas definie ", payload);
+      // Cet approche ne permet pas à vuejs de suivre les modifications effectuer. on peut s'appuyer sur running pour relire le contenu.
+      // state.entities[payload.key] = payload.items;
+
+      // Cette approche regle le probleme.
+      state.entities = Object.assign({}, state.entities, {
+        [payload.key]: payload.items
+      });
     },
     SET_ALL_ENTITIES(state, payload) {
       state.all_entitties = payload;
@@ -287,9 +307,17 @@ export default {
      * @param {*} param0
      * @param {*} payload
      */
-    loadEntityWithBundle({ commit }, payload) {
+    loadEntityWithBundle({ commit, state }, payload) {
       commit("ACTIVE_RUNNING");
-      if (payload.clean) commit("SET_ENTITIES", []);
+      //On ne parviens pas à suivre les modifications effectue dans dans entities car on passe par les obkects.
+      // Pour contourner cela on l'initile l'object, s'il est vide.
+      // if (!state.entities[payload.bundle]) {
+      //   commit("SET_ENTITIES", { items: [], key: payload.bundle });
+      // }
+      if (payload.clean) {
+        commit("SET_ENTITIES", { items: [], key: payload.bundle });
+      }
+
       const IE = new itemsEntity(
         payload.entity_type_id,
         payload.bundle,
@@ -332,14 +360,10 @@ export default {
               });
             });
             //
-
-            //
-            commit("SET_ENTITIES", items);
+            commit("SET_ENTITIES", { items: items, key: payload.bundle });
           } else {
-            console.log("SET_ENTITIES : ", items);
-            commit("SET_ENTITIES", items);
+            commit("SET_ENTITIES", { items: items, key: payload.bundle });
           }
-
           setTimeout(() => {
             commit("DISABLE_RUNNING");
           }, 1500);
@@ -404,6 +428,12 @@ export default {
         }
       });
     },
+    /**
+     * --
+     * @param {*} param0
+     * @param {*} payload
+     * @returns
+     */
     loadEntitiesWithFilters({ commit }, payload) {
       return new Promise((resolv, reject) => {
         commit("SET_ALL_ENTITIES", []);
@@ -426,6 +456,12 @@ export default {
           });
       });
     },
+    /**
+     * --
+     * @param {*} param0
+     * @param {*} payload
+     * @returns
+     */
     deleteEntity({}, payload) {
       return new Promise((resolv, reject) => {
         if (payload.id && payload.entity_type_id)

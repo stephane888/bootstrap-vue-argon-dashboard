@@ -24,6 +24,10 @@ export default {
    * - une année contient en moyenne 11 jours feriees, en moyenne 249 jours de travaille.
    */
   max_day_add: 498, // 249*2
+  /**
+   * Permet de remettre à zero le timer.
+   */
+  timer_load_collection: null,
   // Recupere la configuration de l'utilisateur.
   getUserConf() {
     const userConfig = store.state.userConfig;

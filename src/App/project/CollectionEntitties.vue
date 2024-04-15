@@ -89,6 +89,7 @@
           <AccordionEntities
             :config-entity-type-id="configEntityTypeId"
             :config-entity-id="configEntityId"
+            :entities="entities"
             @editEntity="editEntity"
             @DeleteEntity="DeleteEntity"
           ></AccordionEntities>
@@ -122,6 +123,7 @@
   import { mapState, mapGetters } from "vuex";
   import AppBreadcrumb from "../components/AppBreadcrumb.vue";
   import formEntity from "./formEntity.vue";
+  import manageTime from "./manage-time";
   export default {
     name: "CollectionEntitties",
     components: {
@@ -158,7 +160,7 @@
       ...mapState({
         currentProject: (state) => state.storeProject.currentProject,
         projects: (state) => state.storeProject.projects,
-        entities: (state) => state.storeProject.entities,
+        group_entities: (state) => state.storeProject.entities,
         filters: (state) => state.storeProject.filters,
         running: (state) => state.storeProject.running
       }),
@@ -180,6 +182,15 @@
           total = this.entities.length;
         }
         return total;
+      },
+      entities() {
+        if (this.group_entities) {
+          const entities = this.group_entities[this.configEntityId]
+            ? this.group_entities[this.configEntityId]
+            : [];
+          return entities;
+        }
+        return [];
       }
     },
     mounted() {
@@ -192,12 +203,13 @@
        */
       this.$root.$on("bv::modal::show", (bvEvent, modalId) => {
         // console.log(" Modal is about to be shown", bvEvent, modalId );
-        setTimeout(() => {
-          const modal = document.getElementById(modalId);
-          if (modal) {
-            modal.querySelector(".modal-content").removeAttribute("tabindex");
-          }
-        }, 1500);
+        // Ne fonctionne pas correctement.
+        // setTimeout(() => {
+        //   const modal = document.getElementById(modalId);
+        //   if (modal) {
+        //     //modal.querySelector(".modal-content").removeAttribute("tabindex");
+        //   }
+        // }, 1500);
       });
     },
     methods: {
@@ -253,10 +265,9 @@
       },
 
       /**
-       *
-       * @param {*} clean
+       * On recupere les contenus.
        */
-      loadEntities(clean = true) {
+      loadEntities() {
         if (this.entity_type_id && this.configEntityId) {
           const filters = [];
           // recuperation date de debut
@@ -316,7 +327,6 @@
             this.$store.dispatch("storeProject/loadEntityWithBundle", {
               entity_type_id: this.entity_type_id,
               bundle: this.configEntityId,
-              clean: clean,
               url: "?include=executants,project_manager&sort=-created",
               filters: filters,
               fields: [
@@ -392,7 +402,7 @@
             delete_subentities: false
           })
           .then(() => {
-            this.loadEntities();
+            this.loadEntities(false);
           });
       },
 
@@ -400,19 +410,20 @@
        * @
        */
       PeriodiqueRun() {
-        clearTimeout(this.timer);
+        console.log("this.timer : ", manageTime.timer_load_collection);
+        clearInterval(manageTime.timer_load_collection);
         /**
          * - DrupalInternalId ne doit pas etre definie
          * - configEntityId doit etre definie
          */
         if (!this.drupalInternalId && this.configEntityId)
-          this.timer = setInterval(() => {
+          manageTime.timer_load_collection = setInterval(() => {
+            console.log(
+              "this.timer setInterval : ",
+              manageTime.timer_load_collection
+            );
             this.loadEntities(false);
-          }, 1800000);
-        // durée : 30 minutes.
-        else {
-          this.timer = null;
-        }
+          }, 3600000); //1h
       }
     }
   };
