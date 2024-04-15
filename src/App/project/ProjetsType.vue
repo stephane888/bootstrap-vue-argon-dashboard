@@ -107,7 +107,6 @@
   import AppBreadcrumb from "../components/AppBreadcrumb.vue";
   import formProjet from "./formProjetType.vue";
   import config from "../request";
-  import itemsEntity from "drupal-vuejs/src/App/jsonApi/itemsEntity.js";
   import AccessController from "../AccessController.js";
   import StatistiqueEntity from "../components/StatistiqueEntity.vue";
 

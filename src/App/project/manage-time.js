@@ -339,7 +339,8 @@ export default {
     return timeDay;
   },
   /**
-   * Format un object date en string valid
+   * Format un object date en string valid.
+   * Example : format une date JS en une date (string) valide pour drupal.
    * @param {*} date_ob
    * @param {*} format
    * @returns

@@ -7,7 +7,7 @@
           :link="{
             name: 'Dashboard',
             path: '/dashboard',
-            icon: 'ni ni-tv-2 text-primary'
+            icon: 'ni ni-tv-2 text-gray'
           }"
         >
         </sidebar-item>
@@ -15,7 +15,15 @@
           :link="{
             name: 'Projets',
             path: '/projets',
-            icon: 'ni ni-planet text-blue'
+            icon: 'ni ni-collection text-gray'
+          }"
+        >
+        </sidebar-item>
+        <sidebar-item
+          :link="{
+            name: 'Rapport & Analyse',
+            path: '/rapports',
+            icon: 'ni ni-user-run text-gray'
           }"
         >
         </sidebar-item>

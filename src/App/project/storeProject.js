@@ -307,13 +307,8 @@ export default {
      * @param {*} param0
      * @param {*} payload
      */
-    loadEntityWithBundle({ commit, state }, payload) {
+    loadEntityWithBundle({ commit }, payload) {
       commit("ACTIVE_RUNNING");
-      //On ne parviens pas à suivre les modifications effectue dans dans entities car on passe par les obkects.
-      // Pour contourner cela on l'initile l'object, s'il est vide.
-      // if (!state.entities[payload.bundle]) {
-      //   commit("SET_ENTITIES", { items: [], key: payload.bundle });
-      // }
       if (payload.clean) {
         commit("SET_ENTITIES", { items: [], key: payload.bundle });
       }

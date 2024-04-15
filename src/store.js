@@ -2,6 +2,7 @@ import Vue from "vue";
 import Vuex from "vuex";
 import config from "./rootConfig";
 import storeProject from "./App/project/storeProject";
+import storeRapport from "./App/rapports/storeRapport.js";
 import router from "./routes/router";
 import itemsEntity from "drupal-vuejs/src/App/jsonApi/itemsEntity.js";
 Vue.use(Vuex);
@@ -131,7 +132,7 @@ export default new Vuex.Store({
     /**
      * Permet de charger les informations utile sur l'utilisateur.
      */
-    userInfos({ commit, state }) {
+    userInfos({ commit, state }, payload) {
       const uid =
         state.user && state.user.current_user.uid
           ? state.user.current_user.uid
@@ -193,7 +194,9 @@ export default new Vuex.Store({
       if (vocabulary && config && Object.keys(state.users).length === 0) {
         const terms = new itemsEntity(vocabulary, vocabulary, config);
         terms.remplaceConfig();
-        terms.filter("status", "=", 1);
+        // ce filtre empeche le tri pour les utilisateurs n'ayant pas le droit de voir le champs status.
+        // terms.filter("status", "=", 1);
+        // on va trouver une autre approche.
         terms.get().then(() => {
           commit("SET_USERS", terms.getOptions());
         });
@@ -227,6 +230,7 @@ export default new Vuex.Store({
     }
   },
   modules: {
-    storeProject: storeProject
+    storeProject: storeProject,
+    storeRapport: storeRapport
   }
 });

@@ -10,7 +10,7 @@ const routes = [
     component: DashboardLayout,
     meta: {
       requiresAuth: true,
-      hideFooter: true,
+      hideFooter: true
     },
     children: [
       {
@@ -18,50 +18,50 @@ const routes = [
         name: "dashboard",
         meta: {
           requiresAuth: true,
-          hideFooter: true,
+          hideFooter: true
         },
-        component: () =>
-          import(/* webpackChunkName: "demo" */ "../views/DashboardApp.vue"),
+        component: () => import("../views/DashboardApp.vue")
       },
       {
         path: "/projets",
         name: "Liste de projets",
         meta: {
           requiresAuth: true,
-          hideFooter: true,
+          hideFooter: true
         },
-        component: () =>
-          import(
-            /* webpackChunkName: "demo" */ "../App/project/ProjetsType.vue"
-          ),
+        component: () => import("../App/project/ProjetsType.vue")
+      },
+      {
+        path: "/rapports",
+        name: "Rapport et analyse",
+        meta: {
+          requiresAuth: true,
+          hideFooter: true
+        },
+        component: () => import("../App/rapports/RapportsAnalyse.vue")
       },
       {
         path: "/projets/:configEntityTypeId/:configEntityId",
         name: "Liste de tache d'un projet",
         meta: {
           requiresAuth: true,
-          hideFooter: true,
+          hideFooter: true
         },
         props: true,
-        component: () =>
-          import(
-            /* webpackChunkName: "demo" */ "../App/project/CollectionEntitties.vue"
-          ),
+        component: () => import("../App/project/CollectionEntitties.vue")
       },
       {
         path: "/projets/:configEntityTypeId/:configEntityId/:drupalInternalId",
         name: "Taches et sous taches",
         meta: {
           requiresAuth: true,
-          hideFooter: true,
+          hideFooter: true
         },
         props: true,
         component: () =>
-          import(
-            /* webpackChunkName: "demo" */ "../App/project/EntityView.vue"
-          ),
-      },
-    ],
+          import(/* webpackChunkName: "demo" */ "../App/project/EntityView.vue")
+      }
+    ]
   },
   {
     path: "/",
@@ -72,17 +72,17 @@ const routes = [
         path: "/login",
         name: "login",
         component: () =>
-          import(/* webpackChunkName: "demo" */ "../views/Pages/LoGin.vue"),
+          import(/* webpackChunkName: "demo" */ "../views/Pages/LoGin.vue")
       },
       {
         path: "/register",
         name: "register",
         component: () =>
-          import(/* webpackChunkName: "demo" */ "../views/Pages/RegisTer.vue"),
+          import(/* webpackChunkName: "demo" */ "../views/Pages/RegisTer.vue")
       },
-      { path: "*", component: NotFound },
-    ],
-  },
+      { path: "*", component: NotFound }
+    ]
+  }
 ];
 
 export default routes;

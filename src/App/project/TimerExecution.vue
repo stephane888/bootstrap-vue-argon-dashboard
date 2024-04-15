@@ -93,7 +93,6 @@
         this.total_time = 0;
       },
       addTime(minutes) {
-        console.log("addTime : ", minutes);
         this.total_time += parseInt(minutes);
       },
       render() {
