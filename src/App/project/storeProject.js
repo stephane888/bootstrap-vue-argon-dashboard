@@ -89,6 +89,9 @@ export default {
     SET_PROJECTS(state, payload) {
       state.projects = payload;
     },
+    SET_CLEAN_PROJECTS(state) {
+      state.projects = [];
+    },
     ADD_PROJECT(state, payload) {
       if (payload.entity && payload.entity_type_id)
         state.projects[payload.entity_type_id].entities[payload.entity.id] =
@@ -170,6 +173,9 @@ export default {
       state.entities = Object.assign({}, state.entities, {
         [payload.key]: payload.items
       });
+    },
+    SET_CLEAN_ENTITIES(state) {
+      state.entities = {};
     },
     SET_ALL_ENTITIES(state, payload) {
       state.all_entitties = payload;

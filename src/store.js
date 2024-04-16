@@ -180,8 +180,8 @@ export default new Vuex.Store({
     deleteConnexion({ commit }) {
       // il faudrait vider les entites chargées.
       commit("storeProject/CLEAN_ENTITY_EDIT");
-      commit("storeProject/SET_ENTITIES", []);
-      commit("storeProject/SET_PROJECTS", []);
+      commit("storeProject/SET_CLEAN_ENTITIES");
+      commit("storeProject/SET_CLEAN_PROJECTS");
       commit("storeProject/SET_CLEAN_CURRENT_PROJECT");
       config.deleteConnexion();
       commit("SET_USER", null);

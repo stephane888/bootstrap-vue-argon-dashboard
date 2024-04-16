@@ -124,14 +124,7 @@
 
     data() {
       return {
-        status_execution: [
-          { text: "Nouvelle taches", value: "new" },
-          { text: "En cours d'execution", value: "running" },
-          { text: "Pause", value: "break" },
-          { text: "Terminée", value: "end" },
-          { text: "Validée", value: "validate" },
-          { text: "Annulée", value: "cancel" }
-        ]
+        //
       };
     },
     computed: {

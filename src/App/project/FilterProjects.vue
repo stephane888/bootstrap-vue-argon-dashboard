@@ -53,7 +53,7 @@
             >
               <b-form-checkbox-group
                 v-model="filters.status_execution"
-                :options="status_execution"
+                :options="status_execution_options"
                 :aria-describedby="ariaDescribedby"
                 name="flavour-1"
               ></b-form-checkbox-group>
@@ -100,7 +100,6 @@
 
 <script>
   import request from "../request";
-  import itemsEntity from "drupal-vuejs/src/App/jsonApi/itemsEntity.js";
   import { mapState } from "vuex";
   export default {
     name: "FilterProjects",
@@ -117,14 +116,7 @@
 
     data() {
       return {
-        status_execution: [
-          { text: "Nouvelle taches", value: "new" },
-          { text: "En cours d'execution", value: "running" },
-          { text: "Pause", value: "break" },
-          { text: "Terminée", value: "end" },
-          { text: "Validée", value: "validate" },
-          { text: "Annulée", value: "cancel" }
-        ]
+        status_execution_options: request.status_execution
       };
     },
     computed: {

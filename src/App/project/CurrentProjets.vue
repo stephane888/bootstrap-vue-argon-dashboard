@@ -1,13 +1,35 @@
 <template>
   <div class="m-0 p-0 custom-drop-taches">
     <b-dropdown
-      :text="total_taches + ' taches en attentes'"
+      :text="total_taches + '  ' + getCurrentLabel"
       block
       class="p-0 m-0"
       variant="transparent"
       right
     >
       <div class="p-0 m-0">
+        <b-form class="row">
+          <b-form-group
+            label="Status de la tache"
+            label-size="sm"
+            class="col-md-6"
+          >
+            <b-select
+              v-model="form.status_execution"
+              :options="status_execution_options"
+              @change="loadEntitiesWithFilters"
+              size="sm"
+            ></b-select>
+          </b-form-group>
+          <b-form-group label="Executé par" label-size="sm" class="col-md-6">
+            <b-select
+              v-model="form.user_id"
+              :options="users"
+              @change="loadEntitiesWithFilters"
+              size="sm"
+            ></b-select>
+          </b-form-group>
+        </b-form>
         <div class="accordion" role="tablist">
           <b-card v-for="(item, k) in list_has_datas" :key="k" no-body>
             <b-card-header header-tag="header" class="p-2 bg-light" role="tab">
@@ -65,17 +87,25 @@
   </div>
 </template>
 <script>
+  import request from "../request";
   import { mapState } from "vuex";
   export default {
     name: "CurrentProjets",
     data() {
       return {
-        total_taches: 0
+        total_taches: 0,
+        form: {
+          status_execution: "new",
+          user_id: ""
+        },
+        status_execution_options: request.status_execution
       };
     },
     computed: {
       ...mapState({
-        all_entitties: (state) => state.storeProject.all_entitties
+        all_entitties: (state) => state.storeProject.all_entitties,
+        users: (state) => state.users,
+        user: (state) => state.user
       }),
       list_has_datas() {
         const list = [];
@@ -99,23 +129,52 @@
           }
         }
         return list;
+      },
+      getCurrentLabel() {
+        var label = "";
+        if (
+          this.form.status_execution &&
+          this.status_execution_options.length
+        ) {
+          this.status_execution_options.forEach((element) => {
+            if (element.value === this.form.status_execution)
+              label = element.text;
+          });
+        }
+        return label;
       }
     },
     mounted() {
       this.loadEntitiesWithFilters();
+      // set default user.
+      if (this.user && this.user.current_user) {
+        this.form.user_id = this.user.current_user.uid;
+      }
     },
     methods: {
       loadEntitiesWithFilters() {
         const date = new Date();
         date.setDate(date.getDate() - 40);
         const filters = [
-          { field: "status_execution", value: "new", operator: "=" },
+          {
+            field: "status_execution",
+            value: this.form.status_execution,
+            operator: "="
+          },
+
           {
             field: "changed",
             value: parseInt(date.getTime() / 1000),
             operator: ">"
           }
         ];
+        if (this.form.user_id > 0) {
+          filters.push({
+            field: "user_id",
+            operator: "=",
+            value: this.form.user_id
+          });
+        }
         this.$store.dispatch("storeProject/loadEntitiesWithFilters", filters);
       },
       getStatusAccordion(item) {
