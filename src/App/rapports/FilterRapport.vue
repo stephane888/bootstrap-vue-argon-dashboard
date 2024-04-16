@@ -234,7 +234,6 @@
         this.total_time += parseInt(minutes);
       },
       render() {
-        console.log("userConfig : ", this.userConfig);
         var time = "0";
         if (this.total_time > 0) time = (this.total_time / 3600).toFixed(2);
         const byJour =

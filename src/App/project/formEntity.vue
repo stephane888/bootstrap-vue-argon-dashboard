@@ -275,14 +275,11 @@
                 this.addDescriptionToDureeExecution();
             }
           }
-
           new_fields.push({
             entity: item.entity,
             template: item.template,
             fields: fields
           });
-
-          console.log("fields_wihiout_statiques : ", new_fields);
         }
         return new_fields;
       }
@@ -333,7 +330,6 @@
         if (!this.form.uuid) this.form.id = id;
       },
       addStatiqueField(name, field) {
-        console.log("Ajout des champs statiques : ", name, "\n", field);
         this.$set(this.statique_fields, name, field);
       },
       getStatusAccordion() {

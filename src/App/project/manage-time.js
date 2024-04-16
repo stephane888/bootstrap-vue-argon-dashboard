@@ -109,7 +109,6 @@ export default {
     // heure debut et de fin.
     const day_duration = this.getUserConf().day_duration;
     const time_ToLeaveDay = await this.timeToLeaveForday(date);
-    console.log("time_ToLeaveDay : ", time_ToLeaveDay);
     /**
      * Cas 1 : Le temps definit est inferieur ou egal à la duree de la jounrée restante.
      */
@@ -147,13 +146,6 @@ export default {
         MinutesRestante = add_minutes - time_ToLeaveDay;
       }
       // si MinutesRestante est > à une journée de travail
-      console.log(
-        "MinutesRestante : ",
-        MinutesRestante,
-        "\n",
-        "nombreJours : ",
-        nombreJours
-      );
       date.setMinutes(MinutesRestante);
       return date;
     }
@@ -283,7 +275,6 @@ export default {
     if (pauses) {
       for (const i in pauses) {
         const pause = pauses[i];
-        console.log("getDurationTimeNextPause : ", pause);
         // cas pause
         if (h >= pause[0] && h < pause[1]) {
           // on ajoute + 1 car, dans le calcul on ne tient pas compte des secondes.
@@ -321,16 +312,6 @@ export default {
     const heureConsommer = date.getHours() - day_duration[0];
     const heureRestant = day_duration[1] - heureConsommer - day_duration[0];
     const minutesConsommer = date.getMinutes();
-    console.log(
-      "heureConsommer : ",
-      heureConsommer,
-      "\n",
-      "heureRestant : ",
-      heureRestant,
-      "\n",
-      "minutesConsommer : ",
-      minutesConsommer
-    );
     if (heureRestant > 0) {
       if (minutesConsommer > 0) {
         timeDay = (heureRestant - 1) * 60 + (60 - date.getMinutes());

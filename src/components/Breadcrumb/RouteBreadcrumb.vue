@@ -23,24 +23,24 @@
 </template>
 
 <script>
-import BreadCrumb from "./Breadcrumb";
-import BreadCrumbItem from "./BreadcrumbItem";
+  import BreadCrumb from "./Breadcrumb";
+  import BreadCrumbItem from "./BreadcrumbItem";
 
-export default {
-  name: "RouteBreadcrumb",
-  components: {
-    BreadCrumb,
-    BreadCrumbItem,
-  },
-  mounted() {
-    console.log("routes : ", this.$route.matched.slice());
-  },
-  methods: {
-    getBreadName(route) {
-      return route.name;
+  export default {
+    name: "RouteBreadcrumb",
+    components: {
+      BreadCrumb,
+      BreadCrumbItem
     },
-  },
-};
+    // mounted() {
+    //   console.log("routes : ", this.$route.matched.slice());
+    // },
+    methods: {
+      getBreadName(route) {
+        return route.name;
+      }
+    }
+  };
 </script>
 
 <style scoped></style>

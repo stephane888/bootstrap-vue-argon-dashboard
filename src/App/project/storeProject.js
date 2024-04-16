@@ -204,7 +204,6 @@ export default {
           .getNumberEntities(state.entityEdit)
           .then((numbers) => {
             state.run_entity.numbers = numbers;
-            console.log("state.entityEdit : ", state.entityEdit);
             generateField
               .prepareSaveEntities(this, state.entityEdit, state.run_entity)
               .then((resp) => {
@@ -281,7 +280,6 @@ export default {
         generateField
           .generateFields(state.entityEdit, fields, null)
           .then((resp) => {
-            console.log("generateFields : ", resp);
             commit("SET_FIELDS", resp);
           });
       }
@@ -312,7 +310,6 @@ export default {
       if (payload.clean) {
         commit("SET_ENTITIES", { items: [], key: payload.bundle });
       }
-
       const IE = new itemsEntity(
         payload.entity_type_id,
         payload.bundle,
@@ -327,7 +324,6 @@ export default {
           IE.filter(item.field_name, item.operator, item.value);
         });
       }
-      // console.log("filterQuery : ", IE.filterQuery);
       IE.get()
         .then((resp) => {
           /**
@@ -385,8 +381,6 @@ export default {
       IE.getValueById(payload.id).then((resp) => {
         // On recupere le premier contenu.
         if (resp.data) {
-          //
-          console.log("resp.data[0] : ", resp.data[0]);
           if (resp.data[0]) {
             const item = resp.data[0];
             //Correction du decallage sur le champs duree.

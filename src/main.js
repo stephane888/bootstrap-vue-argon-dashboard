@@ -31,7 +31,6 @@ router.beforeEach((to, from, next) => {
     // if not, redirect to login page.
     if (!store.getters.isLoggedIn) {
       // store.dispatch("getUtilisateur");
-      // console.log("route block");
       next({ name: "login" });
     } else {
       next(); // go to wherever I'm going
@@ -58,5 +57,5 @@ new Vue({
   el: "#app",
   render: (h) => h(App),
   store,
-  router,
+  router
 });

@@ -3,10 +3,8 @@
 </template>
 
 <script>
-export default {
-  mounted() {
-    // console.log("int app");
-    // console.log("this.$store : ", this.$store);
-  },
-};
+  export default {
+    // mounted() {
+    // },
+  };
 </script>

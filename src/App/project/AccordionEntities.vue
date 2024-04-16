@@ -253,7 +253,6 @@
         this.$emit("editEntity", attributes);
       },
       getStatusAccordionAndLoadEntity(item, event) {
-        console.log("getStatusAccordion : ", item, event);
         item.accordionOpen = !item.accordionOpen;
 
         if (event.target && item.accordionOpen && !item.is_loadded) {
@@ -264,14 +263,12 @@
                 url: item.links.self.href
               })
               .then((resp) => {
-                console.log("resp.data--- : ", resp.data);
                 if (resp.data.attributes) {
                   item.attributes = resp.data.attributes;
                 }
               })
               .catch(() => {
-                event.target.classList.remove("entity_loaded");
-                console.log("remove entity_loaded");
+                item.is_loadded = false;
               });
           }
         }

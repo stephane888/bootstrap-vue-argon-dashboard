@@ -149,191 +149,200 @@
 </template>
 
 <script>
-import formEntity from "../formEntity.vue";
-import modalFrom from "../modalForm.vue";
-import { mapState } from "vuex";
-import config from "../../request";
-export default {
-  name: "MainTache",
-  components: {
-    modalFrom,
-    formEntity,
-    titreInfos: () => import("../../components/TitreInfos.vue"),
-  },
-  props: {
-    entity: {
-      type: [Object],
-      required: true,
+  import formEntity from "../formEntity.vue";
+  import modalFrom from "../modalForm.vue";
+  import { mapState } from "vuex";
+  import config from "../../request";
+  export default {
+    name: "MainTache",
+    components: {
+      modalFrom,
+      formEntity,
+      titreInfos: () => import("../../components/TitreInfos.vue")
     },
-    entityTypeId: { type: String, default: "sub_tache" },
-    bundle: { type: String, default: "sub_tache" },
-  },
-  data() {
-    return {
-      manageModal: false,
-      titleModal: "Creer une nouvelle sous tache",
-      iconFormEdit: "",
-      timer: "",
-    };
-  },
-  computed: {
-    ...mapState({
-      entities: (state) => state.storeProject.entities,
-    }),
-    entities_groups() {
-      var groupe_taches = config.initGroupeStatus();
-      if (this.entities) {
-        this.entities.forEach((item) => {
-          if (item.attributes.status_execution) {
-            groupe_taches[item.attributes.status_execution].items.push(item);
-          } else {
-            groupe_taches.undefined.items.push(item);
-          }
-        });
-      }
-      return groupe_taches;
+    props: {
+      entity: {
+        type: [Object],
+        required: true
+      },
+      entityTypeId: { type: String, default: "sub_tache" },
+      bundle: { type: String, default: "sub_tache" }
     },
-  },
-  mounted() {
-    this.loadEntities();
-  },
-  methods: {
-    /**
-     * On recupere les utilisateurs pouvant executer la taches parentes.
-     */
-    addRunners() {
-      //
+    data() {
+      return {
+        manageModal: false,
+        titleModal: "Creer une nouvelle sous tache",
+        iconFormEdit: "",
+        timer: ""
+      };
     },
-    /**
-     * Recupere le formulaire pour la creation d'une entité.
-     *
-     * @param {*} clean
-     */
-    addSubTache() {
-      this.manageModal = this.manageModal ? false : true;
-      this.titleModal = "Creer une nouvelle tache ou memo ou article ...";
-      this.iconFormEdit = "plus-square";
-      if (this.manageModal) {
-        this.$store.commit("storeProject/CLEAN_ENTITY_EDIT");
-        this.$store.dispatch("storeProject/loadFormEntity", {
-          entity_type_id: this.entityTypeId,
-          bundle: this.bundle,
-          params: {
-            app_project: [
-              { target_id: this.entity.attributes.drupal_internal__id },
-            ],
-          },
-        });
-      }
-    },
-    submitModel() {
-      this.$refs.formProjet.ValidationForm().then((data) => {
-        if (data.status) {
-          this.$store.dispatch("storeProject/saveEntities").then(() => {
-            this.$store.commit("storeProject/CLEAN_ENTITY_EDIT");
-            this.loadEntities();
-            this.$bvModal.hide("b-modal-manage-project");
+    computed: {
+      ...mapState({
+        group_entities: (state) => state.storeProject.entities
+      }),
+      entities() {
+        if (this.group_entities) {
+          const entities = this.group_entities[this.bundle]
+            ? this.group_entities[this.bundle]
+            : [];
+          return entities;
+        }
+        return [];
+      },
+      entities_groups() {
+        var groupe_taches = config.initGroupeStatus();
+        if (this.entities) {
+          this.entities.forEach((item) => {
+            if (item.attributes.status_execution) {
+              groupe_taches[item.attributes.status_execution].items.push(item);
+            } else {
+              groupe_taches.undefined.items.push(item);
+            }
           });
-        } else {
-          for (const i in data.formObserver.fields) {
-            const field = data.formObserver.fields[i];
-            if (field.invalid) {
-              console.log("field invalid", field.name, "\n field : ", field);
+        }
+        return groupe_taches;
+      }
+    },
+    mounted() {
+      this.loadEntities();
+    },
+    methods: {
+      /**
+       * On recupere les utilisateurs pouvant executer la taches parentes.
+       */
+      addRunners() {
+        //
+      },
+      /**
+       * Recupere le formulaire pour la creation d'une entité.
+       *
+       * @param {*} clean
+       */
+      addSubTache() {
+        this.manageModal = this.manageModal ? false : true;
+        this.titleModal = "Creer une nouvelle tache ou memo ou article ...";
+        this.iconFormEdit = "plus-square";
+        if (this.manageModal) {
+          this.$store.commit("storeProject/CLEAN_ENTITY_EDIT");
+          this.$store.dispatch("storeProject/loadFormEntity", {
+            entity_type_id: this.entityTypeId,
+            bundle: this.bundle,
+            params: {
+              app_project: [
+                { target_id: this.entity.attributes.drupal_internal__id }
+              ]
+            }
+          });
+        }
+      },
+      submitModel() {
+        this.$refs.formProjet.ValidationForm().then((data) => {
+          if (data.status) {
+            this.$store.dispatch("storeProject/saveEntities").then(() => {
+              this.$store.commit("storeProject/CLEAN_ENTITY_EDIT");
+              this.loadEntities();
+              this.$bvModal.hide("b-modal-manage-project");
+            });
+          } else {
+            for (const i in data.formObserver.fields) {
+              const field = data.formObserver.fields[i];
+              if (field.invalid) {
+                console.log("field invalid", field.name, "\n field : ", field);
+              }
             }
           }
+        });
+      },
+      /**
+       *
+       * @param {*} val
+       */
+      closeModal(val) {
+        this.manageModal = val;
+      },
+      getStatusAccordion(item) {
+        item.accordionOpen = !item.accordionOpen;
+      },
+      /**
+       *
+       * @param {*} clean
+       */
+      loadEntities(clean = true) {
+        if (this.bundle && this.entityTypeId) {
+          this.$store.dispatch("storeProject/loadEntityWithBundle", {
+            entity_type_id: this.entityTypeId,
+            bundle: this.bundle,
+            clean: clean,
+            url: "?include=project_manager&sort=-created",
+            filters: [
+              {
+                field_name: "app_project.meta.drupal_internal__target_id",
+                operator: "=",
+                value: this.entity.attributes.drupal_internal__id
+              }
+            ]
+          });
         }
-      });
-    },
-    /**
-     *
-     * @param {*} val
-     */
-    closeModal(val) {
-      this.manageModal = val;
-    },
-    getStatusAccordion(item) {
-      item.accordionOpen = !item.accordionOpen;
-    },
-    /**
-     *
-     * @param {*} clean
-     */
-    loadEntities(clean = true) {
-      if (this.bundle && this.entityTypeId) {
-        this.$store.dispatch("storeProject/loadEntityWithBundle", {
-          entity_type_id: this.entityTypeId,
-          bundle: this.bundle,
-          clean: clean,
-          url: "?include=project_manager&sort=-created",
-          filters: [
-            {
-              field_name: "app_project.meta.drupal_internal__target_id",
-              operator: "=",
-              value: this.entity.attributes.drupal_internal__id,
-            },
-          ],
-        });
-      }
-    },
-    /**
-     *
-     * @param {*} attributes
-     */
-    editEntity(attributes) {
-      this.$store.commit("storeProject/CLEAN_ENTITY_EDIT");
-      this.manageModal = this.manageModal ? false : true;
-      this.titleModal = attributes.name;
-      this.iconFormEdit = "pencil-square";
-      const payload = {
-        id: attributes.drupal_internal__id,
-        entity_type_id: this.entityTypeId,
-      };
-      this.$store.dispatch("storeProject/loadEntityById", payload);
-    },
+      },
+      /**
+       *
+       * @param {*} attributes
+       */
+      editEntity(attributes) {
+        this.$store.commit("storeProject/CLEAN_ENTITY_EDIT");
+        this.manageModal = this.manageModal ? false : true;
+        this.titleModal = attributes.name;
+        this.iconFormEdit = "pencil-square";
+        const payload = {
+          id: attributes.drupal_internal__id,
+          entity_type_id: this.entityTypeId
+        };
+        this.$store.dispatch("storeProject/loadEntityById", payload);
+      },
 
-    DeleteEntity(item) {
-      config
-        .modalConfirmDelete(
-          "Confirmer la suppression, NB : cette action est irreverssible.",
-          { title: " Suppresion de : " + item.attributes.name }
-        )
-        .then((status) => {
-          if (status) {
-            var info = item.type.split("--");
-            this.$store
-              .dispatch("storeProject/deleteEntity", {
-                entity_type_id: info[0],
-                id: item.attributes.drupal_internal__id,
-                delete_subentities: false,
-              })
-              .then(() => {
-                this.loadEntities();
-              });
-          }
-        });
-    },
-    /**
-     * Permet de recuperer l'etat de la classe du header en function du status.
-     * @param {*} item
-     */
-    getdynamicHeaderClassByStatus(item, group_id) {
-      var variant_header = "bg-light";
-      switch (group_id) {
-        case "running":
-          variant_header = "bg-gradient-vert-sombre text-white";
-          break;
-        case "validate":
-          variant_header = "bg-gradient-vert-sombre2 text-white";
-          break;
-        case "end":
-          variant_header = "bg-gradient-gray-dark text-white";
-          break;
+      DeleteEntity(item) {
+        config
+          .modalConfirmDelete(
+            "Confirmer la suppression, NB : cette action est irreverssible.",
+            { title: " Suppresion de : " + item.attributes.name }
+          )
+          .then((status) => {
+            if (status) {
+              var info = item.type.split("--");
+              this.$store
+                .dispatch("storeProject/deleteEntity", {
+                  entity_type_id: info[0],
+                  id: item.attributes.drupal_internal__id,
+                  delete_subentities: false
+                })
+                .then(() => {
+                  this.loadEntities();
+                });
+            }
+          });
+      },
+      /**
+       * Permet de recuperer l'etat de la classe du header en function du status.
+       * @param {*} item
+       */
+      getdynamicHeaderClassByStatus(item, group_id) {
+        var variant_header = "bg-light";
+        switch (group_id) {
+          case "running":
+            variant_header = "bg-gradient-vert-sombre text-white";
+            break;
+          case "validate":
+            variant_header = "bg-gradient-vert-sombre2 text-white";
+            break;
+          case "end":
+            variant_header = "bg-gradient-gray-dark text-white";
+            break;
+        }
+        if (item.attributes.private) {
+          variant_header += " border-right border-danger";
+        }
+        return variant_header;
       }
-      if (item.attributes.private) {
-        variant_header += " border-right border-danger";
-      }
-      return variant_header;
-    },
-  },
-};
+    }
+  };
 </script>

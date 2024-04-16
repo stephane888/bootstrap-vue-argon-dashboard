@@ -70,7 +70,6 @@ export default {
    * @return le temps en minute
    */
   getTotalTimeOfProject(duree, status_execution) {
-    //console.log("getTotalTimeOfProject : ", duree, "\n", status_execution);
     var totaltime = 0;
     if (duree && duree.length) {
       if (duree.length > 1) {

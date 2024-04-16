@@ -134,11 +134,6 @@
         users: (state) => state.users
       })
     },
-    updated: function () {
-      // this.$nextTick(function () {
-      //   console.log("affichage du filtre : ", this.configEntityId);
-      // });
-    },
     mounted() {
       if (!this.filters.date_begin && !this.filters.date_end) {
         const date = new Date();
