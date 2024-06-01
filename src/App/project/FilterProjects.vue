@@ -27,7 +27,7 @@
               id="input-group-1"
               label="Date de debut"
               label-for="input-1"
-              class="col-md-6"
+              class="col-md-4"
             >
               <b-form-datepicker
                 v-model="filters.date_begin"
@@ -39,12 +39,23 @@
               id="input-group-2"
               label="Date de fin"
               label-for="input-2"
-              class="col-md-6"
+              class="col-md-4"
             >
               <b-form-datepicker
                 v-model="filters.date_end"
                 locale="fr"
               ></b-form-datepicker>
+            </b-form-group>
+            <b-form-group
+              id="input-group-2"
+              label="Type de date"
+              label-for="input-2"
+              class="col-md-4"
+            >
+              <b-form-select
+                v-model="filters.type_date"
+                :options="optionsDate"
+              ></b-form-select>
             </b-form-group>
             <b-form-group
               v-slot="{ ariaDescribedby }"
@@ -116,7 +127,11 @@
 
     data() {
       return {
-        status_execution_options: request.status_execution
+        status_execution_options: request.status_execution,
+        optionsDate: [
+          { text: "Date de creation", value: "created" },
+          { text: "Date de mise à jour", value: "update" }
+        ]
       };
     },
     computed: {

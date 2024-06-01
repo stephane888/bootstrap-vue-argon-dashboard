@@ -254,12 +254,14 @@
        */
       loadEntities() {
         if (this.entity_type_id && this.configEntityId) {
+          const typeDate =
+            this.filters.type_date == "created" ? "created" : "changed";
           const filters = [];
           // recuperation date de debut
           if (this.filters.date_begin) {
             const date_begin = new Date(this.filters.date_begin);
             filters.push({
-              field_name: "created",
+              field_name: typeDate,
               operator: ">",
               value: date_begin.getTime() / 1000
             });
@@ -268,7 +270,7 @@
           if (this.filters.date_end) {
             const date_end = new Date(this.filters.date_end);
             filters.push({
-              field_name: "created",
+              field_name: typeDate,
               operator: "<",
               value: date_end.getTime() / 1000
             });
@@ -312,7 +314,7 @@
             this.$store.dispatch("storeProject/loadEntityWithBundle", {
               entity_type_id: this.entity_type_id,
               bundle: this.configEntityId,
-              url: "?include=executants,project_manager&sort=-created",
+              url: "?include=executants,project_manager&sort=-" + typeDate,
               filters: filters,
               fields: [
                 "drupal_internal__id",
@@ -351,7 +353,12 @@
             for (const i in data.formObserver.fields) {
               const field = data.formObserver.fields[i];
               if (field.invalid) {
-                console.log("field invalid", field.name, "\n field : ", field);
+                console.log(
+                  " Field invalid : ",
+                  field.name,
+                  "\n field : ",
+                  field
+                );
               }
             }
           }
@@ -403,7 +410,7 @@
         if (!this.drupalInternalId && this.configEntityId)
           manageTime.timer_load_collection = setInterval(() => {
             this.loadEntities(false);
-          }, 3600000); //1h
+          }, 3600000); // 1h
       }
     }
   };
