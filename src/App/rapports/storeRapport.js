@@ -45,10 +45,13 @@ export default {
     /**
      * Permet de charger les informations utile sur l'utilisateur.
      */
-    rapportTimer({ commit }, filters) {
+    rapportTimer({ commit }, payload) {
       commit("ACTIVE_RUNNING");
       request
-        .dPost("/gestion-project-v2/users-rapports", filters)
+        .dPost(
+          "/gestion-project-v2/users-rapports/" + payload.uid,
+          payload.filters
+        )
         .then((resp) => {
           commit("SET_USERS_RAPPORTS", resp.data);
           commit("DISABLE_RUNNING");

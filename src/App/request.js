@@ -26,9 +26,9 @@ export default {
    * Permet de charger les projets via une logique propre au module de gestion de tache.
    * Il permet egalement de faire les filtres.
    */
-  loadEntitiesWithFilters(filters = []) {
+  loadEntitiesWithFilters(uid, filters = []) {
     return this.dPost(
-      "/gestion-project-v2/load-mes-taches",
+      "/gestion-project-v2/load-mes-taches/" + uid,
       filters,
       null,
       false

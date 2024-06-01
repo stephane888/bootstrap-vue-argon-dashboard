@@ -155,27 +155,40 @@
       loadEntitiesWithFilters() {
         const date = new Date();
         date.setDate(date.getDate() - 40);
-        const filters = [
-          {
-            field: "status_execution",
-            value: this.form.status_execution,
-            operator: "="
-          },
+        const filters = {
+          AND: [
+            {
+              field: "status_execution",
+              value: this.form.status_execution,
+              operator: "="
+            },
 
-          {
-            field: "changed",
-            value: parseInt(date.getTime() / 1000),
-            operator: ">"
-          }
-        ];
-        if (this.form.user_id > 0) {
-          filters.push({
-            field: "user_id",
+            {
+              field: "changed",
+              value: parseInt(date.getTime() / 1000),
+              operator: ">"
+            }
+          ],
+          OR: []
+        };
+        if (this.form.user_id > 0 && this.form.status_execution != "new") {
+          filters.OR.push({
+            field: "project_manager",
             operator: "=",
             value: this.form.user_id
           });
+          filters.OR.push({
+            field: "executants",
+            operator: "IN",
+            value: this.form.user_id
+          });
         }
-        this.$store.dispatch("storeProject/loadEntitiesWithFilters", filters);
+        this.$store.dispatch("storeProject/loadEntitiesWithFilters", {
+          uid: this.form.user_id
+            ? this.form.user_id
+            : this.user.current_user.uid,
+          filters: filters
+        });
       },
       getStatusAccordion(item) {
         item.accordionOpen = !item.accordionOpen;

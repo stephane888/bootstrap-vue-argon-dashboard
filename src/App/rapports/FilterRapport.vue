@@ -47,7 +47,7 @@
               </b-form-group>
               <b-form-group
                 v-slot="{ ariaDescribedby }"
-                label="Creer par"
+                label="Executant et ou chef de projet"
                 class="col-md-12"
               >
                 <b-select
@@ -191,12 +191,13 @@
         //
       },
       getRapports() {
-        const filters = [];
+        const filters = { AND: [], OR: [] };
         // recuperation date de debut
         if (this.filters.date_begin) {
           const date_begin = new Date(this.filters.date_begin);
-          filters.push({
-            field_name: "apd.duree_value",
+          filters.AND.push({
+            column: "duree_value",
+            preffix: "apd",
             operator: ">=",
             value: "'" + manageTime.formatDate(date_begin).date + "'"
           });
@@ -204,21 +205,34 @@
         // recuperation date de fin
         if (this.filters.date_end) {
           const date_end = new Date(this.filters.date_end);
-          filters.push({
-            field_name: "apd.duree_value",
+          filters.AND.push({
+            column: "duree_value",
+            preffix: "apd",
             operator: "=<",
             value: "'" + manageTime.formatDate(date_end).date + "'"
           });
         }
         // Recuperation creer par.
         if (this.filters.user_id) {
-          filters.push({
-            field_name: "ap.user_id",
+          filters.OR.push({
+            column: "project_manager",
             operator: "=",
+            preffix: "ap",
+            value: this.filters.user_id
+          });
+          filters.OR.push({
+            column: "executants_target_id",
+            operator: "=",
+            preffix: "ape",
             value: this.filters.user_id
           });
         }
-        this.$store.dispatch("storeRapport/rapportTimer", filters);
+        this.$store.dispatch("storeRapport/rapportTimer", {
+          uid: this.filters.user_id
+            ? this.filters.user_id
+            : this.user.current_user.uid,
+          filters: filters
+        });
       },
       initTime() {
         this.total_time = 0;

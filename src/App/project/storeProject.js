@@ -11,7 +11,8 @@ const entity_type_project = () => {
     label: "",
     description: "",
     private: false,
-    users: []
+    users: [],
+    status: true
   };
 };
 export default {
@@ -433,7 +434,7 @@ export default {
       return new Promise((resolv, reject) => {
         commit("SET_ALL_ENTITIES", []);
         request
-          .loadEntitiesWithFilters(payload)
+          .loadEntitiesWithFilters(payload.uid, payload.filters)
           .then((resp) => {
             if (resp.data) {
               // add accordionOpen
