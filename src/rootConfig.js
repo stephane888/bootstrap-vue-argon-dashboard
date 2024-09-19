@@ -3,5 +3,5 @@ export default {
   ...RequestBasicAuthen,
   TestDomain: "http://gestiontaches.kksa",
   baseUrl: "https://gestion-taches-vps.habeuk.com",
-  debug: true,
+  debug: false
 };

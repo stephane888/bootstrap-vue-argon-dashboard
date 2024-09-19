@@ -100,6 +100,15 @@
                         ></b-icon>
                       </span>
                     </b-col>
+                    <b-col sm="12">
+                      <TacheProgressBar
+                        class=""
+                        :model="item.attributes"
+                        class-progress="mb-0"
+                        :show-date="false"
+                        :show-end-date="true"
+                      ></TacheProgressBar>
+                    </b-col>
                   </b-row>
                 </div>
               </b-card-header>
@@ -158,7 +167,8 @@
     components: {
       modalFrom,
       formEntity,
-      titreInfos: () => import("../../components/TitreInfos.vue")
+      titreInfos: () => import("../../components/TitreInfos.vue"),
+      TacheProgressBar: () => import("../../components/TacheProgressBar.vue")
     },
     props: {
       entity: {

@@ -44,6 +44,7 @@ export default {
    * @return un object contenant la date de debut et de fin à afficher.
    */
   retrivePlageDuree(duree) {
+    console.log("duree : ", duree);
     if (duree && duree.length) {
       const begin = duree[0].value;
       var end;
