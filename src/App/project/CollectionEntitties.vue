@@ -257,6 +257,7 @@
           const typeDate =
             this.filters.type_date == "created" ? "created" : "changed";
           const filters = [];
+          const pagination = { limit: 50, offset: 0 };
           // recuperation date de debut
           if (this.filters.date_begin) {
             const date_begin = new Date(this.filters.date_begin);
@@ -310,12 +311,19 @@
               value: this.filters.search
             });
           }
+          // recuperation de la pagination
+          if (this.filters.limit && this.filters.limit >= 1) {
+            pagination.limit = this.filters.limit;
+            if (this.filters.offset)
+              pagination.offset = this.filters.offset - 1;
+          }
           if (filters) {
             this.$store.dispatch("storeProject/loadEntityWithBundle", {
               entity_type_id: this.entity_type_id,
               bundle: this.configEntityId,
               url: "?include=executants,project_manager&sort=-" + typeDate,
               filters: filters,
+              pagination: pagination,
               fields: [
                 "drupal_internal__id",
                 "name",

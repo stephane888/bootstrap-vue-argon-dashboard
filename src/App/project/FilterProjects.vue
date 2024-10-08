@@ -35,27 +35,23 @@
               ></b-form-datepicker>
             </b-form-group>
 
-            <b-form-group
-              id="input-group-2"
-              label="Date de fin"
-              label-for="input-2"
-              class="col-md-4"
-            >
+            <b-form-group label="Date de fin" class="col-md-4">
               <b-form-datepicker
                 v-model="filters.date_end"
                 locale="fr"
               ></b-form-datepicker>
             </b-form-group>
-            <b-form-group
-              id="input-group-2"
-              label="Type de date"
-              label-for="input-2"
-              class="col-md-4"
-            >
+            <b-form-group label="Type de date" class="col-md-4">
               <b-form-select
                 v-model="filters.type_date"
                 :options="optionsDate"
               ></b-form-select>
+            </b-form-group>
+            <b-form-group label="Nombre d'element par page" class="col-md-4">
+              <b-form-input v-model="filters.limit"></b-form-input>
+            </b-form-group>
+            <b-form-group label="Page de debut" class="col-md-4">
+              <b-form-input v-model="filters.offset"></b-form-input>
             </b-form-group>
             <b-form-group
               v-slot="{ ariaDescribedby }"
@@ -143,9 +139,10 @@
     },
     mounted() {
       if (!this.filters.date_begin && !this.filters.date_end) {
-        const date = new Date();
-        date.setDate(date.getDate() - 50);
-        this.filters.date_begin = date;
+        // On ne tire plus en function des dates, mais de la paginaion.
+        // const date = new Date();
+        // date.setDate(date.getDate() - 50);
+        // this.filters.date_begin = date;
         // Apres chargement de la configuration par defaut, on demande le chargement des données.
         this.$emit("submit_filter");
       } else this.$emit("submit_filter");

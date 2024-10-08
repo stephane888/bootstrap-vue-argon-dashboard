@@ -84,7 +84,9 @@ export default {
       status_execution: ["new", "running", "break", "end"],
       user_id: [],
       executants: [],
-      type_date: "update"
+      type_date: "update",
+      limit: 20,
+      offset: 1
     }
   }),
   mutations: {
@@ -326,8 +328,12 @@ export default {
       if (payload.fields && payload.fields.length) IE.setFields(payload.fields);
       IE.remplaceConfig();
       if (payload.url) IE.url += payload.url;
-      // Add fillter
+      // Add pagination
+      if (payload.pagination) {
+        IE.pagination(payload.pagination);
+      }
       if (payload.filters) {
+        // Add fillter
         payload.filters.forEach((item) => {
           IE.filter(item.field_name, item.operator, item.value);
         });

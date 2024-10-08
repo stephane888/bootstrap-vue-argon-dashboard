@@ -22,6 +22,7 @@ export default {
 
     /**
      * Contient les chamaps permettant d'effectuer un filtrage.
+     * @depreciate use storeProject.filters
      */
     filters: {
       date_begin: null,
